@@ -1,10 +1,18 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { checkSupabaseConnection } from '@/lib/supabase';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 export default function Welcome() {
+  // Dev-only check that the app can reach Supabase. Not shown in production builds.
+  const [connected, setConnected] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (__DEV__) checkSupabaseConnection().then(setConnected);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.hero}>
@@ -23,6 +31,11 @@ export default function Welcome() {
         <Button label="Get started" />
         <Button label="I already have an account" variant="secondary" />
         <Text style={[typography.caption, styles.center]}>18+ only. Built for serious relationships.</Text>
+        {__DEV__ && (
+          <Text style={[typography.caption, styles.center]}>
+            Supabase: {connected === null ? 'checking...' : connected ? 'connected' : 'not reachable'}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -12,7 +12,7 @@ end $$;
 grant execute on function public.t_err(text,text) to authenticated;
 
 -- users
-insert into auth.users values
+insert into auth.users (id, phone) values
  ('00000000-0000-0000-0000-00000000000a','14035550001'),
  ('00000000-0000-0000-0000-00000000000b','14035550002'),
  ('00000000-0000-0000-0000-00000000000c','251911000001'),
