@@ -1,29 +1,36 @@
-import { Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
-type Variant = 'primary' | 'secondary';
+type Variant = 'primary' | 'secondary' | 'text';
 
 type Props = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
   variant?: Variant;
+  loading?: boolean;
 };
 
-export function Button({ label, variant = 'primary', ...rest }: Props) {
-  const isPrimary = variant === 'primary';
+export function Button({ label, variant = 'primary', loading = false, disabled, ...rest }: Props) {
+  const isDisabled = disabled || loading;
+  const textColor = variant === 'primary' ? colors.background : variant === 'text' ? colors.accent : colors.text;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: !!isDisabled, busy: loading }}
+      disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
-        isPrimary ? styles.primary : styles.secondary,
+        styles[variant],
         pressed && styles.pressed,
+        isDisabled && styles.disabled,
       ]}
       {...rest}
     >
-      <Text style={[typography.button, { color: isPrimary ? colors.background : colors.text }]}>
-        {label}
-      </Text>
+      {loading ? (
+        <ActivityIndicator color={textColor} />
+      ) : (
+        <Text style={[typography.button, { color: textColor }]}>{label}</Text>
+      )}
     </Pressable>
   );
 }
@@ -42,7 +49,14 @@ const styles = StyleSheet.create({
   secondary: {
     backgroundColor: colors.surfaceRaised,
   },
+  text: {
+    minHeight: 44,
+    backgroundColor: 'transparent',
+  },
   pressed: {
     opacity: 0.85,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
