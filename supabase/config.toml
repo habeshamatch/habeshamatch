@@ -304,15 +304,18 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-# Local development: Twilio is enabled with placeholder values (not real credentials) because
-# Supabase Auth needs an SMS provider switched on before test_otp numbers work. Only the test
-# numbers above can sign in locally; real numbers fail with sms_send_failed.
+# Twilio credentials always come from environment variables, never literal values, so this file
+# never holds real secrets. Locally they come from supabase/.env (copy supabase/.env.example);
+# the placeholders there are enough because test_otp numbers never send an SMS.
+# Supabase Auth needs an SMS provider switched on before test numbers work.
+# On the REMOTE project, Twilio is set up in the dashboard only. Never `supabase config push`
+# this file: an unset env() is pushed as its literal text and would overwrite the real details.
+# Use supabase/remote-auth (no Twilio section) for remote auth settings instead.
 [auth.sms.twilio]
 enabled = true
-account_sid = "AC_local_placeholder"
-message_service_sid = "MG_local_placeholder"
-# DO NOT commit a real Twilio auth token to git. This placeholder is not a secret.
-auth_token = "local_placeholder"
+account_sid = "env(SUPABASE_AUTH_SMS_TWILIO_ACCOUNT_SID)"
+message_service_sid = "env(SUPABASE_AUTH_SMS_TWILIO_MESSAGE_SERVICE_SID)"
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
 # Multi-factor-authentication is available to Supabase Pro plan.
 [auth.mfa]
