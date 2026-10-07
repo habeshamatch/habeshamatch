@@ -1,7 +1,9 @@
--- Smoke test for database rules. Run against LOCAL Supabase only (never production):
+-- Smoke test for database rules. Run against LOCAL Supabase only (never production),
+-- on an EMPTY database (the expected results assume only these test users exist):
+--   supabase db reset --no-seed
 --   psql <DB URL shown by 'supabase status'> -f supabase/tests/rules_smoke_test.sql
 -- Every line of output should read 'ok', a name, or an expected value. Any 'FAIL' is a bug.
--- Run 'supabase db reset' afterwards to clear the test data.
+-- Run 'supabase db reset' afterwards to clear the test data and load the seed again.
 
 \set ON_ERROR_STOP 1
 create or replace function public.t_err(p_sql text, p_expected text) returns text language plpgsql as $$
@@ -11,14 +13,18 @@ exception when others then
 end $$;
 grant execute on function public.t_err(text,text) to authenticated;
 
--- users
-insert into auth.users (id, phone) values
- ('00000000-0000-0000-0000-00000000000a','14035550001'),
- ('00000000-0000-0000-0000-00000000000b','14035550002'),
- ('00000000-0000-0000-0000-00000000000c','251911000001'),
- ('00000000-0000-0000-0000-00000000000d','251911000002'),
- ('00000000-0000-0000-0000-00000000000e','14035550005'),
- ('00000000-0000-0000-0000-00000000000f','14035550006');
+-- users (phones verified, as onboarding requires before a profile can exist)
+insert into auth.users (id, phone, phone_confirmed_at) values
+ ('00000000-0000-0000-0000-00000000000a','14035550001', now()),
+ ('00000000-0000-0000-0000-00000000000b','14035550002', now()),
+ ('00000000-0000-0000-0000-00000000000c','251911000001', now()),
+ ('00000000-0000-0000-0000-00000000000d','251911000002', now()),
+ ('00000000-0000-0000-0000-00000000000e','14035550005', now()),
+ ('00000000-0000-0000-0000-00000000000f','14035550006', now());
+-- users who have NOT verified a phone: one with an unconfirmed number, one with none
+insert into auth.users (id, phone, phone_confirmed_at) values
+ ('00000000-0000-0000-0000-000000000010','14035550010', null),
+ ('00000000-0000-0000-0000-000000000011', null, null);
 
 -- service-role context (no JWT role) for seeding
 insert into profiles (id, display_name, date_of_birth, gender, height_cm, origin, residence_country_code, religion, languages, relationship_intent) values
@@ -33,6 +39,17 @@ select t_err($$insert into profiles (id, display_name, date_of_birth, gender, or
 select t_err($$insert into profiles (id, display_name, date_of_birth, gender, origin, residence_country_code, religion, relationship_intent)
   values ('00000000-0000-0000-0000-00000000000f','Feven', current_date - interval '17 years','female','ethiopia','CA','orthodox','marriage')$$,
   'must_be_18') as age_gate;
+select t_err($$insert into profiles (id, display_name, date_of_birth, gender, origin, residence_country_code, religion, relationship_intent)
+  values ('00000000-0000-0000-0000-000000000010','Gelila', current_date - interval '25 years','female','eritrea','CA','orthodox','marriage')$$,
+  'phone_not_verified') as unconfirmed_phone_blocked;
+
+-- the same check when a user creates their own profile from the app
+set role authenticated;
+set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-000000000011"}';
+select t_err($$insert into profiles (id, display_name, date_of_birth, gender, origin, residence_country_code, religion, relationship_intent)
+  values ('00000000-0000-0000-0000-000000000011','Haben', current_date - interval '25 years','male','eritrea','CA','orthodox','marriage')$$,
+  'phone_not_verified') as no_phone_blocked_in_app;
+reset role; set request.jwt.claims = '{}';
 
 insert into preference_core values
  ('00000000-0000-0000-0000-00000000000a','female',25,35),

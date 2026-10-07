@@ -17,6 +17,7 @@ const DATABASE_MESSAGES = {
   cannot_undo_match: "You can't undo a swipe that already became a match.",
   account_not_active: 'Your account is not active. Please contact support.',
   not_authenticated: 'Please sign in again.',
+  phone_not_verified: 'Please verify your phone number before setting up your profile.',
 } as const;
 
 const AUTH_MESSAGES: Record<string, string> = {

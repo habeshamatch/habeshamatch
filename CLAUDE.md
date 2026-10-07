@@ -56,7 +56,7 @@ Two separate steps. Do not merge them or reorder them.
 2. **Phone verification** (once per account, first onboarding step, no skip): `updateUser({ phone })` texts a code, then `verifyOtp({ phone, token, type: 'phone_change' })` confirms it and sets `auth.users.phone`. To send a new code, call `updateUser({ phone })` again (the resend endpoint is blocked while phone sign in is disabled). A number linked to another account fails with `phone_exists`.
 
 Rules:
-- Phone verification must finish BEFORE the residence step and before the `profiles` row is created, because `enforce_residence_rules` reads `auth.users.phone` to check the local-tier prefix.
+- Phone verification must finish BEFORE the residence step and before the `profiles` row is created, because `enforce_residence_rules` reads `auth.users.phone` to check the local-tier prefix. The database enforces this: inserting a profile without a confirmed phone raises `phone_not_verified` (trigger `profiles_phone_verified`).
 - A phone counts as verified when `user.phone` and `user.phone_confirmed_at` are both set (`isPhoneVerified` in `mobile/lib/auth.ts`). Once verified, never ask again.
 - Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified goes on to profile setup. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`).
 - Keep `[auth.sms] enable_confirmations = true` (locally and on the remote project). If it is off, `updateUser({ phone })` saves the number without a code, which would let anyone claim a local-tier number.
@@ -126,7 +126,7 @@ Name, date of birth (age shown, never DOB), gender (male/female), height (stored
 | `get_my_conversations()` | Inbox with last message and unread count |
 | `mark_conversation_read(conversation_id)` | |
 
-Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_reached`, `daily_swipe_limit_reached`, `not_permitted`, `must_be_18`, `local_residence_requires_local_phone`, `residence_change_cooldown`, `protected_field`, `cannot_undo_match`, `account_not_active`. Map each to a friendly message in `mobile/lib/errors.ts`. `premium_required` opens the paywall.
+Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_reached`, `daily_swipe_limit_reached`, `not_permitted`, `must_be_18`, `local_residence_requires_local_phone`, `residence_change_cooldown`, `protected_field`, `cannot_undo_match`, `account_not_active`, `phone_not_verified`. Map each to a friendly message in `mobile/lib/errors.ts`. `premium_required` opens the paywall.
 
 ## Design system
 
