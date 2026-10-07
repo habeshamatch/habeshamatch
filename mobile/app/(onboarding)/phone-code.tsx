@@ -1,30 +1,25 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { RESEND_SECONDS, sendCode, verifyCode, whatsappEnabled, type OtpChannel } from '@/lib/auth';
+import { CODE_LENGTH, CodeInput, type CodeInputHandle } from '@/components/CodeInput';
+import { RESEND_SECONDS, sendPhoneVerificationCode, verifyPhoneCode } from '@/lib/auth';
 import { friendlyError } from '@/lib/errors';
 import { formatForDisplay } from '@/lib/phone';
-import { colors, radius, spacing, typography } from '@/lib/theme';
+import { colors, spacing, typography } from '@/lib/theme';
 
-const CODE_LENGTH = 6;
-
-export default function OtpScreen() {
-  const params = useLocalSearchParams<{ phone: string; channel: OtpChannel }>();
-  const phone = params.phone ?? '';
-  const [channel, setChannel] = useState<OtpChannel>(params.channel === 'whatsapp' ? 'whatsapp' : 'sms');
-
+export default function PhoneCodeScreen() {
+  const { phone = '' } = useLocalSearchParams<{ phone: string }>();
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<CodeInputHandle>(null);
 
-  // Resend countdown.
   useEffect(() => {
     if (secondsLeft <= 0) return;
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
@@ -36,8 +31,8 @@ export default function OtpScreen() {
     setError(null);
     setVerifying(true);
     try {
-      await verifyCode(phone, value);
-      // The session listener in the root layout takes the user to the next screen.
+      await verifyPhoneCode(phone, value);
+      // Once the number is confirmed the root layout moves on to profile setup.
     } catch (e) {
       setError(friendlyError(e));
       setCode('');
@@ -47,23 +42,20 @@ export default function OtpScreen() {
     }
   };
 
-  const resend = async (via: OtpChannel) => {
+  const resend = async () => {
     setError(null);
     setNotice(null);
     setResending(true);
     try {
-      await sendCode(phone, via);
-      setChannel(via);
+      await sendPhoneVerificationCode(phone);
       setSecondsLeft(RESEND_SECONDS);
-      setNotice(via === 'whatsapp' ? 'New code sent on WhatsApp.' : 'New code sent by SMS.');
+      setNotice('New code sent by SMS.');
     } catch (e) {
       setError(friendlyError(e));
     } finally {
       setResending(false);
     }
   };
-
-  const otherChannel: OtpChannel = channel === 'sms' ? 'whatsapp' : 'sms';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,36 +67,19 @@ export default function OtpScreen() {
         <View style={styles.content}>
           <Text style={typography.title}>Enter your code</Text>
           <Text style={typography.bodyMuted}>
-            We sent a {CODE_LENGTH} digit code {channel === 'whatsapp' ? 'on WhatsApp' : 'by SMS'} to{' '}
+            We sent a {CODE_LENGTH} digit code by SMS to{' '}
             <Text style={{ color: colors.text }}>{formatForDisplay(phone)}</Text>
           </Text>
-
-          {/* One hidden input drives the six boxes, so paste and SMS autofill work. */}
-          <Pressable onPress={() => inputRef.current?.focus()} style={styles.boxes} accessible={false}>
-            {Array.from({ length: CODE_LENGTH }, (_, i) => (
-              <View key={i} style={[styles.box, i === code.length && styles.boxActive]}>
-                <Text style={styles.digit}>{code[i] ?? ''}</Text>
-              </View>
-            ))}
-          </Pressable>
-          <TextInput
+          <CodeInput
             ref={inputRef}
             value={code}
-            onChangeText={(t) => {
-              const digits = t.replace(/\D/g, '').slice(0, CODE_LENGTH);
-              setCode(digits);
+            onChange={(d) => {
+              setCode(d);
               setError(null);
-              if (digits.length === CODE_LENGTH) verify(digits);
             }}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
+            onComplete={verify}
             autoComplete="sms-otp"
-            maxLength={CODE_LENGTH}
-            autoFocus
-            style={styles.hiddenInput}
-            accessibilityLabel={`${CODE_LENGTH} digit code`}
           />
-
           {error && (
             <Text style={[typography.caption, styles.error]} accessibilityLiveRegion="polite">
               {error}
@@ -114,26 +89,11 @@ export default function OtpScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button
-            label="Verify"
-            onPress={() => verify(code)}
-            loading={verifying}
-            disabled={code.length !== CODE_LENGTH}
-          />
+          <Button label="Verify" onPress={() => verify(code)} loading={verifying} disabled={code.length !== CODE_LENGTH} />
           {secondsLeft > 0 ? (
             <Text style={[typography.caption, styles.center]}>You can ask for a new code in {secondsLeft}s</Text>
           ) : (
-            <>
-              <Button label="Send a new code" variant="text" onPress={() => resend(channel)} disabled={resending} />
-              {whatsappEnabled && (
-                <Button
-                  label={otherChannel === 'whatsapp' ? 'Send via WhatsApp instead' : 'Send by SMS instead'}
-                  variant="text"
-                  onPress={() => resend(otherChannel)}
-                  disabled={resending}
-                />
-              )}
-            </>
+            <Button label="Send a new code" variant="text" onPress={resend} disabled={resending} />
           )}
         </View>
       </KeyboardAvoidingView>
@@ -159,34 +119,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.md,
     paddingTop: spacing.lg,
-  },
-  boxes: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-  },
-  box: {
-    width: 48,
-    height: 58,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.surfaceRaised,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxActive: {
-    borderColor: colors.accent,
-  },
-  digit: {
-    ...typography.title,
-    fontSize: 26,
-  },
-  hiddenInput: {
-    position: 'absolute',
-    opacity: 0,
-    width: 1,
-    height: 1,
   },
   error: {
     color: colors.rose,

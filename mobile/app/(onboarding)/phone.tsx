@@ -1,52 +1,58 @@
 import { router } from 'expo-router';
+import { parsePhoneNumberFromString } from 'libphonenumber-js/min';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CountryPicker } from '@/components/CountryPicker';
-import { sendCode, whatsappEnabled, type OtpChannel } from '@/lib/auth';
+import { sendPhoneVerificationCode, signOut } from '@/lib/auth';
 import { friendlyError } from '@/lib/errors';
-import { defaultCountry, toE164, type Country } from '@/lib/phone';
+import { defaultCountry, getCountry, toE164, type Country } from '@/lib/phone';
+import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
+// One-time phone verification. Required before the profile is created, because the database
+// checks this number when someone declares a local-tier residence. There is no skip.
 export default function PhoneScreen() {
-  const [country, setCountry] = useState<Country>(defaultCountry);
-  const [number, setNumber] = useState('');
+  const { session } = useSession();
+
+  // If the app was closed after a code was requested, start from that pending number.
+  const pending = session?.user.new_phone ? parsePhoneNumberFromString(`+${session.user.new_phone}`) : undefined;
+  const [country, setCountry] = useState<Country>(() =>
+    pending?.country ? getCountry(pending.country) : defaultCountry(),
+  );
+  const [number, setNumber] = useState(pending?.nationalNumber ?? '');
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [sending, setSending] = useState<OtpChannel | null>(null);
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const phone = toE164(number, country);
-
-  const submit = async (channel: OtpChannel) => {
+  const submit = async () => {
+    const phone = toE164(number, country);
     if (!phone) {
       setError("That phone number doesn't look right. Check it and try again.");
       return;
     }
     setError(null);
-    setSending(channel);
+    setSending(true);
     try {
-      await sendCode(phone, channel);
-      router.push({ pathname: '/otp', params: { phone, channel } });
+      await sendPhoneVerificationCode(phone);
+      router.push({ pathname: '/phone-code', params: { phone } });
     } catch (e) {
       setError(friendlyError(e));
     } finally {
-      setSending(null);
+      setSending(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={12} style={styles.back}>
-          <Text style={[typography.button, { color: colors.accent }]}>Back</Text>
-        </Pressable>
-
         <View style={styles.content}>
-          <Text style={typography.title}>{"What's your phone number?"}</Text>
+          <Text style={typography.title}>Verify your phone number</Text>
           <Text style={typography.bodyMuted}>
-            {"We'll send you a code to sign in. Your number is never shown on your profile."}
+            We check every member&apos;s number once to keep HabeshaMatch real and safe. Your number is never
+            shown on your profile.
           </Text>
 
           <View style={styles.inputRow}>
@@ -73,7 +79,7 @@ export default function PhoneScreen() {
               autoFocus
               style={styles.numberInput}
               returnKeyType="done"
-              onSubmitEditing={() => submit('sms')}
+              onSubmitEditing={submit}
               accessibilityLabel="Phone number"
             />
           </View>
@@ -86,19 +92,9 @@ export default function PhoneScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button label="Send code by SMS" onPress={() => submit('sms')} loading={sending === 'sms'} disabled={!number || sending !== null} />
-          {whatsappEnabled && (
-            <Button
-              label="Send via WhatsApp"
-              variant="secondary"
-              onPress={() => submit('whatsapp')}
-              loading={sending === 'whatsapp'}
-              disabled={!number || sending !== null}
-            />
-          )}
-          <Text style={[typography.caption, styles.center]}>
-            By continuing you confirm you are 18 or older. Standard message rates may apply.
-          </Text>
+          <Button label="Send code by SMS" onPress={submit} loading={sending} disabled={!number || sending} />
+          <Text style={[typography.caption, styles.center]}>Standard message rates may apply.</Text>
+          <Button label="Sign out" variant="text" onPress={() => signOut().catch((e) => setError(friendlyError(e)))} />
         </View>
       </KeyboardAvoidingView>
 
@@ -125,14 +121,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
   },
-  back: {
-    alignSelf: 'flex-start',
-    paddingVertical: spacing.sm,
-  },
   content: {
     flex: 1,
     gap: spacing.md,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
   },
   inputRow: {
     flexDirection: 'row',
@@ -164,7 +156,7 @@ const styles = StyleSheet.create({
     color: colors.rose,
   },
   actions: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   center: {
     textAlign: 'center',

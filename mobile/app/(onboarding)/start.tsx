@@ -9,18 +9,21 @@ import { formatForDisplay } from '@/lib/phone';
 import { useSession } from '@/lib/session';
 import { spacing, typography } from '@/lib/theme';
 
-// Placeholder after sign in. Prompt 1.2 replaces this with the profile wizard.
+// Placeholder after sign in and phone verification. Prompt 1.2 replaces this with the profile wizard.
 export default function OnboardingStart() {
   const { session } = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const email = session?.user.email ?? '';
   const phone = session?.user.phone ? formatForDisplay(`+${session.user.phone}`) : '';
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={typography.title}>{"You're signed in"}</Text>
-        <Text style={typography.bodyMuted}>Signed in as {phone}. Setting up your profile comes next.</Text>
+        <Text style={typography.bodyMuted}>
+          Signed in as {email}, phone {phone} verified. Setting up your profile comes next.
+        </Text>
         {error && <Text style={typography.caption}>{error}</Text>}
       </View>
       <Button

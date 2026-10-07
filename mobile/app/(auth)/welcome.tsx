@@ -20,9 +20,9 @@ export default function Welcome() {
       </View>
 
       <View style={styles.actions}>
-        {/* Phone sign in creates the account on first use, so both buttons start the same flow. */}
-        <Button label="Get started" onPress={() => router.push('/phone')} />
-        <Button label="I already have an account" variant="secondary" onPress={() => router.push('/phone')} />
+        {/* Email sign in creates the account on first use, so both buttons start the same flow. */}
+        <Button label="Get started" onPress={() => router.push('/email')} />
+        <Button label="I already have an account" variant="secondary" onPress={() => router.push('/email')} />
         <Text style={[typography.caption, styles.center]}>18+ only. Built for serious relationships.</Text>
       </View>
     </SafeAreaView>
