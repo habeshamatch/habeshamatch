@@ -13,8 +13,9 @@ The owner is a technical project manager, not a full-time mobile developer. Expl
 | Layer | Choice |
 |---|---|
 | Mobile app | React Native + Expo (managed workflow), TypeScript, expo-router |
-| Backend | Supabase: Postgres, Auth (phone OTP), Realtime, Storage, Edge Functions |
-| SMS / WhatsApp OTP | Twilio (configured inside Supabase Auth) |
+| Backend | Supabase: Postgres, Auth (email OTP, Google, Apple; phone verification), Realtime, Storage, Edge Functions |
+| SMS (phone verification) | Twilio (configured inside Supabase Auth) |
+| Email (sign in codes) | Custom SMTP in Supabase Auth before launch (the built-in sender is for testing only) |
 | Subscriptions | RevenueCat over App Store and Google Play billing. Never Stripe for in-app purchases |
 | Push notifications | Expo Notifications |
 | Admin panel | Next.js web app in `admin/`, hosted on Vercel, same Supabase project |
@@ -27,8 +28,8 @@ habeshamatch/
 ├── CLAUDE.md
 ├── mobile/                      # Expo app
 │   ├── app/                     # expo-router screens
-│   │   ├── (auth)/              # welcome, phone, otp
-│   │   ├── (onboarding)/        # profile steps, photos, residence, preferences
+│   │   ├── (auth)/              # welcome, email, email-code (Google and Apple later)
+│   │   ├── (onboarding)/        # phone, phone-code, then profile steps, photos, residence, preferences
 │   │   ├── (tabs)/              # discover, swipe, messages, profile
 │   │   ├── chat/[id].tsx
 │   │   ├── profile/[id].tsx
@@ -46,6 +47,22 @@ habeshamatch/
 ├── prototype/                   # original React web prototype, reference only
 └── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md
 ```
+
+## Sign in and phone verification
+
+Two separate steps. Do not merge them or reorder them.
+
+1. **Sign in** (creates the account on first use): email with a 6 digit code (`signInWithOtp({ email })`, then `verifyOtp({ type: 'email' })`), Sign in with Google, and Sign in with Apple. Phone is NOT a sign in method: phone sign up is disabled in Supabase Auth (`[auth.sms] enable_signup = false`).
+2. **Phone verification** (once per account, first onboarding step, no skip): `updateUser({ phone })` texts a code, then `verifyOtp({ phone, token, type: 'phone_change' })` confirms it and sets `auth.users.phone`. To send a new code, call `updateUser({ phone })` again (the resend endpoint is blocked while phone sign in is disabled). A number linked to another account fails with `phone_exists`.
+
+Rules:
+- Phone verification must finish BEFORE the residence step and before the `profiles` row is created, because `enforce_residence_rules` reads `auth.users.phone` to check the local-tier prefix.
+- A phone counts as verified when `user.phone` and `user.phone_confirmed_at` are both set (`isPhoneVerified` in `mobile/lib/auth.ts`). Once verified, never ask again.
+- Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified goes on to profile setup. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`).
+- Keep `[auth.sms] enable_confirmations = true` (locally and on the remote project). If it is off, `updateUser({ phone })` saves the number without a code, which would let anyone claim a local-tier number.
+- Email codes use the template in `supabase/templates/sign_in_code.html` for both the confirmation (new user) and magic link (returning user) emails. `[auth.email] otp_length = 6`.
+- Test phone numbers (code `123456`, no SMS sent) are listed under `[auth.sms.test_otp]` in `supabase/config.toml`.
+- Google and Apple use native sign in (`signInWithIdToken`), which needs a development build; email works in Expo Go.
 
 ## Product rules (enforced in the database, mirrored in the UI)
 
@@ -67,7 +84,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 | Blue tick | Free via photo verification for everyone |
 
 - Local-tier countries live in table `local_tier_countries`. Never hardcode the list.
-- Declaring a local-tier residence requires a phone number with a local-tier prefix.
+- Declaring a local-tier residence requires a verified phone number with a local-tier prefix (see Sign in and phone verification).
 - Residence can change once every 30 days.
 - Pricing: 1 month $9.99, 3 months $24.99, 6 months $39.99 (configured in the stores and RevenueCat, not in code).
 - All limits live in table `app_config`. Never hardcode a limit in the app; read from `get_my_limits()`.
