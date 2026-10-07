@@ -304,18 +304,26 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-# Twilio credentials always come from environment variables, never literal values, so this file
-# never holds real secrets. Locally they come from supabase/.env (copy supabase/.env.example);
-# the placeholders there are enough because test_otp numbers never send an SMS.
+# SMS provider: Twilio Verify (same as the remote project). Plain Twilio stays off.
+# Credentials always come from environment variables, never literal values, so this file never
+# holds real secrets. Locally they come from supabase/.env (copy supabase/.env.example); the
+# placeholders there are enough because test_otp numbers never send an SMS.
 # Supabase Auth needs an SMS provider switched on before test numbers work.
-# On the REMOTE project, Twilio is set up in the dashboard only. Never `supabase config push`
+# On the REMOTE project, Twilio Verify is set up in the dashboard only. Never `supabase config push`
 # this file: an unset env() is pushed as its literal text and would overwrite the real details.
-# Use supabase/remote-auth (no Twilio section) for remote auth settings instead.
+# Use supabase/remote-auth (no Twilio sections) for remote auth settings instead.
 [auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+auth_token = ""
+
+[auth.sms.twilio_verify]
 enabled = true
-account_sid = "env(SUPABASE_AUTH_SMS_TWILIO_ACCOUNT_SID)"
-message_service_sid = "env(SUPABASE_AUTH_SMS_TWILIO_MESSAGE_SERVICE_SID)"
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+account_sid = "env(SUPABASE_AUTH_SMS_TWILIO_VERIFY_ACCOUNT_SID)"
+# For Twilio Verify this is the Verify Service SID (starts with VA).
+message_service_sid = "env(SUPABASE_AUTH_SMS_TWILIO_VERIFY_SERVICE_SID)"
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_VERIFY_AUTH_TOKEN)"
 
 # Multi-factor-authentication is available to Supabase Pro plan.
 [auth.mfa]
