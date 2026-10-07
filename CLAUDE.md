@@ -43,8 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── templates/               # auth email templates
-│   ├── remote-auth/             # the only config used for `supabase config push` (auth settings)
+│   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
 └── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md
@@ -62,7 +61,7 @@ Rules:
 - A phone counts as verified when `user.phone` and `user.phone_confirmed_at` are both set (`isPhoneVerified` in `mobile/lib/auth.ts`). Once verified, never ask again.
 - Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified goes on to profile setup. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`).
 - Keep `[auth.sms] enable_confirmations = true` (locally and on the remote project). If it is off, `updateUser({ phone })` saves the number without a code, which would let anyone claim a local-tier number.
-- Email codes use the template in `supabase/templates/sign_in_code.html` for both the confirmation (new user) and magic link (returning user) emails. `[auth.email] otp_length = 6`.
+- Email codes use the template in `supabase/remote-auth/templates/sign_in_code.html` (inside remote-auth because `config push` only reads files inside its workdir; the local config points there too) for both the confirmation (new user) and magic link (returning user) emails. `[auth.email] otp_length = 6`.
 - Test phone numbers (code `123456`, no SMS sent) are listed under `[auth.sms.test_otp]` in `supabase/config.toml`.
 - Twilio credentials: on the remote project they are entered in the Supabase dashboard only. In `supabase/config.toml` they are `env()` references, filled locally from `supabase/.env` (copy `supabase/.env.example`; placeholders are fine locally).
 - Remote auth settings are pushed ONLY from `supabase/remote-auth/` (`supabase config push --workdir supabase/remote-auth --project-ref <ref>`), which has no Twilio section so it can never overwrite the dashboard values. Never push the main `supabase/config.toml`: an unset `env()` is pushed as its literal text. Never run `config push` for auth without the owner's go-ahead; run `supabase config diff` with the same flags first.

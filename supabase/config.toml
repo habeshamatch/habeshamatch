@@ -249,11 +249,11 @@ otp_expiry = 3600
 # email and returning users get the magic link email, so both send the same code template.
 [auth.email.template.confirmation]
 subject = "Your HabeshaMatch code"
-content_path = "./supabase/templates/sign_in_code.html"
+content_path = "./supabase/remote-auth/templates/sign_in_code.html"
 
 [auth.email.template.magic_link]
 subject = "Your HabeshaMatch code"
-content_path = "./supabase/templates/sign_in_code.html"
+content_path = "./supabase/remote-auth/templates/sign_in_code.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

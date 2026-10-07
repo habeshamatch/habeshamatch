@@ -12,11 +12,11 @@ otp_length = 6
 
 [auth.email.template.confirmation]
 subject = "Your HabeshaMatch code"
-content_path = "../templates/sign_in_code.html"
+content_path = "./templates/sign_in_code.html"
 
 [auth.email.template.magic_link]
 subject = "Your HabeshaMatch code"
-content_path = "../templates/sign_in_code.html"
+content_path = "./templates/sign_in_code.html"
 
 [auth.sms]
 # Phone is not a sign in method.
