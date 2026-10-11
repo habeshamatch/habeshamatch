@@ -46,7 +46,7 @@ habeshamatch/
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
-└── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md
+└── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md, LAUNCH_CHECKLIST.md
 ```
 
 ## Sign in and phone verification
@@ -65,6 +65,8 @@ Rules:
 - Test phone numbers (code `123456`, no SMS sent) are listed under `[auth.sms.test_otp]` in `supabase/config.toml`.
 - Twilio credentials: on the remote project they are entered in the Supabase dashboard only. In `supabase/config.toml` they are `env()` references, filled locally from `supabase/.env` (copy `supabase/.env.example`; placeholders are fine locally).
 - Remote auth settings are pushed ONLY from `supabase/remote-auth/` (`supabase config push --workdir supabase/remote-auth --project-ref <ref>`), which has no Twilio section so it can never overwrite the dashboard values. Never push the main `supabase/config.toml`: an unset `env()` is pushed as its literal text. Never run `config push` for auth without the owner's go-ahead; run `supabase config diff` with the same flags first.
+- After ANY auth change in the Supabase dashboard (SMTP, providers, Twilio), rerun `supabase config diff --workdir supabase/remote-auth --project-ref <ref>` and check "Enable phone confirmations" is still on in the dashboard. Dashboard saves can change other auth settings, and the diff has reported phone confirmations as on while the dashboard toggle was off.
+- Postponed launch work (Twilio, domain, Resend domain, Google and Apple) is tracked in `docs/LAUNCH_CHECKLIST.md`.
 - Google and Apple use native sign in (`signInWithIdToken`), which needs a development build; email works in Expo Go.
 
 ## Product rules (enforced in the database, mirrored in the UI)
