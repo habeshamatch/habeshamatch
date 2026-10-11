@@ -10,18 +10,28 @@ type Props = {
   selected: Country;
   onSelect: (country: Country) => void;
   onClose: () => void;
+  title?: string;
+  showDialCode?: boolean; // false when picking a country of residence rather than a phone prefix
 };
 
-export function CountryPicker({ visible, selected, onSelect, onClose }: Props) {
+export function CountryPicker({
+  visible,
+  selected,
+  onSelect,
+  onClose,
+  title = 'Choose your country',
+  showDialCode = true,
+}: Props) {
   const [query, setQuery] = useState('');
 
   const data = useMemo(() => {
     const q = query.trim().toLowerCase().replace(/^\+/, '');
     if (!q) return [...pinnedCountries, ...otherCountries];
     return [...pinnedCountries, ...otherCountries].filter(
-      (c) => c.name.toLowerCase().includes(q) || c.dialCode.startsWith(q) || c.code.toLowerCase() === q,
+      (c) =>
+        c.name.toLowerCase().includes(q) || (showDialCode && c.dialCode.startsWith(q)) || c.code.toLowerCase() === q,
     );
-  }, [query]);
+  }, [query, showDialCode]);
 
   const close = () => {
     setQuery('');
@@ -32,7 +42,7 @@ export function CountryPicker({ visible, selected, onSelect, onClose }: Props) {
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={styles.header}>
-          <Text style={typography.subtitle}>Choose your country</Text>
+          <Text style={typography.subtitle}>{title}</Text>
           <Pressable onPress={close} accessibilityRole="button" hitSlop={12}>
             <Text style={[typography.button, { color: colors.accent }]}>Close</Text>
           </Pressable>
@@ -40,7 +50,7 @@ export function CountryPicker({ visible, selected, onSelect, onClose }: Props) {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search country or code"
+          placeholder={showDialCode ? 'Search country or code' : 'Search country'}
           placeholderTextColor={colors.textMuted}
           style={styles.search}
           autoCorrect={false}
@@ -64,15 +74,19 @@ export function CountryPicker({ visible, selected, onSelect, onClose }: Props) {
                 pressed && styles.rowPressed,
               ]}
               accessibilityRole="button"
-              accessibilityLabel={`${item.name}, plus ${item.dialCode}`}
+              accessibilityLabel={showDialCode ? `${item.name}, plus ${item.dialCode}` : item.name}
             >
               <Text style={styles.flag}>{item.flag}</Text>
               <Text style={[typography.body, styles.name]} numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text style={[typography.bodyMuted, item.code === selected.code && styles.selected]}>
-                +{item.dialCode}
-              </Text>
+              {showDialCode ? (
+                <Text style={[typography.bodyMuted, item.code === selected.code && styles.selected]}>
+                  +{item.dialCode}
+                </Text>
+              ) : (
+                item.code === selected.code && <Text style={[typography.body, styles.selected]}>✓</Text>
+              )}
             </Pressable>
           )}
           ListEmptyComponent={<Text style={[typography.bodyMuted, styles.empty]}>No matching country</Text>}
