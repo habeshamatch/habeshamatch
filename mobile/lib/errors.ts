@@ -42,6 +42,7 @@ export type DatabaseErrorCode = keyof typeof DATABASE_MESSAGES;
 
 const FALLBACK = 'Something went wrong. Please try again.';
 const OFFLINE = "You seem to be offline. Check your connection and try again.";
+const EMAIL_SEND_FAILED = "We couldn't send your code right now. Please try again in a few minutes.";
 
 // The stable code behind an error, if there is one.
 export function errorCode(error: unknown): string | null {
@@ -62,6 +63,8 @@ export function friendlyError(error: unknown): string {
   if (code && code in DATABASE_MESSAGES) return DATABASE_MESSAGES[code as DatabaseErrorCode];
   if (code) return AUTH_MESSAGES[code];
   const message = error instanceof Error ? error.message : String(error ?? '');
+  // Supabase Auth could not hand the email to the SMTP provider (Resend). Has no error code.
+  if (/error sending .*email/i.test(message)) return EMAIL_SEND_FAILED;
   if (/network request failed|failed to fetch|network/i.test(message)) return OFFLINE;
   if (__DEV__) console.warn('Unmapped error:', error);
   return FALLBACK;
