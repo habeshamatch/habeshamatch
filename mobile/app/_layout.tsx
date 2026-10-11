@@ -9,30 +9,39 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { SessionProvider, useSession } from '@/lib/session';
 import { colors } from '@/lib/theme';
 
-// Keep the splash screen up until fonts are ready, so text never flashes in the system font.
+// Keep the splash screen up until fonts and the stored session are ready, so nothing flashes.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  return (
+    <SessionProvider>
+      <RootNavigator />
+    </SessionProvider>
+  );
+}
+
+function RootNavigator() {
   // Only the weights we use are imported, to keep the download small.
-  const [loaded, error] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     PlayfairDisplay_500Medium,
     PlayfairDisplay_700Bold,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
   });
+  const { session, loading } = useSession();
+  const ready = (fontsLoaded || !!fontError) && !loading;
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (!loaded && !error) {
-    return null;
-  }
+  if (!ready) return null;
+
+  const signedIn = !!session;
 
   return (
     <>
@@ -42,7 +51,15 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
         }}
-      />
+      >
+        {/* Signing in or out switches groups automatically and clears the old history. */}
+        <Stack.Protected guard={!signedIn}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
+        <Stack.Protected guard={signedIn}>
+          <Stack.Screen name="(onboarding)" />
+        </Stack.Protected>
+      </Stack>
     </>
   );
 }

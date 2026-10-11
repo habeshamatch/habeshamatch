@@ -1,0 +1,30 @@
+# Remote auth settings for HabeshaMatch (email code sign in + one-time phone verification).
+# Push only with:   supabase config push --workdir supabase/remote-auth --project-ref <ref>
+# Only what is declared here is pushed; everything else on the project stays as it is.
+#
+# There is deliberately NO [auth.sms.twilio] section. Twilio is switched on and its credentials are
+# entered in the Supabase dashboard only, so a push can never overwrite them. (An unset env() would be
+# pushed as its literal text.) Test numbers below only work once Twilio is switched on there.
+project_id = "habeshamatch"
+
+[auth.email]
+otp_length = 6
+
+[auth.email.template.confirmation]
+subject = "Your HabeshaMatch code"
+content_path = "./templates/sign_in_code.html"
+
+[auth.email.template.magic_link]
+subject = "Your HabeshaMatch code"
+content_path = "./templates/sign_in_code.html"
+
+[auth.sms]
+# Phone is not a sign in method.
+enable_signup = false
+# Must stay on, or updateUser({ phone }) saves the number without checking a code.
+enable_confirmations = true
+
+[auth.sms.test_otp]
+14165550199 = "123456"
+12025550198 = "123456"
+251911000199 = "123456"

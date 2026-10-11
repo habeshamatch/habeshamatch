@@ -68,15 +68,3 @@ AppState.addEventListener('change', (state) => {
     supabase.auth.stopAutoRefresh();
   }
 });
-
-// Dev helper: true if the app can reach the Supabase project with the configured key.
-export async function checkSupabaseConnection(): Promise<boolean> {
-  try {
-    const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
-      headers: { apikey: supabaseAnonKey },
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
