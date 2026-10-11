@@ -59,7 +59,8 @@ Two separate steps. Do not merge them or reorder them.
 Rules:
 - Phone verification must finish BEFORE the residence step and before the `profiles` row is created, because `enforce_residence_rules` reads `auth.users.phone` to check the local-tier prefix. The database enforces this: inserting a profile without a confirmed phone raises `phone_not_verified` (trigger `profiles_phone_verified`).
 - A phone counts as verified when `user.phone` and `user.phone_confirmed_at` are both set (`isPhoneVerified` in `mobile/lib/auth.ts`). Once verified, never ask again.
-- Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified goes on to profile setup. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`).
+- Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified without a `profiles` row sees only the profile wizard (`(onboarding)/profile.tsx`); with a profile, photos come next. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`); profile existence comes from `useSession().profileStatus`.
+- The profile wizard keeps a draft in encrypted device storage (`lib/profileDraft.ts`) and creates the `profiles` row once, at the end. Its residence step reads `local_tier_countries` and `app_config.location_change_cooldown_days`; it mirrors the local-tier phone rule only to explain it early, the database makes the final check.
 - Keep `[auth.sms] enable_confirmations = true` (locally and on the remote project). If it is off, `updateUser({ phone })` saves the number without a code, which would let anyone claim a local-tier number.
 - Email codes use the template in `supabase/remote-auth/templates/sign_in_code.html` (inside remote-auth because `config push` only reads files inside its workdir; the local config points there too) for both the confirmation (new user) and magic link (returning user) emails. `[auth.email] otp_length = 6`.
 - Test phone numbers (code `123456`, no SMS sent) are listed under `[auth.sms.test_otp]` in `supabase/config.toml`.
@@ -111,7 +112,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Text-only messaging, max 2000 characters.
 
 ### Profile fields
-Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion, languages, relationship intent, bio (500 chars), open to relocating, open to long distance, up to 6 photos.
+Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
 
 ## Database API (call these from the app)
 

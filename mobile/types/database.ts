@@ -371,6 +371,7 @@ export type Database = {
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm: number | null
           id: string
+          income_range: Database["public"]["Enums"]["income_range_t"] | null
           is_photo_verified: boolean
           is_premium: boolean
           languages: string[]
@@ -395,6 +396,7 @@ export type Database = {
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id: string
+          income_range?: Database["public"]["Enums"]["income_range_t"] | null
           is_photo_verified?: boolean
           is_premium?: boolean
           languages?: string[]
@@ -419,6 +421,7 @@ export type Database = {
           gender?: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id?: string
+          income_range?: Database["public"]["Enums"]["income_range_t"] | null
           is_photo_verified?: boolean
           is_premium?: boolean
           languages?: string[]
@@ -743,6 +746,16 @@ export type Database = {
       account_status_t: "active" | "suspended" | "banned" | "deleted"
       convo_origin_t: "criteria" | "suggested" | "swipe_match"
       gender_t: "male" | "female"
+      income_range_t:
+        | "under_10k"
+        | "10k_25k"
+        | "25k_50k"
+        | "50k_75k"
+        | "75k_100k"
+        | "100k_150k"
+        | "150k_250k"
+        | "over_250k"
+        | "prefer_not_to_say"
       intent_t: "marriage" | "serious_relationship" | "getting_to_know"
       moderation_status_t: "pending" | "approved" | "rejected"
       origin_t: "eritrea" | "ethiopia"
@@ -922,6 +935,17 @@ export const Constants = {
       account_status_t: ["active", "suspended", "banned", "deleted"],
       convo_origin_t: ["criteria", "suggested", "swipe_match"],
       gender_t: ["male", "female"],
+      income_range_t: [
+        "under_10k",
+        "10k_25k",
+        "25k_50k",
+        "50k_75k",
+        "75k_100k",
+        "100k_150k",
+        "150k_250k",
+        "over_250k",
+        "prefer_not_to_say",
+      ],
       intent_t: ["marriage", "serious_relationship", "getting_to_know"],
       moderation_status_t: ["pending", "approved", "rejected"],
       origin_t: ["eritrea", "ethiopia"],
