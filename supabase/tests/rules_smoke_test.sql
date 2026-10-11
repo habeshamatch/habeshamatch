@@ -28,10 +28,10 @@ insert into auth.users (id, phone, phone_confirmed_at) values
 
 -- service-role context (no JWT role) for seeding
 insert into profiles (id, display_name, date_of_birth, gender, height_cm, origin, residence_country_code, religion, languages, relationship_intent) values
- ('00000000-0000-0000-0000-00000000000a','Abel',  current_date - interval '30 years','male',  178,'eritrea','CA','orthodox','{tigrinya,english}','marriage'),
- ('00000000-0000-0000-0000-00000000000b','Bethel',current_date - interval '28 years','female',165,'eritrea','CA','orthodox','{tigrinya,english}','marriage'),
- ('00000000-0000-0000-0000-00000000000c','Chaltu',current_date - interval '26 years','female',160,'ethiopia','ET','muslim','{amharic}','marriage'),
- ('00000000-0000-0000-0000-00000000000d','Dawit', current_date - interval '27 years','male',  175,'ethiopia','ET','orthodox','{amharic}','marriage');
+ ('00000000-0000-0000-0000-00000000000a','Abel',  current_date - interval '30 years','male',  178,'eritrea','CA','orthodox','{ti,en}','marriage'),
+ ('00000000-0000-0000-0000-00000000000b','Bethel',current_date - interval '28 years','female',165,'eritrea','CA','orthodox','{ti,en}','marriage'),
+ ('00000000-0000-0000-0000-00000000000c','Chaltu',current_date - interval '26 years','female',160,'ethiopia','ET','muslim','{am}','marriage'),
+ ('00000000-0000-0000-0000-00000000000d','Dawit', current_date - interval '27 years','male',  175,'ethiopia','ET','orthodox','{am}','marriage');
 
 select t_err($$insert into profiles (id, display_name, date_of_birth, gender, origin, residence_country_code, religion, relationship_intent)
   values ('00000000-0000-0000-0000-00000000000e','Eden', current_date - interval '25 years','female','ethiopia','ET','orthodox','marriage')$$,
@@ -58,7 +58,7 @@ insert into preference_core values
  ('00000000-0000-0000-0000-00000000000d','female',22,30);
 insert into preference_items (user_id, attribute, kind, value) values
  ('00000000-0000-0000-0000-00000000000a','religion','hard','["orthodox"]'),
- ('00000000-0000-0000-0000-00000000000a','languages','soft','["tigrinya"]'),
+ ('00000000-0000-0000-0000-00000000000a','languages','soft','["ti"]'),
  ('00000000-0000-0000-0000-00000000000a','height','soft','{"min":160,"max":170}');
 insert into photos (user_id, storage_path, position, moderation_status)
  select id, id::text || '/1.jpg', 1, 'approved' from profiles;

@@ -7,6 +7,7 @@
 -- 40 fake profiles: 20 women, 20 men, ages 22-45, Eritrean and Ethiopian origin.
 --   Diaspora (24): CA 5, US 6, GB 4, DE 3, SE 3, AU 3
 --   Local tier (16): ET 6, ER 4, UG 3, KE 3
+-- Languages are ISO 639 codes (ti, am, en, om, ...), matching mobile/lib/languages.ts.
 -- Each profile has core and item preferences, 1 to 3 approved placeholder photos,
 -- and swipes dated yesterday (so they do not use up today's swipe limit).
 -- Mutual likes get the swipe_match conversation record_swipe() would have created.
@@ -49,56 +50,56 @@ create temporary table seed_people (
 
 insert into seed_people values
 -- Canada
-( 1,'Selam',    'female',29,'eritrea', 'CA','Toronto',      '14165550101', 'orthodox',  '{tigrinya,english}',         'marriage',             165,true, false,'Nurse, coffee ceremony host for my whole building, and a big believer in Sunday family lunches.'),
-( 2,'Yonas',    'male',  33,'eritrea', 'CA','Toronto',      '14165550102', 'orthodox',  '{tigrinya,english}',         'marriage',             180,false,true, 'Civil engineer. I play football on weekends and make a serious zigni. Looking for my partner in life.'),
-( 3,'Hiwot',    'female',27,'ethiopia','CA','Calgary',      '14035550103', 'orthodox',  '{amharic,english}',          'serious_relationship', 162,true, true, 'Accountant by day, Teddy Afro karaoke by night. Family means everything to me.'),
-( 4,'Dawit',    'male',  36,'ethiopia','CA','Edmonton',     '17805550104', 'protestant','{amharic,english}',          'marriage',             176,true, false,'Pharmacist and church choir member. Calm, honest, and ready to build a home.'),
-( 5,'Ruth',     'female',31,'eritrea', 'CA','Calgary',      '14035550105', 'catholic',  '{tigrinya,english}',         'marriage',             168,false,false,'Teacher. I love hiking in the Rockies and cooking for people I care about.'),
+( 1,'Selam',    'female',29,'eritrea', 'CA','Toronto',      '14165550101', 'orthodox',  '{ti,en}',         'marriage',             165,true, false,'Nurse, coffee ceremony host for my whole building, and a big believer in Sunday family lunches.'),
+( 2,'Yonas',    'male',  33,'eritrea', 'CA','Toronto',      '14165550102', 'orthodox',  '{ti,en}',         'marriage',             180,false,true, 'Civil engineer. I play football on weekends and make a serious zigni. Looking for my partner in life.'),
+( 3,'Hiwot',    'female',27,'ethiopia','CA','Calgary',      '14035550103', 'orthodox',  '{am,en}',          'serious_relationship', 162,true, true, 'Accountant by day, Teddy Afro karaoke by night. Family means everything to me.'),
+( 4,'Dawit',    'male',  36,'ethiopia','CA','Edmonton',     '17805550104', 'protestant','{am,en}',          'marriage',             176,true, false,'Pharmacist and church choir member. Calm, honest, and ready to build a home.'),
+( 5,'Ruth',     'female',31,'eritrea', 'CA','Calgary',      '14035550105', 'catholic',  '{ti,en}',         'marriage',             168,false,false,'Teacher. I love hiking in the Rockies and cooking for people I care about.'),
 -- United States
-( 6,'Henok',    'male',  30,'eritrea', 'US','Washington',   '12025550106', 'orthodox',  '{tigrinya,amharic,english}', 'marriage',             183,true, true, 'Software developer in DC. Proud of where I come from, curious about where we can go together.'),
-( 7,'Meron',    'female',26,'ethiopia','US','Washington',   '12025550107', 'orthodox',  '{amharic,english}',          'getting_to_know',      160,false,true, 'Grad student in public health. Kind people and good injera are my weakness.'),
-( 8,'Abel',     'male',  41,'ethiopia','US','Dallas',       '12145550108', 'orthodox',  '{amharic,english}',          'marriage',             178,false,false,'Small business owner. Settled, family oriented, and looking for a wife who values faith.'),
-( 9,'Feven',    'female',34,'eritrea', 'US','Seattle',      '12065550109', 'orthodox',  '{tigrinya,english}',         'marriage',             170,true, false,'Product manager. I run, I read, and I call my mother every day.'),
-(10,'Abdi',     'male',  28,'ethiopia','US','Minneapolis',  '16125550110', 'muslim',    '{oromo,amharic,english}',    'serious_relationship', 181,true, true, 'Mechanical engineer. Family first, then soccer, then everything else.'),
-(11,'Hayat',    'female',29,'ethiopia','US','Atlanta',      '14045550111', 'muslim',    '{oromo,amharic,english}',    'marriage',             163,true, true, 'Dentist. Warm, organized, and looking for a practicing man who is serious about marriage.'),
+( 6,'Henok',    'male',  30,'eritrea', 'US','Washington',   '12025550106', 'orthodox',  '{ti,am,en}', 'marriage',             183,true, true, 'Software developer in DC. Proud of where I come from, curious about where we can go together.'),
+( 7,'Meron',    'female',26,'ethiopia','US','Washington',   '12025550107', 'orthodox',  '{am,en}',          'getting_to_know',      160,false,true, 'Grad student in public health. Kind people and good injera are my weakness.'),
+( 8,'Abel',     'male',  41,'ethiopia','US','Dallas',       '12145550108', 'orthodox',  '{am,en}',          'marriage',             178,false,false,'Small business owner. Settled, family oriented, and looking for a wife who values faith.'),
+( 9,'Feven',    'female',34,'eritrea', 'US','Seattle',      '12065550109', 'orthodox',  '{ti,en}',         'marriage',             170,true, false,'Product manager. I run, I read, and I call my mother every day.'),
+(10,'Abdi',     'male',  28,'ethiopia','US','Minneapolis',  '16125550110', 'muslim',    '{om,am,en}',    'serious_relationship', 181,true, true, 'Mechanical engineer. Family first, then soccer, then everything else.'),
+(11,'Hayat',    'female',29,'ethiopia','US','Atlanta',      '14045550111', 'muslim',    '{om,am,en}',    'marriage',             163,true, true, 'Dentist. Warm, organized, and looking for a practicing man who is serious about marriage.'),
 -- Australia
-(12,'Kidane',   'male',  44,'eritrea', 'AU','Sydney',       '61491570112', 'orthodox',  '{tigrinya,english}',         'marriage',             172,true, true, 'Electrician. Quiet, dependable, and ready to settle down with the right person.'),
+(12,'Kidane',   'male',  44,'eritrea', 'AU','Sydney',       '61491570112', 'orthodox',  '{ti,en}',         'marriage',             172,true, true, 'Electrician. Quiet, dependable, and ready to settle down with the right person.'),
 -- United Kingdom
-(13,'Saba',     'female',25,'eritrea', 'GB','London',       '447700900113','orthodox',  '{tigrinya,english}',         'serious_relationship', 163,true, true, 'Law student. I love art galleries, long walks, and debating everything.'),
-(14,'Bereket',  'male',  32,'eritrea', 'GB','London',       '447700900114','catholic',  '{tigrinya,english}',         'marriage',             177,false,true, 'Doctor in the NHS. Long shifts, big heart, looking for a real partnership.'),
-(15,'Tigist',   'female',30,'ethiopia','GB','Manchester',   '447700900115','orthodox',  '{amharic,english}',          'marriage',             166,true, false,'Architect. Fasting season cook and lover of old Ethiopian jazz.'),
-(16,'Amanuel',  'male',  27,'eritrea', 'GB','Birmingham',   '447700900116','protestant','{tigrinya,english}',         'getting_to_know',      185,true, true, 'Data analyst and amateur photographer. Let us see where this goes.'),
+(13,'Saba',     'female',25,'eritrea', 'GB','London',       '447700900113','orthodox',  '{ti,en}',         'serious_relationship', 163,true, true, 'Law student. I love art galleries, long walks, and debating everything.'),
+(14,'Bereket',  'male',  32,'eritrea', 'GB','London',       '447700900114','catholic',  '{ti,en}',         'marriage',             177,false,true, 'Doctor in the NHS. Long shifts, big heart, looking for a real partnership.'),
+(15,'Tigist',   'female',30,'ethiopia','GB','Manchester',   '447700900115','orthodox',  '{am,en}',          'marriage',             166,true, false,'Architect. Fasting season cook and lover of old Ethiopian jazz.'),
+(16,'Amanuel',  'male',  27,'eritrea', 'GB','Birmingham',   '447700900116','protestant','{ti,en}',         'getting_to_know',      185,true, true, 'Data analyst and amateur photographer. Let us see where this goes.'),
 -- Germany
-(17,'Lidya',    'female',33,'ethiopia','DE','Frankfurt',    '493023125117','orthodox',  '{amharic,german,english}',   'marriage',             167,false,true, 'Banker in Frankfurt. Grounded, ambitious, and close to my family.'),
-(18,'Samuel',   'male',  35,'eritrea', 'DE','Munich',       '493023125118','orthodox',  '{tigrinya,german}',          'marriage',             179,true, false,'Automotive engineer. I value honesty and a peaceful home.'),
-(19,'Nardos',   'female',28,'ethiopia','DE','Berlin',       '493023125119','protestant','{amharic,english}',          'serious_relationship', 158,true, true, 'UX designer. Coffee snob, gospel music fan, and always planning the next trip home.'),
+(17,'Lidya',    'female',33,'ethiopia','DE','Frankfurt',    '493023125117','orthodox',  '{am,de,en}',   'marriage',             167,false,true, 'Banker in Frankfurt. Grounded, ambitious, and close to my family.'),
+(18,'Samuel',   'male',  35,'eritrea', 'DE','Munich',       '493023125118','orthodox',  '{ti,de}',          'marriage',             179,true, false,'Automotive engineer. I value honesty and a peaceful home.'),
+(19,'Nardos',   'female',28,'ethiopia','DE','Berlin',       '493023125119','protestant','{am,en}',          'serious_relationship', 158,true, true, 'UX designer. Coffee snob, gospel music fan, and always planning the next trip home.'),
 -- Sweden
-(20,'Filmon',   'male',  31,'eritrea', 'SE','Stockholm',    '46701740620', 'orthodox',  '{tigrinya,swedish,english}', 'marriage',             182,true, true, 'IT consultant. Good listener, better cook. Looking for my wife.'),
-(21,'Helen',    'female',36,'eritrea', 'SE','Gothenburg',   '46701740621', 'orthodox',  '{tigrinya,swedish}',         'marriage',             169,false,false,'Midwife. Calm, caring, and ready for the next chapter.'),
-(22,'Mikias',   'male',  29,'ethiopia','SE','Stockholm',    '46701740622', 'orthodox',  '{amharic,english}',          'serious_relationship', 174,true, true, 'Chef. I show love through food. Looking for someone to share a table with.'),
+(20,'Filmon',   'male',  31,'eritrea', 'SE','Stockholm',    '46701740620', 'orthodox',  '{ti,sv,en}', 'marriage',             182,true, true, 'IT consultant. Good listener, better cook. Looking for my wife.'),
+(21,'Helen',    'female',36,'eritrea', 'SE','Gothenburg',   '46701740621', 'orthodox',  '{ti,sv}',         'marriage',             169,false,false,'Midwife. Calm, caring, and ready for the next chapter.'),
+(22,'Mikias',   'male',  29,'ethiopia','SE','Stockholm',    '46701740622', 'orthodox',  '{am,en}',          'serious_relationship', 174,true, true, 'Chef. I show love through food. Looking for someone to share a table with.'),
 -- Australia
-(23,'Eden',     'female',24,'ethiopia','AU','Melbourne',    '61491570123', 'orthodox',  '{amharic,english}',          'serious_relationship', 161,true, true, 'Physiotherapy student. Beach walks and family dinners.'),
-(24,'Robel',    'male',  39,'eritrea', 'AU','Melbourne',    '61491570124', 'orthodox',  '{tigrinya,english}',         'marriage',             175,false,true, 'Logistics manager. Faith, family, and a good laugh.'),
+(23,'Eden',     'female',24,'ethiopia','AU','Melbourne',    '61491570123', 'orthodox',  '{am,en}',          'serious_relationship', 161,true, true, 'Physiotherapy student. Beach walks and family dinners.'),
+(24,'Robel',    'male',  39,'eritrea', 'AU','Melbourne',    '61491570124', 'orthodox',  '{ti,en}',         'marriage',             175,false,true, 'Logistics manager. Faith, family, and a good laugh.'),
 -- Ethiopia (local tier)
-(25,'Bethlehem','female',26,'ethiopia','ET','Addis Ababa',  '251911000125','orthodox',  '{amharic,english}',          'marriage',             163,true, true, 'Marketing officer in Addis. Looking for a respectful man who loves God and family.'),
-(26,'Yared',    'male',  31,'ethiopia','ET','Addis Ababa',  '251911000126','orthodox',  '{amharic,english}',          'marriage',             178,false,true, 'Bank officer. Honest and hardworking, ready to start a family.'),
-(27,'Hanna',    'female',23,'ethiopia','ET','Bahir Dar',    '251911000127','orthodox',  '{amharic}',                  'serious_relationship', 159,true, true, 'University graduate in economics. Simple, kind, and family minded.'),
-(28,'Ibrahim',  'male',  34,'ethiopia','ET','Dire Dawa',    '251911000128','muslim',    '{amharic,oromo,arabic}',     'marriage',             176,false,false,'Trader. Respectful, generous, and looking for a righteous wife.'),
-(29,'Mahlet',   'female',29,'ethiopia','ET','Addis Ababa',  '251911000129','protestant','{amharic,english}',          'marriage',             165,true, true, 'Software tester. Church worship team. Looking for a God fearing partner.'),
-(30,'Tesfaye',  'male',  42,'ethiopia','ET','Mekelle',      '251911000130','orthodox',  '{tigrinya,amharic}',         'marriage',             173,false,true, 'Lecturer. Patient, thoughtful, and serious about marriage.'),
+(25,'Bethlehem','female',26,'ethiopia','ET','Addis Ababa',  '251911000125','orthodox',  '{am,en}',          'marriage',             163,true, true, 'Marketing officer in Addis. Looking for a respectful man who loves God and family.'),
+(26,'Yared',    'male',  31,'ethiopia','ET','Addis Ababa',  '251911000126','orthodox',  '{am,en}',          'marriage',             178,false,true, 'Bank officer. Honest and hardworking, ready to start a family.'),
+(27,'Hanna',    'female',23,'ethiopia','ET','Bahir Dar',    '251911000127','orthodox',  '{am}',                  'serious_relationship', 159,true, true, 'University graduate in economics. Simple, kind, and family minded.'),
+(28,'Ibrahim',  'male',  34,'ethiopia','ET','Dire Dawa',    '251911000128','muslim',    '{am,om,ar}',     'marriage',             176,false,false,'Trader. Respectful, generous, and looking for a righteous wife.'),
+(29,'Mahlet',   'female',29,'ethiopia','ET','Addis Ababa',  '251911000129','protestant','{am,en}',          'marriage',             165,true, true, 'Software tester. Church worship team. Looking for a God fearing partner.'),
+(30,'Tesfaye',  'male',  42,'ethiopia','ET','Mekelle',      '251911000130','orthodox',  '{ti,am}',         'marriage',             173,false,true, 'Lecturer. Patient, thoughtful, and serious about marriage.'),
 -- Eritrea (local tier)
-(31,'Senait',   'female',27,'eritrea', 'ER','Asmara',       '2917100131',  'orthodox',  '{tigrinya}',                 'marriage',             162,true, true, 'Pharmacy assistant in Asmara. I love my city and my family.'),
-(32,'Mussie',   'male',  30,'eritrea', 'ER','Asmara',       '2917100132',  'orthodox',  '{tigrinya,english}',         'marriage',             181,false,true, 'Mechanic with my own garage. Simple life, big dreams.'),
-(33,'Aisha',    'female',25,'eritrea', 'ER','Keren',        '2917100133',  'muslim',    '{tigre,tigrinya,arabic}',    'marriage',             160,true, false,'Tailor. Gentle, faithful, and close to my family.'),
-(34,'Habtom',   'male',  37,'eritrea', 'ER','Massawa',      '2917100134',  'catholic',  '{tigrinya,english}',         'marriage',             174,false,false,'Fisherman and boat owner. I value loyalty above everything.'),
+(31,'Senait',   'female',27,'eritrea', 'ER','Asmara',       '2917100131',  'orthodox',  '{ti}',                 'marriage',             162,true, true, 'Pharmacy assistant in Asmara. I love my city and my family.'),
+(32,'Mussie',   'male',  30,'eritrea', 'ER','Asmara',       '2917100132',  'orthodox',  '{ti,en}',         'marriage',             181,false,true, 'Mechanic with my own garage. Simple life, big dreams.'),
+(33,'Aisha',    'female',25,'eritrea', 'ER','Keren',        '2917100133',  'muslim',    '{tig,ti,ar}',    'marriage',             160,true, false,'Tailor. Gentle, faithful, and close to my family.'),
+(34,'Habtom',   'male',  37,'eritrea', 'ER','Massawa',      '2917100134',  'catholic',  '{ti,en}',         'marriage',             174,false,false,'Fisherman and boat owner. I value loyalty above everything.'),
 -- Uganda (local tier)
-(35,'Winta',    'female',24,'eritrea', 'UG','Kampala',      '256700000135','orthodox',  '{tigrinya,english}',         'serious_relationship', 164,true, true, 'Studying business in Kampala. Cheerful and family oriented.'),
-(36,'Natnael',  'male',  27,'ethiopia','UG','Kampala',      '256700000136','protestant','{amharic,english}',          'marriage',             179,true, true, 'Runs a small cafe. Hardworking and hopeful.'),
-(37,'Elsa',     'female',32,'eritrea', 'UG','Kampala',      '256700000137','orthodox',  '{tigrinya,english}',         'marriage',             166,true, true, 'Hairdresser with my own salon. Looking for a serious, kind man.'),
+(35,'Winta',    'female',24,'eritrea', 'UG','Kampala',      '256700000135','orthodox',  '{ti,en}',         'serious_relationship', 164,true, true, 'Studying business in Kampala. Cheerful and family oriented.'),
+(36,'Natnael',  'male',  27,'ethiopia','UG','Kampala',      '256700000136','protestant','{am,en}',          'marriage',             179,true, true, 'Runs a small cafe. Hardworking and hopeful.'),
+(37,'Elsa',     'female',32,'eritrea', 'UG','Kampala',      '256700000137','orthodox',  '{ti,en}',         'marriage',             166,true, true, 'Hairdresser with my own salon. Looking for a serious, kind man.'),
 -- Kenya (local tier)
-(38,'Biniam',   'male',  29,'eritrea', 'KE','Nairobi',      '254700000138','orthodox',  '{tigrinya,english,swahili}', 'marriage',             177,true, true, 'Import business in Nairobi. Easygoing and ready for commitment.'),
-(39,'Zewdi',    'female',45,'ethiopia','KE','Nairobi',      '254700000139','orthodox',  '{amharic,english}',          'marriage',             161,false,true, 'Widow and proud mother. Looking for a mature, faithful companion.'),
-(40,'Kaleb',    'male',  22,'ethiopia','KE','Nairobi',      '254700000140','protestant','{amharic,english,swahili}',  'getting_to_know',      172,true, true, 'Computer science student. Curious, funny, and open minded.');
+(38,'Biniam',   'male',  29,'eritrea', 'KE','Nairobi',      '254700000138','orthodox',  '{ti,en,sw}', 'marriage',             177,true, true, 'Import business in Nairobi. Easygoing and ready for commitment.'),
+(39,'Zewdi',    'female',45,'ethiopia','KE','Nairobi',      '254700000139','orthodox',  '{am,en}',          'marriage',             161,false,true, 'Widow and proud mother. Looking for a mature, faithful companion.'),
+(40,'Kaleb',    'male',  22,'ethiopia','KE','Nairobi',      '254700000140','protestant','{am,en,sw}',  'getting_to_know',      172,true, true, 'Computer science student. Curious, funny, and open minded.');
 
 create or replace function pg_temp.seed_id(n int) returns uuid language sql immutable as $$
   select ('a0000000-0000-4000-8000-' || lpad(n::text, 12, '0'))::uuid
@@ -125,13 +126,18 @@ from seed_people;
 -- Profiles. Date of birth is relative to today so ages stay stable.
 insert into profiles (
   id, display_name, date_of_birth, gender, height_cm, origin, current_city, current_country_code,
-  residence_country_code, religion, languages, relationship_intent, bio,
+  residence_country_code, religion, languages, relationship_intent, bio, income_range,
   open_to_relocating, open_to_long_distance, is_photo_verified, is_premium, premium_expires_at,
   created_at, last_active_at
 )
 select pg_temp.seed_id(n), name,
        (current_date - make_interval(years => age, days => 30 + n * 7))::date,
        gender, height_cm, origin, city, country, country, religion, languages, intent, bio,
+       -- Income: lower USD ranges in local-tier countries, some prefer not to say.
+       (case when n % 9 = 0 then 'prefer_not_to_say'
+             when country in ('ET','ER','UG','KE') then (array['under_10k','10k_25k','25k_50k'])[1 + n % 3]
+             else (array['25k_50k','50k_75k','75k_100k','100k_150k','150k_250k'])[1 + n % 5]
+        end)::income_range_t,
        relocate, long_dist,
        n % 4 = 0,                                     -- some verified (blue tick)
        n in (6, 14, 20),                              -- a few premium diaspora users
