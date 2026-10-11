@@ -112,7 +112,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Text-only messaging, max 2000 characters.
 
 ### Profile fields
-Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion, languages, relationship intent, bio (500 chars), open to relocating, open to long distance, up to 6 photos.
+Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
 
 ## Database API (call these from the app)
 

@@ -18,8 +18,16 @@ import { CountryPicker } from '@/components/CountryPicker';
 import { DateOfBirthField } from '@/components/DateOfBirthField';
 import { FieldLabel, Notice, ProgressBar, TextField, ToggleRow } from '@/components/FormControls';
 import { HeightField } from '@/components/HeightField';
+import { LanguagePicker } from '@/components/LanguagePicker';
 import { errorCode, friendlyError } from '@/lib/errors';
 import { defaultHeightUnit } from '@/lib/height';
+import {
+  isKnownLanguage,
+  languageName,
+  MAX_LANGUAGES,
+  QUICK_LANGUAGE_CODES,
+  QUICK_LANGUAGES,
+} from '@/lib/languages';
 import { formatForDisplay, getCountry } from '@/lib/phone';
 import { clearDraft, emptyDraft, loadDraft, saveDraft, type ProfileDraft } from '@/lib/profileDraft';
 import {
@@ -28,8 +36,8 @@ import {
   GENDERS,
   HEIGHT_MAX_CM,
   HEIGHT_MIN_CM,
+  INCOME_RANGES,
   INTENTS,
-  LANGUAGES,
   MIN_AGE,
   ORIGINS,
   RELIGIONS,
@@ -46,7 +54,6 @@ import { supabase } from '@/lib/supabase';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 const STEPS = ['About you', 'Background', 'Where you live', 'Your bio'];
-const LANGUAGE_OPTIONS = [...LANGUAGES, { value: 'other', label: 'Other' }];
 
 function ageOn(dob: string, today = new Date()): number {
   const [y, m, d] = dob.split('-').map(Number);
@@ -75,8 +82,8 @@ function stepProblem(step: number, d: ProfileDraft, rules: ResidenceRules, phone
         return 'Please enter a valid height.';
       if (!d.religion) return 'Please choose your religion, or "Prefer not to say".';
       if (d.languages.length === 0) return 'Please choose at least one language.';
-      if (d.languages.includes('other') && !d.otherLanguage.trim()) return 'Please type your other language.';
       if (!d.intent) return 'Please choose what you are looking for.';
+      if (!d.incomeRange) return 'Please choose your income range, or "Prefer not to say".';
       return null;
     case 2:
       if (!d.currentCity.trim()) return 'Please enter the city you live in.';
@@ -115,6 +122,8 @@ export default function ProfileWizard() {
         setDraft({
           ...emptyDraft(defaultHeightUnit()),
           ...saved,
+          // Drafts from before languages became codes may hold old names; keep only known codes.
+          languages: (saved?.languages ?? []).filter(isKnownLanguage),
           // Pre-fill residence from the verified phone's country.
           residenceCountry: saved?.residenceCountry ?? phoneCountry(phone),
         });
@@ -164,10 +173,6 @@ export default function ProfileWizard() {
   const save = async (d: ProfileDraft) => {
     setSaving(true);
     setProblem(null);
-    const languages = [
-      ...d.languages.filter((l) => l !== 'other'),
-      ...(d.languages.includes('other') ? [d.otherLanguage.trim().toLowerCase()] : []),
-    ];
     const { error } = await supabase.from('profiles').insert({
       id: userId,
       display_name: d.displayName.trim(),
@@ -176,8 +181,9 @@ export default function ProfileWizard() {
       height_cm: d.heightCm,
       origin: d.origin!,
       religion: d.religion!,
-      languages,
+      languages: d.languages,
       relationship_intent: d.intent!,
+      income_range: d.incomeRange,
       current_city: d.currentCity.trim(),
       residence_country_code: d.residenceCountry as string,
       open_to_relocating: d.openToRelocating,
@@ -321,6 +327,14 @@ function AboutYou({ draft, update }: StepProps) {
 }
 
 function Background({ draft, update }: StepProps) {
+  const [languagePickerOpen, setLanguagePickerOpen] = useState(false);
+  // Languages chosen from the full list that are not quick chips, shown so they can be removed.
+  const extraLanguages = draft.languages.filter((c) => !QUICK_LANGUAGE_CODES.includes(c));
+  const toggleLanguage = (code: string) => {
+    if (draft.languages.includes(code)) update({ languages: draft.languages.filter((c) => c !== code) });
+    else if (draft.languages.length < MAX_LANGUAGES) update({ languages: [...draft.languages, code] });
+  };
+
   return (
     <View>
       <FieldLabel>Origin</FieldLabel>
@@ -349,25 +363,36 @@ function Background({ draft, update }: StepProps) {
       <FieldLabel hint="Choose all that you speak.">Languages</FieldLabel>
       <Chips
         multiple
-        options={LANGUAGE_OPTIONS}
+        options={QUICK_LANGUAGES.map((l) => ({ value: l.code, label: l.name }))}
         selected={draft.languages}
-        onToggle={(v) =>
-          update({
-            languages: draft.languages.includes(v) ? draft.languages.filter((l) => l !== v) : [...draft.languages, v],
-          })
-        }
+        onToggle={toggleLanguage}
         label="Languages"
       />
-      {draft.languages.includes('other') && (
-        <TextField
-          value={draft.otherLanguage}
-          onChangeText={(t) => update({ otherLanguage: t })}
-          placeholder="Which language?"
-          maxLength={30}
-          style={styles.spaced}
-          accessibilityLabel="Other language"
-        />
+      {extraLanguages.length > 0 && (
+        <View style={styles.spaced}>
+          <Chips
+            multiple
+            options={extraLanguages.map((code) => ({ value: code, label: `${languageName(code)}  ✕` }))}
+            selected={extraLanguages}
+            onToggle={toggleLanguage}
+            label="Other languages you chose. Tap to remove."
+          />
+        </View>
       )}
+      <Pressable
+        onPress={() => setLanguagePickerOpen(true)}
+        style={styles.addLanguages}
+        accessibilityRole="button"
+        hitSlop={8}
+      >
+        <Text style={[typography.button, { color: colors.accent }]}>+ Add more languages</Text>
+      </Pressable>
+      <LanguagePicker
+        visible={languagePickerOpen}
+        selected={draft.languages}
+        onChange={(languages) => update({ languages })}
+        onClose={() => setLanguagePickerOpen(false)}
+      />
 
       <FieldLabel>Looking for</FieldLabel>
       <Chips
@@ -375,6 +400,14 @@ function Background({ draft, update }: StepProps) {
         selected={draft.intent ? [draft.intent] : []}
         onToggle={(v) => update({ intent: v })}
         label="Relationship intent"
+      />
+
+      <FieldLabel hint="Per year, in US dollars.">Income</FieldLabel>
+      <Chips
+        options={INCOME_RANGES}
+        selected={draft.incomeRange ? [draft.incomeRange] : []}
+        onToggle={(v) => update({ incomeRange: v })}
+        label="Yearly income"
       />
     </View>
   );
@@ -524,6 +557,10 @@ const styles = StyleSheet.create({
   },
   spaced: {
     marginTop: spacing.sm,
+  },
+  addLanguages: {
+    alignSelf: 'flex-start',
+    paddingVertical: spacing.md,
   },
   countryField: {
     minHeight: 52,

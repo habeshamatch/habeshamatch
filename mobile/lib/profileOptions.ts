@@ -29,15 +29,18 @@ export const INTENTS: Option<Enums<'intent_t'>>[] = [
   { value: 'getting_to_know', label: 'Getting to know' },
 ];
 
-// profiles.languages is free text[]. Known languages use these lowercase keys (matched by
-// preferences); "Other" lets people type their own, stored lowercase.
-export const LANGUAGES: Option<string>[] = [
-  { value: 'tigrinya', label: 'Tigrinya' },
-  { value: 'amharic', label: 'Amharic' },
-  { value: 'english', label: 'English' },
-  { value: 'oromo', label: 'Afaan Oromo' },
-  { value: 'arabic', label: 'Arabic' },
-  { value: 'tigre', label: 'Tigre' },
+// Yearly income in US dollars. Lower ranges are finer so they also fit people living in
+// local-tier countries. Languages live in lib/languages.ts.
+export const INCOME_RANGES: Option<Enums<'income_range_t'>>[] = [
+  { value: 'under_10k', label: 'Under $10k' },
+  { value: '10k_25k', label: '$10k to $25k' },
+  { value: '25k_50k', label: '$25k to $50k' },
+  { value: '50k_75k', label: '$50k to $75k' },
+  { value: '75k_100k', label: '$75k to $100k' },
+  { value: '100k_150k', label: '$100k to $150k' },
+  { value: '150k_250k', label: '$150k to $250k' },
+  { value: 'over_250k', label: '$250k or more' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
 ];
 
 export const DISPLAY_NAME_MAX = 40;

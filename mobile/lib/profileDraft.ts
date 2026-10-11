@@ -13,9 +13,9 @@ export type ProfileDraft = {
   heightCm: number | null;
   heightUnit: HeightUnit;
   religion: Enums<'religion_t'> | null;
-  languages: string[];
-  otherLanguage: string;
+  languages: string[]; // ISO 639 codes from lib/languages.ts
   intent: Enums<'intent_t'> | null;
+  incomeRange: Enums<'income_range_t'> | null;
   currentCity: string;
   residenceCountry: string | null;
   openToRelocating: boolean;
@@ -34,8 +34,8 @@ export function emptyDraft(heightUnit: HeightUnit): ProfileDraft {
     heightUnit,
     religion: null,
     languages: [],
-    otherLanguage: '',
     intent: null,
+    incomeRange: null,
     currentCity: '',
     residenceCountry: null,
     openToRelocating: false,
