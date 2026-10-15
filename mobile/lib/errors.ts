@@ -60,6 +60,8 @@ export function isPremiumRequired(error: unknown): boolean {
 
 export function friendlyError(error: unknown): string {
   const code = errorCode(error);
+  // Development only: the full error (e.g. the SMS provider's reason) behind the friendly message.
+  if (__DEV__ && code) console.warn(`[${code}]`, error instanceof Error ? error.message : error);
   if (code && code in DATABASE_MESSAGES) return DATABASE_MESSAGES[code as DatabaseErrorCode];
   if (code) return AUTH_MESSAGES[code];
   const message = error instanceof Error ? error.message : String(error ?? '');
