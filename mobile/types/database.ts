@@ -368,7 +368,9 @@ export type Database = {
           current_country_code: string | null
           date_of_birth: string
           display_name: string
-          education_level: Database["public"]["Enums"]["education_level_t"] | null
+          education_level:
+            | Database["public"]["Enums"]["education_level_t"]
+            | null
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm: number | null
           id: string
@@ -394,7 +396,9 @@ export type Database = {
           current_country_code?: string | null
           date_of_birth: string
           display_name: string
-          education_level?: Database["public"]["Enums"]["education_level_t"] | null
+          education_level?:
+            | Database["public"]["Enums"]["education_level_t"]
+            | null
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id: string
@@ -420,7 +424,9 @@ export type Database = {
           current_country_code?: string | null
           date_of_birth?: string
           display_name?: string
-          education_level?: Database["public"]["Enums"]["education_level_t"] | null
+          education_level?:
+            | Database["public"]["Enums"]["education_level_t"]
+            | null
           gender?: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id?: string
