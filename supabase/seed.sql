@@ -126,7 +126,7 @@ from seed_people;
 -- Profiles. Date of birth is relative to today so ages stay stable.
 insert into profiles (
   id, display_name, date_of_birth, gender, height_cm, origin, current_city, current_country_code,
-  residence_country_code, religion, languages, relationship_intent, bio, income_range,
+  residence_country_code, religion, languages, relationship_intent, bio, income_range, education_level,
   open_to_relocating, open_to_long_distance, is_photo_verified, is_premium, premium_expires_at,
   created_at, last_active_at
 )
@@ -138,6 +138,10 @@ select pg_temp.seed_id(n), name,
              when country in ('ET','ER','UG','KE') then (array['under_10k','10k_25k','25k_50k'])[1 + n % 3]
              else (array['25k_50k','50k_75k','75k_100k','100k_150k','150k_250k'])[1 + n % 5]
         end)::income_range_t,
+       -- Education: a realistic spread, a few prefer not to say.
+       (case when n % 11 = 0 then 'prefer_not_to_say'
+             else (array['high_school','vocational','bachelors','bachelors','masters','masters','doctorate'])[1 + n % 7]
+        end)::education_level_t,
        relocate, long_dist,
        n % 4 = 0,                                     -- some verified (blue tick)
        n in (6, 14, 20),                              -- a few premium diaspora users

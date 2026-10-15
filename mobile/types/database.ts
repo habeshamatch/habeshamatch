@@ -368,6 +368,7 @@ export type Database = {
           current_country_code: string | null
           date_of_birth: string
           display_name: string
+          education_level: Database["public"]["Enums"]["education_level_t"] | null
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm: number | null
           id: string
@@ -393,6 +394,7 @@ export type Database = {
           current_country_code?: string | null
           date_of_birth: string
           display_name: string
+          education_level?: Database["public"]["Enums"]["education_level_t"] | null
           gender: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id: string
@@ -418,6 +420,7 @@ export type Database = {
           current_country_code?: string | null
           date_of_birth?: string
           display_name?: string
+          education_level?: Database["public"]["Enums"]["education_level_t"] | null
           gender?: Database["public"]["Enums"]["gender_t"]
           height_cm?: number | null
           id?: string
@@ -746,6 +749,13 @@ export type Database = {
     Enums: {
       account_status_t: "active" | "suspended" | "banned" | "deleted"
       convo_origin_t: "criteria" | "suggested" | "swipe_match"
+      education_level_t:
+        | "high_school"
+        | "vocational"
+        | "bachelors"
+        | "masters"
+        | "doctorate"
+        | "prefer_not_to_say"
       gender_t: "male" | "female"
       income_range_t:
         | "under_10k"
@@ -768,6 +778,7 @@ export type Database = {
         | "height"
         | "residence_type"
         | "country"
+        | "education"
       pref_kind_t: "hard" | "soft"
       religion_t:
         | "orthodox"
@@ -935,6 +946,14 @@ export const Constants = {
     Enums: {
       account_status_t: ["active", "suspended", "banned", "deleted"],
       convo_origin_t: ["criteria", "suggested", "swipe_match"],
+      education_level_t: [
+        "high_school",
+        "vocational",
+        "bachelors",
+        "masters",
+        "doctorate",
+        "prefer_not_to_say",
+      ],
       gender_t: ["male", "female"],
       income_range_t: [
         "under_10k",
@@ -958,6 +977,7 @@ export const Constants = {
         "height",
         "residence_type",
         "country",
+        "education",
       ],
       pref_kind_t: ["hard", "soft"],
       religion_t: [

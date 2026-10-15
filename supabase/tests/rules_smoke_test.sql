@@ -132,3 +132,13 @@ set role authenticated;
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000b"}';
 select t_err($$select start_conversation('00000000-0000-0000-0000-00000000000d')$$, 'daily_new_chat_limit_reached') as free_chat_cap;
 reset role;
+
+-- ===== education preference (checked directly, as the matching internals are not callable by users) =====
+update profiles set education_level = 'masters' where id = '00000000-0000-0000-0000-00000000000b';
+insert into preference_items (user_id, attribute, kind, value) values
+ ('00000000-0000-0000-0000-00000000000a','education','hard','["bachelors","masters","doctorate"]');
+select 'education: masters meets degree must-have' t, pref_item_met('education', '["bachelors","masters","doctorate"]', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- t
+update profiles set education_level = 'high_school' where id = '00000000-0000-0000-0000-00000000000b';
+select 'education: high school fails it' t, pref_item_met('education', '["bachelors","masters","doctorate"]', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+update profiles set education_level = null where id = '00000000-0000-0000-0000-00000000000b';
+select 'education: not answered fails it' t, coalesce(pref_item_met('education', '["bachelors"]', p), false) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
