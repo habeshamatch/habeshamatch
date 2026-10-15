@@ -5,9 +5,10 @@ import { useSession } from '@/lib/session';
 import { colors } from '@/lib/theme';
 
 export default function OnboardingLayout() {
-  const { session, profileStatus } = useSession();
+  const { session, profileStatus, photoCount } = useSession();
   const phoneVerified = isPhoneVerified(session?.user);
   const hasProfile = profileStatus === 'exists';
+  const hasPhoto = photoCount > 0;
 
   return (
     <Stack
@@ -27,9 +28,13 @@ export default function OnboardingLayout() {
       <Stack.Protected guard={phoneVerified && !hasProfile}>
         <Stack.Screen name="profile" />
       </Stack.Protected>
-      {/* 3. Photos (Prompt 1.3). */}
+      {/* 3. Photos: at least one is required to go on. Stays available to add more. */}
       <Stack.Protected guard={phoneVerified && hasProfile}>
         <Stack.Screen name="photos" />
+      </Stack.Protected>
+      {/* 4. Preferences (Prompt 1.4), only once there is a photo. */}
+      <Stack.Protected guard={phoneVerified && hasProfile && hasPhoto}>
+        <Stack.Screen name="preferences" />
       </Stack.Protected>
     </Stack>
   );

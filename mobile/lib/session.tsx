@@ -10,6 +10,7 @@ type SessionState = {
   session: Session | null;
   loading: boolean; // true until the stored session has been read on launch
   profileStatus: ProfileStatus;
+  photoCount: number; // the user's own photos, any moderation status
   refreshProfile: () => Promise<void>;
 };
 
@@ -17,19 +18,26 @@ const SessionContext = createContext<SessionState>({
   session: null,
   loading: true,
   profileStatus: 'loading',
+  photoCount: 0,
   refreshProfile: async () => {},
 });
 
-async function fetchProfileStatus(userId: string): Promise<ProfileStatus> {
-  const { data, error } = await supabase.from('profiles').select('id').eq('id', userId).maybeSingle();
-  if (error) return 'error';
-  return data ? 'exists' : 'missing';
+type ProfileState = { status: ProfileStatus; photoCount: number };
+
+// Onboarding progress from the server: does the profile row exist, and how many photos are there.
+async function fetchProfileState(userId: string): Promise<ProfileState> {
+  const [profile, photos] = await Promise.all([
+    supabase.from('profiles').select('id').eq('id', userId).maybeSingle(),
+    supabase.from('photos').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+  ]);
+  if (profile.error || photos.error) return { status: 'error', photoCount: 0 };
+  return { status: profile.data ? 'exists' : 'missing', photoCount: photos.count ?? 0 };
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [profileStatus, setProfileStatus] = useState<ProfileStatus>('loading');
+  const [profileState, setProfileState] = useState<ProfileState>({ status: 'loading', photoCount: 0 });
   const userId = session?.user.id;
 
   useEffect(() => {
@@ -45,7 +53,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // screen does not blank out while loading.
   const refreshProfile = useCallback(async () => {
     if (!userId) return;
-    setProfileStatus(await fetchProfileStatus(userId));
+    setProfileState(await fetchProfileState(userId));
   }, [userId]);
 
   // The stored session is trusted offline, so confirm with the server that the account still exists.
@@ -62,13 +70,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Check whether this account already has a profile whenever the signed-in user changes.
   useEffect(() => {
     if (!userId) {
-      setProfileStatus('loading');
+      setProfileState({ status: 'loading', photoCount: 0 });
       return;
     }
     let cancelled = false;
-    setProfileStatus('loading');
-    fetchProfileStatus(userId).then((status) => {
-      if (!cancelled) setProfileStatus(status);
+    setProfileState({ status: 'loading', photoCount: 0 });
+    fetchProfileState(userId).then((state) => {
+      if (!cancelled) setProfileState(state);
     });
     return () => {
       cancelled = true;
@@ -76,7 +84,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [userId]);
 
   return (
-    <SessionContext.Provider value={{ session, loading, profileStatus, refreshProfile }}>
+    <SessionContext.Provider
+      value={{
+        session,
+        loading,
+        profileStatus: profileState.status,
+        photoCount: profileState.photoCount,
+        refreshProfile,
+      }}
+    >
       {children}
     </SessionContext.Provider>
   );
