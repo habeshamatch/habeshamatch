@@ -712,6 +712,10 @@ export type Database = {
         }
         Returns: Json
       }
+      reorder_my_photos: {
+        Args: { p_photo_ids: string[] }
+        Returns: undefined
+      }
       require_active_user: { Args: never; Returns: string }
       residence_type: { Args: { p_country: string }; Returns: string }
       soft_score: {

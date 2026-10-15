@@ -75,6 +75,17 @@ select t_err($$update profiles set is_premium = true where id = auth.uid()$$, 'p
 select t_err($$select meets_hard(auth.uid(), auth.uid())$$, 'permission denied for function meets_hard') as internals_hidden;
 select count(*) as can_read_others_profiles from profiles;                         -- expect 1 (own)
 select 'deck' t, display_name, match_score from get_swipe_deck();                   -- Bethel then Chaltu (same country first)
+-- photos: owner adds a second photo (always pending), then reorders
+insert into photos (user_id, storage_path, position) values (auth.uid(), auth.uid()::text || '/2.jpg', 2);
+select t_err($$insert into photos (user_id, storage_path, position, moderation_status)
+  values (auth.uid(), auth.uid()::text || '/3.jpg', 3, 'approved')$$,
+  'new row violates row-level security policy for table "photos"') as photo_insert_must_be_pending;
+select reorder_my_photos(array(select id from photos where user_id = auth.uid() order by position desc));
+select 'photo order after reorder' t, string_agg(storage_path, ' > ' order by position) from photos where user_id = auth.uid();  -- .../2.jpg > .../1.jpg
+select t_err($$select reorder_my_photos(array(select id from photos where user_id = auth.uid() limit 1))$$, 'not_permitted') as reorder_needs_all;
+select t_err($$select reorder_my_photos(array(select id from photos where user_id = auth.uid()) || (select id from photos where storage_path like '00000000-0000-0000-0000-00000000000b/%' limit 1))$$, 'not_permitted') as reorder_others_blocked;
+update photos set moderation_status = 'approved' where user_id = auth.uid() and moderation_status = 'pending';  -- no UPDATE policy: changes nothing
+select 'still pending after self-approve attempt' t, count(*) from photos where user_id = auth.uid() and moderation_status = 'pending';  -- expect 1
 select 'chat with Bethel' t, start_conversation('00000000-0000-0000-0000-00000000000b') is not null;
 select get_my_limits();
 reset role; set request.jwt.claims = '{}';
