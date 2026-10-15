@@ -48,6 +48,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setProfileStatus(await fetchProfileStatus(userId));
   }, [userId]);
 
+  // The stored session is trusted offline, so confirm with the server that the account still exists.
+  // If it was deleted (or the session revoked), sign out on this device only and start fresh.
+  useEffect(() => {
+    if (!userId) return;
+    supabase.auth.getUser().then(({ error }) => {
+      if (error && (error.status === 401 || error.status === 403 || error.code === 'user_not_found')) {
+        supabase.auth.signOut({ scope: 'local' });
+      }
+    });
+  }, [userId]);
+
   // Check whether this account already has a profile whenever the signed-in user changes.
   useEffect(() => {
     if (!userId) {
