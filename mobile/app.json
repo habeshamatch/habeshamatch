@@ -34,7 +34,16 @@
         }
       ],
       "expo-localization",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "HabeshaMatch uses your photo library so you can add photos to your profile.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "habeshamatch",
     "backgroundColor": "#1C1917",

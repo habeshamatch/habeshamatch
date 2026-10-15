@@ -12,6 +12,7 @@ export const colors = {
   text: '#FAF7F2',
   textMuted: '#A8A29E',
   verified: '#3B82F6', // blue tick
+  overlay: 'rgba(0, 0, 0, 0.6)', // dims the screen behind sheets and dialogs
 } as const;
 
 // Font family names, as registered by useFonts in app/_layout.tsx.
