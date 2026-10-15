@@ -16,6 +16,7 @@ export type ProfileDraft = {
   languages: string[]; // ISO 639 codes from lib/languages.ts
   intent: Enums<'intent_t'> | null;
   incomeRange: Enums<'income_range_t'> | null;
+  educationLevel: Enums<'education_level_t'> | null;
   currentCity: string;
   residenceCountry: string | null;
   openToRelocating: boolean;
@@ -36,6 +37,7 @@ export function emptyDraft(heightUnit: HeightUnit): ProfileDraft {
     languages: [],
     intent: null,
     incomeRange: null,
+    educationLevel: null,
     currentCity: '',
     residenceCountry: null,
     openToRelocating: false,

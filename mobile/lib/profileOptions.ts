@@ -43,6 +43,15 @@ export const INCOME_RANGES: Option<Enums<'income_range_t'>>[] = [
   { value: 'prefer_not_to_say', label: 'Prefer not to say' },
 ];
 
+export const EDUCATION_LEVELS: Option<Enums<'education_level_t'>>[] = [
+  { value: 'high_school', label: 'High school' },
+  { value: 'vocational', label: 'Diploma or vocational' },
+  { value: 'bachelors', label: "Bachelor's degree" },
+  { value: 'masters', label: "Master's degree" },
+  { value: 'doctorate', label: 'Doctorate' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+];
+
 export const DISPLAY_NAME_MAX = 40;
 export const BIO_MAX = 500;
 export const MIN_AGE = 18;

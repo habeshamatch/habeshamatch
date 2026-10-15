@@ -97,7 +97,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - There is no paid badge. Never display who is paying.
 
 ### Matching
-- Preferences are saved by `mobile/lib/preferences.ts`: `preference_core` (gender, age range) always; one `preference_items` row per attribute the user sets, marked hard ("Must have") or soft ("Nice to have"); attributes left as "Any" have no row.
+- Preferences are saved by `mobile/lib/preferences.ts`: `preference_core` (gender, age range) always; one `preference_items` row per attribute the user sets, marked hard ("Must have") or soft ("Nice to have"); attributes left as "Any" have no row. "Where they live" is one choice on screen (abroad, back home, or specific countries), saved as either `residence_type` or `country`, never both.
 - **Hard preferences:** deal-breakers. Gender and age range are always hard (`preference_core`). Other attributes (`preference_items`) are marked hard or soft by the user.
 - **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` (30%) of the viewer's soft preferences. Ranked by soft score. Anyone here can be messaged directly, no approval.
 - **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly.
@@ -113,7 +113,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Text-only messaging, max 2000 characters.
 
 ### Profile fields
-Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
+Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), education level (`education_level`, includes prefer not to say), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
 
 ## Database API (call these from the app)
 
