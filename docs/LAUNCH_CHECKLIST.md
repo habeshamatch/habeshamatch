@@ -17,7 +17,7 @@ Currently: Twilio is switched OFF on the remote project, so phone verification c
 
 ## Phone confirmations (security)
 
-- [ ] Supabase dashboard > Authentication > Sign In / Providers > Phone: **"Enable phone confirmations" must be ON.** When it was off, `updateUser({ phone })` marked any number as verified with no code (found 2026-10-11), which bypasses the local-tier phone rule.
+- [ ] Supabase dashboard > Authentication > Sign In / Providers > Phone: **"Enable phone confirmations" must be ON.** When it was off, `updateUser({ phone })` marked any number as verified with no code (found 2026-10-11 and 2026-10-14), which bypasses the local-tier phone rule. Set it in the dashboard only: the Supabase CLI writes this setting inverted for the remote project, so it is no longer in `supabase/remote-auth`.
 - [ ] After Twilio is on, retest: a new account entering a test number must see the code screen, and `auth.users.phone_change_sent_at` must be set.
 
 ## Email

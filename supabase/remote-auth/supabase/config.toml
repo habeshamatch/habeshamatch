@@ -21,8 +21,12 @@ content_path = "./templates/sign_in_code.html"
 [auth.sms]
 # Phone is not a sign in method.
 enable_signup = false
-# Must stay on, or updateUser({ phone }) saves the number without checking a code.
-enable_confirmations = true
+# DELIBERATELY NOT SET HERE: enable_confirmations.
+# "Enable phone confirmations" must be ON, or updateUser({ phone }) saves the number without a code.
+# Supabase CLI 2.119 reads and writes this setting inverted for the remote project: it reported "on"
+# while the dashboard toggle was off, and pushing "true" switched the toggle OFF (found 2026-10-14,
+# phone verified with no code). Control it in the dashboard only: Authentication > Sign In / Providers
+# > Phone > Enable phone confirmations. Check it by behaviour (the code screen appears), not by diff.
 
 [auth.sms.test_otp]
 14165550199 = "123456"
