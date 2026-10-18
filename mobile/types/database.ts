@@ -640,6 +640,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_search_users: {
+        Args: { p_limit?: number; p_query?: string }
+        Returns: {
+          account_status: Database["public"]["Enums"]["account_status_t"]
+          age: number
+          created_at: string
+          display_name: string
+          email: string
+          gender: Database["public"]["Enums"]["gender_t"]
+          is_photo_verified: boolean
+          last_active_at: string
+          open_reports: number
+          phone: string
+          residence: string
+          tier: Database["public"]["Enums"]["tier_t"]
+          user_id: string
+        }[]
+      }
+      admin_stats: { Args: never; Returns: Json }
       age_years: { Args: { dob: string }; Returns: number }
       cfg_num: { Args: { p_key: string }; Returns: number }
       get_daily_picks: {

@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
 
@@ -74,6 +75,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
     });
   }, [userId]);
+
+  // Record activity (profiles.last_active_at) when the app opens or comes back, at most once an hour.
+  // Used for "active members" in the admin dashboard.
+  useEffect(() => {
+    if (!userId || profileState.status !== 'exists') return;
+    let last = 0;
+    const ping = () => {
+      if (Date.now() - last < 60 * 60 * 1000) return;
+      last = Date.now();
+      supabase.from('profiles').update({ last_active_at: new Date().toISOString() }).eq('id', userId).then(() => {});
+    };
+    ping();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') ping();
+    });
+    return () => sub.remove();
+  }, [userId, profileState.status]);
 
   // Check whether this account already has a profile whenever the signed-in user changes.
   useEffect(() => {
