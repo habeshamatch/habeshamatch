@@ -20,23 +20,22 @@ export type Preferences = {
   languages: ListPref; // ISO 639 codes, matched if any overlap
   intent: ListPref;
   education: ListPref; // acceptable education levels
-  // Where they live: the screen sets ONE of these (abroad / back home, or specific countries).
-  residenceType: ListPref; // ["diaspora"] or ["home"]
-  country: ListPref; // ISO country codes
+  country: ListPref; // where they live: ISO country codes of residence
   height: HeightPref;
 };
 
 export const AGE_MAX = 99; // mirrors preference_core.age_max check
 export const MAX_COUNTRIES = 15;
 
-type ListKey = 'religion' | 'origin' | 'languages' | 'intent' | 'education' | 'residenceType' | 'country';
+// residence_type (abroad / back home) is no longer offered; an old residence_type row is not loaded,
+// so the next save removes it.
+type ListKey = 'religion' | 'origin' | 'languages' | 'intent' | 'education' | 'country';
 const LIST_ATTRIBUTES: Record<ListKey, Enums<'pref_attr_t'>> = {
   religion: 'religion',
   origin: 'origin',
   languages: 'languages',
   intent: 'relationship_intent',
   education: 'education',
-  residenceType: 'residence_type',
   country: 'country',
 };
 
@@ -71,7 +70,6 @@ export async function loadPreferences(userId: string): Promise<{ prefs: Preferen
     languages: emptyList(),
     intent: emptyList(),
     education: emptyList(),
-    residenceType: emptyList(),
     country: emptyList(),
     height: { enabled: false, min: 155, max: 190, kind: 'soft' },
   };
@@ -92,8 +90,6 @@ export async function loadPreferences(userId: string): Promise<{ prefs: Preferen
       prefs[key] = { values: item.value.filter((v): v is string => typeof v === 'string'), kind: item.kind };
     }
   }
-  // Where they live is one choice on screen. If older data has both, specific countries win.
-  if (prefs.country.values.length > 0) prefs.residenceType = emptyList();
   return { prefs, saved: !!core.data };
 }
 

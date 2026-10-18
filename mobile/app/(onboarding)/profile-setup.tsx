@@ -462,7 +462,7 @@ function Residence({
       </Pressable>
 
       <Notice>
-        {`Your country of residence sets your pricing on HabeshaMatch. You can change it once every ${rules.cooldownDays} days, so choose where you actually live.`}
+        {`You can change your country of residence once every ${rules.cooldownDays} days, so choose where you actually live.`}
       </Notice>
 
       {pickedLocal && !localPhone && country && (

@@ -31,7 +31,6 @@ import {
   ORIGINS,
   RELIGIONS,
 } from '@/lib/profileOptions';
-import { fetchResidenceRules } from '@/lib/residence';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
@@ -43,12 +42,6 @@ const SEEKING = [
 const RELIGION_CHOICES = RELIGIONS.filter((r) => r.value !== 'prefer_not_to_say');
 // "Prefer not to say" is an answer about yourself, not something to look for.
 const EDUCATION_CHOICES = EDUCATION_LEVELS.filter((e) => e.value !== 'prefer_not_to_say');
-const LOCATION_MODES = [
-  { value: 'diaspora' as const, label: 'Abroad' },
-  { value: 'home' as const, label: 'Back home' },
-  { value: 'countries' as const, label: 'Specific countries' },
-];
-type LocationMode = (typeof LOCATION_MODES)[number]['value'];
 const KINDS = [
   { value: 'hard' as const, label: 'Must have' },
   { value: 'soft' as const, label: 'Nice to have' },
@@ -68,23 +61,19 @@ export default function PreferencesScreen() {
 
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [alreadySaved, setAlreadySaved] = useState(false); // false during onboarding
-  const [homeCountries, setHomeCountries] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [saving, setSaving] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [picker, setPicker] = useState<'languages' | 'countries' | null>(null);
-  // "Specific countries" stays chosen while the list is still empty.
-  const [countriesMode, setCountriesMode] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([loadPreferences(userId), fetchResidenceRules()])
-      .then(([loaded, rules]) => {
+    loadPreferences(userId)
+      .then((loaded) => {
         if (cancelled) return;
         setPrefs(loaded.prefs);
         setAlreadySaved(loaded.saved);
-        setHomeCountries(rules.localTierCountries.map((c) => c.name).join(', '));
       })
       .catch((e) => {
         if (!cancelled) setLoadError(friendlyError(e));
@@ -144,7 +133,7 @@ export default function PreferencesScreen() {
     );
   }
 
-  const mustHaveCount = (['religion', 'origin', 'languages', 'intent', 'education', 'residenceType', 'country'] as const).filter(
+  const mustHaveCount = (['religion', 'origin', 'languages', 'intent', 'education', 'country'] as const).filter(
     (k) => prefs[k].values.length > 0 && prefs[k].kind === 'hard',
   ).length + (prefs.height.enabled && prefs.height.kind === 'hard' ? 1 : 0);
 
@@ -178,31 +167,6 @@ export default function PreferencesScreen() {
   );
 
   const extraLanguages = prefs.languages.values.filter((c) => !QUICK_LANGUAGE_CODES.includes(c));
-
-  // Where they live: abroad, back home, or specific countries. Only one is saved.
-  const locationMode: LocationMode | null =
-    prefs.country.values.length > 0 || countriesMode
-      ? 'countries'
-      : ((prefs.residenceType.values[0] as LocationMode | undefined) ?? null);
-  const locationPref: ListPref = {
-    values: [...prefs.residenceType.values, ...prefs.country.values],
-    kind: prefs.country.values.length > 0 ? prefs.country.kind : prefs.residenceType.kind,
-  };
-  const chooseLocation = (mode: LocationMode) => {
-    const kind = locationPref.kind;
-    if (mode === locationMode && mode !== 'countries') {
-      update({ residenceType: { values: [], kind } });
-      return;
-    }
-    if (mode === 'countries') {
-      setCountriesMode(true);
-      update({ residenceType: { values: [], kind }, country: { ...prefs.country, kind } });
-      if (prefs.country.values.length === 0) setPicker('countries');
-      return;
-    }
-    setCountriesMode(false);
-    update({ residenceType: { values: [mode], kind }, country: { values: [], kind } });
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -325,47 +289,27 @@ export default function PreferencesScreen() {
 
         <PreferenceCard
           title="Where they live"
-          hint={
-            locationMode === 'home' && homeCountries
-              ? `Back home means ${homeCountries}.`
-              : locationMode === 'countries'
-                ? 'Their country of residence.'
-                : undefined
-          }
-          pref={locationPref}
-          onKind={(kind) =>
-            update({ residenceType: { ...prefs.residenceType, kind }, country: { ...prefs.country, kind } })
-          }
-          onClear={() => {
-            setCountriesMode(false);
-            update({ residenceType: { ...prefs.residenceType, values: [] }, country: { ...prefs.country, values: [] } });
-          }}
+          hint="Countries where they live now."
+          pref={prefs.country}
+          onKind={(kind) => update({ country: { ...prefs.country, kind } })}
+          onClear={() => update({ country: { ...prefs.country, values: [] } })}
         >
-          <Chips
-            options={LOCATION_MODES}
-            selected={locationMode ? [locationMode] : []}
-            onToggle={chooseLocation}
-            label="Where they live"
-          />
-          {locationMode === 'countries' && (
-            <>
-              {prefs.country.values.length > 0 && (
-                <Chips
-                  multiple
-                  options={prefs.country.values.map((c) => {
-                    const country = getCountry(c);
-                    return { value: c, label: `${country.flag} ${country.name}  ✕` };
-                  })}
-                  selected={prefs.country.values}
-                  onToggle={(v) =>
-                    update({ country: { ...prefs.country, values: prefs.country.values.filter((x) => x !== v) } })
-                  }
-                  label="Countries. Tap to remove."
-                />
-              )}
-              <LinkButton label="+ Choose countries" onPress={() => setPicker('countries')} />
-            </>
+          {prefs.country.values.length > 0 && (
+            <Chips
+              multiple
+              options={prefs.country.values.map((c) => {
+                const country = getCountry(c);
+                return { value: c, label: `${country.flag} ${country.name}  ✕` };
+              })}
+              selected={prefs.country.values}
+              onToggle={(v) => update({ country: { ...prefs.country, values: prefs.country.values.filter((x) => x !== v) } })}
+              label="Countries. Tap to remove."
+            />
           )}
+          <LinkButton
+            label={prefs.country.values.length > 0 ? '+ Add or remove countries' : '+ Choose countries'}
+            onPress={() => setPicker('countries')}
+          />
         </PreferenceCard>
       </ScrollView>
 
