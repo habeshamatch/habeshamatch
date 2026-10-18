@@ -7,9 +7,9 @@ is logged in `moderation_actions`.
 | Page | What it does |
 |---|---|
 | Dashboard | Members, active members, tier split, sign-ups and messages per day, queue sizes |
-| Photos | Approve or reject pending photos (new members are invisible until a photo is approved) |
+| New members | Every new member: compare the live selfie (and the pose they were asked for) with their photos. Approve gives the blue tick and approves their photos (at least 2 good ones needed); Reject needs a reason the member sees, and you can mark individual photos as the problem. Nobody can see or meet a member until approved |
+| New photos | Photos that already approved members add later; new members' photos are reviewed under New members |
 | Reports | Open reports by category; see both members and their messages; dismiss, warn, suspend or ban |
-| Verifications | Compare a selfie with profile photos; approve gives the blue tick (selfie flow: Prompt 5.1) |
 | Users | Search by name, email, phone or id; profile, photos, reports, history; warn, suspend, ban, reactivate, delete |
 
 ## Run it on your Mac

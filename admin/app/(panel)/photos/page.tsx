@@ -16,15 +16,16 @@ const REJECT_REASONS = [
   'Low quality',
 ];
 
-// Photo moderation queue: oldest first. Every photo starts pending and is invisible to others
-// until approved here.
+// Photo queue for photos that APPROVED members add later: oldest first. New members' photos are
+// reviewed together with their selfie on the New members page. Pending photos are invisible.
 export default async function PhotosPage() {
   await requireAdmin();
   const db = createAdminClient();
   const { data: photos, error } = await db
     .from('photos')
-    .select('id, storage_path, position, created_at, user_id, profiles(display_name, date_of_birth, gender, residence_country_code)')
+    .select('id, storage_path, position, created_at, user_id, profiles!inner(display_name, date_of_birth, gender, residence_country_code, is_photo_verified)')
     .eq('moderation_status', 'pending')
+    .eq('profiles.is_photo_verified', true) // new members' photos are reviewed with their selfie under New members
     .order('created_at', { ascending: true })
     .limit(60);
   if (error) throw error;
@@ -39,7 +40,9 @@ export default async function PhotosPage() {
       <div>
         <h1 className="font-serif text-3xl">Photo queue</h1>
         <p className="text-muted">
-          {photos.length === 0 ? 'Nothing to review. All caught up.' : `${photos.length} waiting, oldest first.`}
+          {photos.length === 0
+            ? 'Nothing to review. New members are reviewed under New members.'
+            : `${photos.length} new photos from existing members, oldest first.`}
         </p>
       </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">

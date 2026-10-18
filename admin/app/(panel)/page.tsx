@@ -58,9 +58,9 @@ export default async function Dashboard() {
       <section className="space-y-3">
         <h2 className="text-sm uppercase tracking-wider text-muted">Needs attention</h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Tile label="Photos to review" value={s.pending_photos} href="/photos" />
+          <Tile label="New members to review" value={s.pending_verifications} href="/verifications" />
           <Tile label="Open reports" value={s.open_reports} href="/reports" />
-          <Tile label="Verifications" value={s.pending_verifications} href="/verifications" />
+          <Tile label="Photos waiting (all)" value={s.pending_photos} href="/photos" />
         </div>
       </section>
 

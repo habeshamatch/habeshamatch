@@ -6,9 +6,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 const NAV = [
   { href: '/', label: 'Dashboard' },
-  { href: '/photos', label: 'Photos', count: 'photos' as const },
+  { href: '/verifications', label: 'New members', count: 'verifications' as const },
+  { href: '/photos', label: 'New photos', count: 'photos' as const },
   { href: '/reports', label: 'Reports', count: 'reports' as const },
-  { href: '/verifications', label: 'Verifications', count: 'verifications' as const },
   { href: '/users', label: 'Users' },
 ];
 
@@ -21,7 +21,11 @@ export default async function PanelLayout({ children }: LayoutProps<'/'>) {
   const admin = await requireAdmin();
   const db = createAdminClient();
   const [photos, reports, verifications] = await Promise.all([
-    db.from('photos').select('id', { count: 'exact', head: true }).eq('moderation_status', 'pending'),
+    db
+      .from('photos')
+      .select('id, profiles!inner(is_photo_verified)', { count: 'exact', head: true })
+      .eq('moderation_status', 'pending')
+      .eq('profiles.is_photo_verified', true),
     db.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'open'),
     db.from('verification_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
   ]);
