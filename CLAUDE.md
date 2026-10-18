@@ -29,7 +29,7 @@ habeshamatch/
 ├── mobile/                      # Expo app
 │   ├── app/                     # expo-router screens
 │   │   ├── (auth)/              # welcome, email, email-code (Google and Apple later)
-│   │   ├── (onboarding)/        # phone, phone-code, then profile steps, photos, residence, preferences
+│   │   ├── (onboarding)/        # phone, phone-code, profile-setup, photos, preferences
 │   │   ├── (tabs)/              # discover, swipe, messages, profile
 │   │   ├── chat/[id].tsx
 │   │   ├── profile/[id].tsx
@@ -59,7 +59,7 @@ Two separate steps. Do not merge them or reorder them.
 Rules:
 - Phone verification must finish BEFORE the residence step and before the `profiles` row is created, because `enforce_residence_rules` reads `auth.users.phone` to check the local-tier prefix. The database enforces this: inserting a profile without a confirmed phone raises `phone_not_verified` (trigger `profiles_phone_verified`).
 - A phone counts as verified when `user.phone` and `user.phone_confirmed_at` are both set (`isPhoneVerified` in `mobile/lib/auth.ts`). Once verified, never ask again.
-- Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified without a `profiles` row sees only the profile wizard (`(onboarding)/profile.tsx`); with a profile, photos come next, and at least one photo is required before preferences. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`); profile existence comes from `useSession().profileStatus`.
+- Routing follows server state, so closing the app resumes at the same step: no session goes to `(auth)`; signed in without a verified phone sees only the phone screens; verified without a `profiles` row sees only the profile wizard (`(onboarding)/profile-setup.tsx`); with a profile, photos come next, and at least one photo is required before preferences (`(onboarding)/preferences.tsx`). Saving `preference_core` completes onboarding and opens `(tabs)`. Photos and preferences stay reachable afterwards from the Profile tab for editing. Guards live in `app/_layout.tsx` and `app/(onboarding)/_layout.tsx` (`Stack.Protected`); progress comes from `useSession()` (`profileStatus`, `photoCount`, `hasPreferences`).
 - The profile wizard keeps a draft in encrypted device storage (`lib/profileDraft.ts`) and creates the `profiles` row once, at the end. Its residence step reads `local_tier_countries` and `app_config.location_change_cooldown_days`; it mirrors the local-tier phone rule only to explain it early, the database makes the final check.
 - Phone confirmations must be ON everywhere. If off, `updateUser({ phone })` saves the number without a code, which would let anyone claim a local-tier number. Locally: `[auth.sms] enable_confirmations = true` in `supabase/config.toml`. Remote: the dashboard toggle (Authentication > Sign In / Providers > Phone > Enable phone confirmations) is the ONLY control; it is deliberately left out of `supabase/remote-auth`, because the CLI reads and writes it inverted for the remote project. Do not trust `config diff` for this setting; confirm by behaviour (entering a phone number shows the code screen, and `auth.users.phone_change_sent_at` is set).
 - Email codes use the template in `supabase/remote-auth/templates/sign_in_code.html` (inside remote-auth because `config push` only reads files inside its workdir; the local config points there too) for both the confirmation (new user) and magic link (returning user) emails. `[auth.email] otp_length = 6`.
@@ -97,8 +97,9 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - There is no paid badge. Never display who is paying.
 
 ### Matching
+- Preferences are saved by `mobile/lib/preferences.ts`: `preference_core` (gender, age range) always; one `preference_items` row per attribute the user sets, marked hard ("Must have") or soft ("Nice to have"); attributes left as "Any" have no row. "Where they live" is a searchable multi-select of countries (`country`). The `residence_type` (abroad / back home) attribute still works in the database but the app no longer offers it; saving preferences removes an old one. Income is "at least" a bracket, saved as `{"min": "<income_range_t>"}`; "prefer not to say" or no answer never meets it.
 - **Hard preferences:** deal-breakers. Gender and age range are always hard (`preference_core`). Other attributes (`preference_items`) are marked hard or soft by the user.
-- **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` (30%) of the viewer's soft preferences. Ranked by soft score. Anyone here can be messaged directly, no approval.
+- **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` of the viewer's soft preferences. Ranked by soft score. The threshold is currently 0 (migration `20261017000002`), so nice-to-haves only rank and never hide anyone while the community is small; raise it later in `app_config`. Anyone here can be messaged directly, no approval.
 - **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly.
 - **Core messaging invariant:** you can only start a chat with someone whose hard preferences you meet. Nobody ever receives a first message from someone who fails their deal-breakers.
 - **Swipe section:** ignores criteria except gender and age range, which must fit in both directions. Mutual like opens a chat that does not count toward the daily limit. Deck shows same country first, then same region type (diaspora or home), then the rest.
@@ -112,7 +113,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Text-only messaging, max 2000 characters.
 
 ### Profile fields
-Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
+Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), education level (`education_level`, includes prefer not to say), bio (500 chars), open to relocating, open to long distance, up to 6 photos.
 
 ## Database API (call these from the app)
 

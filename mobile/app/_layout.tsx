@@ -35,7 +35,7 @@ function RootNavigator() {
     Inter_500Medium,
     Inter_600SemiBold,
   });
-  const { session, loading, profileStatus, refreshProfile } = useSession();
+  const { session, loading, profileStatus, photoCount, hasPreferences, refreshProfile } = useSession();
   // Once signed in with a verified phone, routing also depends on whether the profile exists.
   const needsProfileStatus = !!session && isPhoneVerified(session.user);
   const ready = (fontsLoaded || !!fontError) && !loading && !(needsProfileStatus && profileStatus === 'loading');
@@ -59,6 +59,8 @@ function RootNavigator() {
   }
 
   const signedIn = !!session;
+  const onboardingComplete =
+    needsProfileStatus && profileStatus === 'exists' && photoCount > 0 && hasPreferences;
 
   return (
     <>
@@ -75,6 +77,9 @@ function RootNavigator() {
         </Stack.Protected>
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(onboarding)" />
+        </Stack.Protected>
+        <Stack.Protected guard={onboardingComplete}>
+          <Stack.Screen name="(tabs)" />
         </Stack.Protected>
       </Stack>
     </>

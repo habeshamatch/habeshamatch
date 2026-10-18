@@ -26,13 +26,14 @@ export default function OnboardingLayout() {
       </Stack.Protected>
       {/* 2. Profile wizard, until the profiles row exists. */}
       <Stack.Protected guard={phoneVerified && !hasProfile}>
-        <Stack.Screen name="profile" />
+        <Stack.Screen name="profile-setup" />
       </Stack.Protected>
       {/* 3. Photos: at least one is required to go on. Stays available to add more. */}
       <Stack.Protected guard={phoneVerified && hasProfile}>
         <Stack.Screen name="photos" />
       </Stack.Protected>
-      {/* 4. Preferences (Prompt 1.4), only once there is a photo. */}
+      {/* 4. Preferences, only once there is a photo. Photos and preferences stay available after
+          onboarding so the Profile tab can open them for editing. */}
       <Stack.Protected guard={phoneVerified && hasProfile && hasPhoto}>
         <Stack.Screen name="preferences" />
       </Stack.Protected>

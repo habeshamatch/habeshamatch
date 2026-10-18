@@ -33,6 +33,7 @@ import { clearDraft, emptyDraft, loadDraft, saveDraft, type ProfileDraft } from 
 import {
   BIO_MAX,
   DISPLAY_NAME_MAX,
+  EDUCATION_LEVELS,
   GENDERS,
   HEIGHT_MAX_CM,
   HEIGHT_MIN_CM,
@@ -83,6 +84,7 @@ function stepProblem(step: number, d: ProfileDraft, rules: ResidenceRules, phone
       if (!d.religion) return 'Please choose your religion, or "Prefer not to say".';
       if (d.languages.length === 0) return 'Please choose at least one language.';
       if (!d.intent) return 'Please choose what you are looking for.';
+      if (!d.educationLevel) return 'Please choose your education, or "Prefer not to say".';
       if (!d.incomeRange) return 'Please choose your income range, or "Prefer not to say".';
       return null;
     case 2:
@@ -184,6 +186,7 @@ export default function ProfileWizard() {
       languages: d.languages,
       relationship_intent: d.intent!,
       income_range: d.incomeRange,
+      education_level: d.educationLevel,
       current_city: d.currentCity.trim(),
       residence_country_code: d.residenceCountry as string,
       open_to_relocating: d.openToRelocating,
@@ -402,6 +405,14 @@ function Background({ draft, update }: StepProps) {
         label="Relationship intent"
       />
 
+      <FieldLabel>Education</FieldLabel>
+      <Chips
+        options={EDUCATION_LEVELS}
+        selected={draft.educationLevel ? [draft.educationLevel] : []}
+        onToggle={(v) => update({ educationLevel: v })}
+        label="Highest education"
+      />
+
       <FieldLabel hint="Per year, in US dollars.">Income</FieldLabel>
       <Chips
         options={INCOME_RANGES}
@@ -451,7 +462,7 @@ function Residence({
       </Pressable>
 
       <Notice>
-        {`Your country of residence sets your pricing on HabeshaMatch. You can change it once every ${rules.cooldownDays} days, so choose where you actually live.`}
+        {`You can change your country of residence once every ${rules.cooldownDays} days, so choose where you actually live.`}
       </Notice>
 
       {pickedLocal && !localPhone && country && (

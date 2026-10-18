@@ -25,7 +25,7 @@ const COLUMNS = 3;
 const GAP = spacing.sm;
 
 export default function PhotosScreen() {
-  const { session, refreshProfile } = useSession();
+  const { session, refreshProfile, hasPreferences } = useSession();
   const userId = session?.user.id ?? '';
   const { width } = useWindowDimensions();
   const tileWidth = Math.floor((width - spacing.lg * 2 - GAP * (COLUMNS - 1)) / COLUMNS);
@@ -124,7 +124,9 @@ export default function PhotosScreen() {
       setError('Add at least one photo to continue.');
       return;
     }
-    router.replace('/preferences');
+    // Opened from the Profile tab after onboarding: go back. During onboarding: next step.
+    if (hasPreferences) router.back();
+    else router.replace('/preferences');
   };
 
   if (!photos) {
@@ -231,7 +233,12 @@ export default function PhotosScreen() {
             {error}
           </Text>
         )}
-        <Button label="Continue" onPress={next} disabled={uploading > 0 || busy} loading={busy} />
+        <Button
+          label={hasPreferences ? 'Done' : 'Continue'}
+          onPress={next}
+          disabled={uploading > 0 || busy}
+          loading={busy}
+        />
       </View>
 
       <Modal visible={!!selected} transparent animationType="fade" onRequestClose={() => setSelected(null)}>
