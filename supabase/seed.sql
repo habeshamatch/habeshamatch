@@ -127,6 +127,7 @@ from seed_people;
 insert into profiles (
   id, display_name, date_of_birth, gender, height_cm, origin, current_city, current_country_code,
   residence_country_code, religion, languages, relationship_intent, bio, income_range, education_level,
+  marital_status, has_children, wants_children, smoking, drinking, exercise, occupation, interests,
   open_to_relocating, open_to_long_distance, is_photo_verified, is_premium, premium_expires_at,
   created_at, last_active_at
 )
@@ -142,6 +143,16 @@ select pg_temp.seed_id(n), name,
        (case when n % 11 = 0 then 'prefer_not_to_say'
              else (array['high_school','vocational','bachelors','bachelors','masters','masters','doctorate'])[1 + n % 7]
         end)::education_level_t,
+       -- Family and lifestyle: mostly never married, a realistic mix of the rest.
+       (case when n % 8 = 0 then 'divorced' when n in (39) then 'widowed' else 'never_married' end)::marital_status_t,
+       (case when n % 8 = 0 or n = 39 then 'yes_live_with_me' when n % 13 = 0 then 'yes_not_with_me' else 'no' end)::has_children_t,
+       (array['yes','yes','yes','open','not_sure','no'])[1 + n % 6]::wants_children_t,
+       (array['never','never','never','never','socially','trying_to_quit','regularly'])[1 + n % 7]::smoking_t,
+       (array['never','never','rarely','socially','socially','regularly'])[1 + n % 6]::drinking_t,
+       (array['daily','often','often','sometimes','sometimes','rarely'])[1 + n % 6]::exercise_t,
+       (array['Nurse','Software engineer','Teacher','Accountant','Business owner','Pharmacist','Student','Doctor','Designer','Engineer'])[1 + n % 10],
+       string_to_array((array['coffee_ceremony,cooking,travel', 'football,fitness,music', 'reading,faith_community,volunteering',
+                              'movies,dancing,family_time', 'hiking,photography,coffee_ceremony', 'entrepreneurship,technology,travel'])[1 + n % 6], ','),
        relocate, long_dist,
        n % 4 = 0,                                     -- some verified (blue tick)
        n in (6, 14, 20),                              -- a few premium diaspora users
