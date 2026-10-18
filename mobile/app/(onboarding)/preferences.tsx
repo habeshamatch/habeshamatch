@@ -218,10 +218,11 @@ export default function PreferencesScreen() {
         <Text style={typography.caption}>Gender and age always apply, in both directions.</Text>
 
         <Notice>
-          {'Everything below is optional. "Must have" is a deal-breaker: you only see people who match it, and people who do not match it cannot start a chat with you. '}
-          {softThresholdPct > 0
-            ? `"Nice to have" ranks people: those who match more of them come first, and people who match less than ${softThresholdPct}% of your nice-to-haves are left out of your main matches.`
-            : '"Nice to have" only ranks people: those who match more of them come first, and nobody is hidden.'}
+          {`Everything below is optional. "Must have" is a deal-breaker: you only see people who match it, and people who do not match it cannot start a chat with you. ${
+            softThresholdPct > 0
+              ? `"Nice to have" ranks people: those who match more of them come first, and people who match less than ${softThresholdPct}% of your nice-to-haves are left out of your main matches.`
+              : '"Nice to have" only ranks people: those who match more of them come first, and nobody is hidden.'
+          }`}
         </Notice>
         {mustHaveCount >= 3 && (
           <Notice tone="warning">

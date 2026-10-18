@@ -3,15 +3,17 @@ import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { PlayfairDisplay_500Medium } from '@expo-google-fonts/playfair-display/500Medium';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { isPhoneVerified } from '@/lib/auth';
+import { queryClient } from '@/lib/queryClient';
 import { SessionProvider, useSession } from '@/lib/session';
 import { colors, spacing, typography } from '@/lib/theme';
 
@@ -20,9 +22,11 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
-    <SessionProvider>
-      <RootNavigator />
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider>
+        <RootNavigator />
+      </SessionProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -36,6 +40,14 @@ function RootNavigator() {
     Inter_600SemiBold,
   });
   const { session, loading, profileStatus, photoCount, hasPreferences, refreshProfile } = useSession();
+
+  // Never show one account's cached data to another: clear the cache on sign out or account switch.
+  const userId = session?.user.id ?? null;
+  const previousUserId = useRef(userId);
+  useEffect(() => {
+    if (previousUserId.current !== userId) queryClient.clear();
+    previousUserId.current = userId;
+  }, [userId]);
   // Once signed in with a verified phone, routing also depends on whether the profile exists.
   const needsProfileStatus = !!session && isPhoneVerified(session.user);
   const ready = (fontsLoaded || !!fontError) && !loading && !(needsProfileStatus && profileStatus === 'loading');
@@ -80,6 +92,7 @@ function RootNavigator() {
         </Stack.Protected>
         <Stack.Protected guard={onboardingComplete}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="profile/[id]" />
         </Stack.Protected>
       </Stack>
     </>

@@ -7,6 +7,9 @@ import type { Enums } from '@/types/database';
 export const MAX_PHOTOS = 6; // also enforced by photos.position (1..6) in the database
 const MAX_DIMENSION = 1080;
 const JPEG_QUALITY = 0.7;
+// Small copy for lists (Discover, inbox) to save mobile data.
+const THUMB_DIMENSION = 400;
+const THUMB_QUALITY = 0.6;
 const SIGNED_URL_SECONDS = 60 * 60;
 const BUCKET = 'photos';
 
@@ -18,6 +21,37 @@ export type MyPhoto = {
   url: string | null; // short-lived signed URL (the bucket is private)
 };
 
+// {user}/abc.jpg -> {user}/abc.thumb.jpg. Mirrors photo_thumb_path() in the database.
+export function thumbPath(storagePath: string): string {
+  return storagePath.replace(/\.jpg$/, '.thumb.jpg');
+}
+
+// Signed URLs for photos (the bucket is private), keyed by the storage path passed in.
+// With 'thumb', loads the small copy and falls back to the full photo for older uploads without one.
+export async function signPhotoUrls(paths: string[], size: 'thumb' | 'full'): Promise<Map<string, string>> {
+  const unique = [...new Set(paths)];
+  const result = new Map<string, string>();
+  if (unique.length === 0) return result;
+  const bucket = supabase.storage.from(BUCKET);
+
+  if (size === 'thumb') {
+    const thumbs = await bucket.createSignedUrls(unique.map(thumbPath), SIGNED_URL_SECONDS);
+    unique.forEach((p, i) => {
+      const url = thumbs.data?.[i]?.signedUrl;
+      if (url) result.set(p, url);
+    });
+  }
+  const missing = unique.filter((p) => !result.has(p));
+  if (missing.length > 0) {
+    const full = await bucket.createSignedUrls(missing, SIGNED_URL_SECONDS);
+    missing.forEach((p, i) => {
+      const url = full.data?.[i]?.signedUrl;
+      if (url) result.set(p, url);
+    });
+  }
+  return result;
+}
+
 // The signed-in user's photos in display order, with signed URLs for viewing.
 export async function fetchMyPhotos(userId: string): Promise<MyPhoto[]> {
   const { data, error } = await supabase
@@ -28,11 +62,10 @@ export async function fetchMyPhotos(userId: string): Promise<MyPhoto[]> {
   if (error) throw error;
   if (data.length === 0) return [];
 
-  const signed = await supabase.storage.from(BUCKET).createSignedUrls(
+  const urls = await signPhotoUrls(
     data.map((p) => p.storage_path),
-    SIGNED_URL_SECONDS,
+    'thumb',
   );
-  const urls = new Map((signed.data ?? []).map((s) => [s.path, s.signedUrl]));
   return data.map((p) => ({
     id: p.id,
     storagePath: p.storage_path,
@@ -42,15 +75,19 @@ export async function fetchMyPhotos(userId: string): Promise<MyPhoto[]> {
   }));
 }
 
-// Resize so the longest side is at most 1080px and re-encode as ~70% JPEG. Re-encoding also drops
+// Resize so the longest side is at most maxDimension and re-encode as JPEG. Re-encoding also drops
 // EXIF metadata such as GPS location. Returns the local URI of the compressed file.
-async function compressPhoto(asset: { uri: string; width: number; height: number }): Promise<string> {
+async function compressPhoto(
+  asset: { uri: string; width: number; height: number },
+  maxDimension: number,
+  quality: number,
+): Promise<string> {
   const context = ImageManipulator.manipulate(asset.uri);
-  if (Math.max(asset.width, asset.height) > MAX_DIMENSION) {
-    context.resize(asset.width >= asset.height ? { width: MAX_DIMENSION, height: null } : { width: null, height: MAX_DIMENSION });
+  if (Math.max(asset.width, asset.height) > maxDimension) {
+    context.resize(asset.width >= asset.height ? { width: maxDimension, height: null } : { width: null, height: maxDimension });
   }
   const image = await context.renderAsync();
-  const result = await image.saveAsync({ compress: JPEG_QUALITY, format: SaveFormat.JPEG });
+  const result = await image.saveAsync({ compress: quality, format: SaveFormat.JPEG });
   return result.uri;
 }
 
@@ -61,16 +98,27 @@ export async function addPhoto(
   asset: { uri: string; width: number; height: number },
   position: number,
 ): Promise<void> {
-  const uri = await compressPhoto(asset);
+  const [fullUri, thumbUri] = await Promise.all([
+    compressPhoto(asset, MAX_DIMENSION, JPEG_QUALITY),
+    compressPhoto(asset, THUMB_DIMENSION, THUMB_QUALITY),
+  ]);
   const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`;
-  const bytes = await new File(uri).arrayBuffer();
+  const bucket = supabase.storage.from(BUCKET);
+  const removeFiles = () => bucket.remove([path, thumbPath(path)]); // don't leave orphaned files
 
-  const upload = await supabase.storage.from(BUCKET).upload(path, bytes, { contentType: 'image/jpeg' });
+  const upload = await bucket.upload(path, await new File(fullUri).arrayBuffer(), { contentType: 'image/jpeg' });
   if (upload.error) throw upload.error;
+  const thumb = await bucket.upload(thumbPath(path), await new File(thumbUri).arrayBuffer(), {
+    contentType: 'image/jpeg',
+  });
+  if (thumb.error) {
+    await removeFiles();
+    throw thumb.error;
+  }
 
   const { error } = await supabase.from('photos').insert({ user_id: userId, storage_path: path, position });
   if (error) {
-    await supabase.storage.from(BUCKET).remove([path]); // don't leave an orphaned file
+    await removeFiles();
     throw error;
   }
 }
@@ -81,10 +129,10 @@ export async function reorderPhotos(orderedIds: string[]): Promise<void> {
   if (error) throw error;
 }
 
-// Deletes the record, then the file, then closes the gap in positions.
+// Deletes the record, then the photo and its thumbnail, then closes the gap in positions.
 export async function deletePhoto(photo: MyPhoto, remainingIdsInOrder: string[]): Promise<void> {
   const { error } = await supabase.from('photos').delete().eq('id', photo.id);
   if (error) throw error;
-  await supabase.storage.from(BUCKET).remove([photo.storagePath]);
+  await supabase.storage.from(BUCKET).remove([photo.storagePath, thumbPath(photo.storagePath)]);
   if (remainingIdsInOrder.length > 0) await reorderPhotos(remainingIdsInOrder);
 }

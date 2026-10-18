@@ -86,6 +86,8 @@ select t_err($$select reorder_my_photos(array(select id from photos where user_i
 select t_err($$select reorder_my_photos(array(select id from photos where user_id = auth.uid()) || (select id from photos where storage_path like '00000000-0000-0000-0000-00000000000b/%' limit 1))$$, 'not_permitted') as reorder_others_blocked;
 update photos set moderation_status = 'approved' where user_id = auth.uid() and moderation_status = 'pending';  -- no UPDATE policy: changes nothing
 select 'still pending after self-approve attempt' t, count(*) from photos where user_id = auth.uid() and moderation_status = 'pending';  -- expect 1
+select 'profile Bethel' t, display_name, age, match_score from get_profile('00000000-0000-0000-0000-00000000000b');  -- Bethel, 28, 100
+select t_err($$select get_profile('00000000-0000-0000-0000-000000000099')$$, 'not_found') as profile_unknown_user;
 select 'chat with Bethel' t, start_conversation('00000000-0000-0000-0000-00000000000b') is not null;
 select get_my_limits();
 reset role; set request.jwt.claims = '{}';
@@ -113,6 +115,7 @@ insert into blocks values ('00000000-0000-0000-0000-00000000000b','00000000-0000
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000a"}';
 select 'convos after block' t, count(*) from get_my_conversations();               -- expect 1 (Chaltu only)
 select 'criteria after block' t, count(*) from get_meets_my_criteria();             -- expect 0
+select t_err($$select get_profile('00000000-0000-0000-0000-00000000000b')$$, 'not_found') as profile_hidden_after_block;  -- shared chat, but blocked
 
 -- ===== Dawit (local) =====
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000d"}';

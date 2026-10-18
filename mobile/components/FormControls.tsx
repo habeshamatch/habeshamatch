@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, type ReactNode } from 'react';
 import { StyleSheet, Switch, Text, TextInput, View, type TextInputProps } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -63,9 +63,12 @@ export function ProgressBar({ step, total }: { step: number; total: number }) {
 
 export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warning' | 'error'; children: ReactNode }) {
   const border = tone === 'error' ? colors.rose : tone === 'warning' ? colors.accentSoft : colors.surfaceRaised;
+  // Plain text (one string or several pieces) is wrapped in <Text>; React Native cannot render bare strings.
+  const parts = Children.toArray(children);
+  const isText = parts.every((p) => typeof p === 'string' || typeof p === 'number');
   return (
     <View style={[styles.notice, { borderColor: border }]} accessibilityLiveRegion="polite">
-      {typeof children === 'string' ? <Text style={typography.caption}>{children}</Text> : children}
+      {isText ? <Text style={typography.caption}>{parts.join('')}</Text> : children}
     </View>
   );
 }

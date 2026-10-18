@@ -43,6 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
+│   ├── scripts/                 # seed-photos.mjs: placeholder images for seed profiles (local only, macOS)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
@@ -107,7 +108,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 ### Safety (required for App Store approval)
 - 18+ only, enforced at profile creation.
 - Block and report available from every profile and chat.
-- Photos start as `pending` and are invisible to others until an admin approves them. Files are in the PRIVATE Storage bucket `photos` at `{user_id}/...` (JPEG only, 5 MB); storage policies let users write and delete only their own folder and read others' files only when the `photos` row is approved and the owner is discoverable to them. View photos with signed URLs. Compress on device (`mobile/lib/photos.ts`) before upload. Reorder only via `reorder_my_photos(ids)`; owners have no UPDATE policy on `photos`.
+- Photos start as `pending` and are invisible to others until an admin approves them. Files are in the PRIVATE Storage bucket `photos` at `{user_id}/...` (JPEG only, 5 MB); storage policies let users write and delete only their own folder and read others' files only when the `photos` row is approved and the owner is discoverable to them. View photos with signed URLs. Compress on device (`mobile/lib/photos.ts`) before upload; each photo also gets a ~400px thumbnail at `{path}.thumb.jpg` (`photo_thumb_path()`), readable by others exactly when the photo is. Lists use thumbnails (with a fallback to the full photo); profile pages use full photos. Reorder only via `reorder_my_photos(ids)`; owners have no UPDATE policy on `photos`.
 - Photo verification (selfie) is free, reviewed manually in the admin panel, and awards the blue tick.
 - In-app account deletion (edge function deletes auth user, storage files, and all rows).
 - Text-only messaging, max 2000 characters.
@@ -159,7 +160,8 @@ Headings: a warm serif (Playfair Display or DM Serif Display via @expo-google-fo
 - Every schema change is a NEW migration file. Never edit an applied migration.
 - After any migration: regenerate types, run `supabase/tests/rules_smoke_test.sql` locally, fix any FAIL.
 - Never put the Supabase service role key, Twilio, or RevenueCat secret keys in the mobile app. Secrets live in Supabase secrets or Vercel env vars only.
-- Build for slow, expensive mobile data: compress images (max 1080px, ~70% JPEG), use thumbnails in lists, paginate everything, cache with React Query.
+- Build for slow, expensive mobile data: compress images (max 1080px, ~70% JPEG), use thumbnails in lists, paginate everything, cache with React Query (`mobile/lib/queryClient.ts`, cleared on sign out or account switch).
+- Local test data: after `supabase db reset`, run `node supabase/scripts/seed-photos.mjs` so seed profiles have photo files.
 - Writing style in UI copy: no em dashes.
 - Small commits with clear messages. Work on a branch per feature, merge to `main` when it works.
 
