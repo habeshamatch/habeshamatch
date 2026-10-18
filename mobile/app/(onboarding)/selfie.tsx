@@ -11,16 +11,15 @@ import { Notice } from '@/components/FormControls';
 import { friendlyError } from '@/lib/errors';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
-import { randomPose, submitVerification } from '@/lib/verification';
+import { submitVerification } from '@/lib/verification';
 
 type Shot = { uri: string; width: number; height: number };
 
-// Live selfie copying a random pose, taken with the front camera (never from the gallery).
-// Sent with the member's photos for review; nobody else ever sees it.
+// Live selfie taken with the front camera (never from the gallery), so our team can check it
+// matches the member's photos. Nobody else ever sees it.
 export default function SelfieScreen() {
   const { session, refreshProfile } = useSession();
   const userId = session?.user.id ?? '';
-  const [pose, setPose] = useState(randomPose);
   const [shot, setShot] = useState<Shot | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +47,7 @@ export default function SelfieScreen() {
     setBusy(true);
     setError(null);
     try {
-      await submitVerification(userId, shot, pose);
+      await submitVerification(userId, shot);
       await refreshProfile();
       router.replace('/');
     } catch (e) {
@@ -62,14 +61,9 @@ export default function SelfieScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={typography.title}>{"Verify it's you"}</Text>
         <Text style={typography.bodyMuted}>
-          Every member is checked by our team before they can meet anyone. Take a quick selfie copying the pose below.
-          Only our review team sees it.
+          Every member is checked by our team before they can meet anyone. Take a quick selfie so we can see it
+          matches your photos. Only our review team sees it.
         </Text>
-
-        <View style={styles.pose} accessibilityLabel={`Pose: ${pose}`}>
-          <Ionicons name="hand-left-outline" size={28} color={colors.accent} />
-          <Text style={[typography.subtitle, styles.flex]}>{pose}</Text>
-        </View>
 
         {shot ? (
           <Image source={{ uri: shot.uri }} style={styles.preview} contentFit="cover" accessibilityLabel="Your selfie" />
@@ -100,10 +94,7 @@ export default function SelfieScreen() {
             <Button label="Retake" variant="text" onPress={takeSelfie} disabled={busy} />
           </>
         ) : (
-          <>
-            <Button label="Take selfie" onPress={takeSelfie} />
-            <Button label="Show a different pose" variant="text" onPress={() => setPose(randomPose())} />
-          </>
+          <Button label="Take selfie" onPress={takeSelfie} />
         )}
       </View>
     </SafeAreaView>
@@ -118,19 +109,6 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
     gap: spacing.md,
-  },
-  flex: {
-    flex: 1,
-  },
-  pose: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.accent,
-    backgroundColor: colors.surface,
   },
   preview: {
     width: '100%',

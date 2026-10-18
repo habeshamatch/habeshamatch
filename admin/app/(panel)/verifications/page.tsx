@@ -11,20 +11,19 @@ export const instant = false;
 
 const REJECT_REASONS = [
   'The selfie does not match your photos.',
-  'The selfie does not show the requested pose.',
   'Your face is not clearly visible in the selfie.',
   'Please add clear photos of yourself (no group photos, filters or pictures of things).',
   'One or more photos break our guidelines. Please replace them.',
 ];
 
-// New members wait here: compare the live selfie (and its pose) with their photos, then approve the
+// New members wait here: check the live selfie matches their photos, then approve the
 // member or reject with a reason they will see. Nobody can see or meet them until approved.
 export default async function VerificationsPage() {
   await requireAdmin();
   const db = createAdminClient();
   const { data: requests, error } = await db
     .from('verification_requests')
-    .select('id, user_id, selfie_path, pose, created_at, profiles(display_name, date_of_birth, gender, residence_country_code, bio)')
+    .select('id, user_id, selfie_path, created_at, profiles(display_name, date_of_birth, gender, residence_country_code, bio)')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .limit(30);
@@ -72,9 +71,7 @@ export default async function VerificationsPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={selfieUrls.get(r.selfie_path) ?? ''} alt="Selfie" className="aspect-[3/4] w-full rounded-lg bg-raised object-cover ring-2 ring-accent" />
                 <figcaption className="text-sm">
-                  <span className="text-accent">Live selfie</span>
-                  <br />
-                  <span className="text-muted">Asked to: {r.pose ?? 'no pose recorded'}</span>
+                  <span className="text-accent">Live selfie</span> <span className="text-muted">(taken in the app)</span>
                 </figcaption>
               </figure>
               {own.map((ph) => (
