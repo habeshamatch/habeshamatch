@@ -705,6 +705,7 @@ export type Database = {
         Args: { p_cand: string; p_viewer: string }
         Returns: boolean
       }
+      photo_thumb_path: { Args: { p_storage_path: string }; Returns: string }
       pref_item_met: {
         Args: {
           c: Database["public"]["Tables"]["profiles"]["Row"]
