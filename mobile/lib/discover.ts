@@ -21,6 +21,14 @@ export type ProfileCard = {
   openToLongDistance: boolean;
   verified: boolean;
   matchPercent: number | null; // share of your nice-to-haves they meet; null when not applicable
+  maritalStatus: CardRow['marital_status'];
+  hasChildren: CardRow['has_children'];
+  wantsChildren: CardRow['wants_children'];
+  smoking: CardRow['smoking'];
+  drinking: CardRow['drinking'];
+  exercise: CardRow['exercise'];
+  occupation: string | null;
+  interests: string[];
   photoPath: string | null;
   photoUrl: string | null; // signed URL (thumbnail in lists, full photo on the profile page)
 };
@@ -45,6 +53,14 @@ export function toCard(row: CardRow, urls: Map<string, string>): ProfileCard | n
     openToLongDistance: !!row.open_to_long_distance,
     verified: !!row.is_photo_verified,
     matchPercent: row.match_score,
+    maritalStatus: row.marital_status,
+    hasChildren: row.has_children,
+    wantsChildren: row.wants_children,
+    smoking: row.smoking,
+    drinking: row.drinking,
+    exercise: row.exercise,
+    occupation: row.occupation,
+    interests: row.interests ?? [],
     photoPath: row.primary_photo_path,
     photoUrl: row.primary_photo_path ? (urls.get(row.primary_photo_path) ?? null) : null,
   };

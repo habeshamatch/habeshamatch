@@ -22,13 +22,20 @@ import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { fetchMyLimits, findConversationWith, nextLimitReset, startConversation } from '@/lib/chats';
 import { fetchProfile } from '@/lib/discover';
 import { errorCode, friendlyError, isPremiumRequired } from '@/lib/errors';
+import { interestLabel } from '@/lib/interests';
 import {
+  drinkingLabel,
+  exerciseLabel,
+  hasChildrenLabel,
   heightLabel,
   intentLabel,
   languagesLabel,
+  maritalLabel,
   originLabel,
   placeLabel,
   religionLabel,
+  smokingLabel,
+  wantsChildrenLabel,
 } from '@/lib/profileLabels';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -104,12 +111,19 @@ export default function ProfileScreen() {
     setPhotoIndex(Math.round(e.nativeEvent.contentOffset.x / width));
 
   const details: [string, string | null][] = [
+    ['Works as', p.occupation],
     ['Lives in', placeLabel(p.city, p.countryCode)],
     ['Origin', originLabel(p.origin)],
     ['Height', heightLabel(p.heightCm)],
     ['Religion', religionLabel(p.religion)],
     ['Languages', p.languages.length ? languagesLabel(p.languages) : null],
     ['Looking for', intentLabel(p.intent)],
+    ['Marital status', maritalLabel(p.maritalStatus)],
+    ['Children', hasChildrenLabel(p.hasChildren)],
+    ['Wants children', wantsChildrenLabel(p.wantsChildren)],
+    ['Smoking', smokingLabel(p.smoking)],
+    ['Drinking', drinkingLabel(p.drinking)],
+    ['Exercise', exerciseLabel(p.exercise)],
     ['Open to relocating', p.openToRelocating ? 'Yes' : 'No'],
     ['Open to long distance', p.openToLongDistance ? 'Yes' : 'No'],
   ];
@@ -172,6 +186,16 @@ export default function ProfileScreen() {
           )}
 
           {p.bio ? <Text style={[typography.body, styles.bio]}>{p.bio}</Text> : null}
+
+          {p.interests.length > 0 && (
+            <View style={styles.interests} accessibilityLabel={`Interests: ${p.interests.map(interestLabel).join(', ')}`}>
+              {p.interests.map((code) => (
+                <View key={code} style={styles.tag}>
+                  <Text style={typography.caption}>{interestLabel(code)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
 
           <View style={styles.details}>
             {details
@@ -291,6 +315,19 @@ const styles = StyleSheet.create({
   },
   bio: {
     marginTop: spacing.sm,
+  },
+  interests: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  tag: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.surfaceRaised,
   },
   details: {
     marginTop: spacing.md,

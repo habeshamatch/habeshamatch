@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ProgressBar } from '@/components/FormControls';
-import { AboutYou, Background, Bio, Residence, stepProblem } from '@/components/ProfileFields';
+import { AboutYou, Background, Bio, FamilyLifestyle, Residence, stepProblem } from '@/components/ProfileFields';
 import { errorCode, friendlyError } from '@/lib/errors';
 import { defaultHeightUnit } from '@/lib/height';
 import { isKnownLanguage } from '@/lib/languages';
@@ -24,7 +24,7 @@ import { useSession } from '@/lib/session';
 import { supabase } from '@/lib/supabase';
 import { colors, spacing, typography } from '@/lib/theme';
 
-const STEPS = ['About you', 'Background', 'Where you live', 'Your bio'];
+const STEPS = ['About you', 'Background', 'Family & lifestyle', 'Where you live', 'Your bio'];
 
 export default function ProfileWizard() {
   const { session, refreshProfile } = useSession();
@@ -112,6 +112,14 @@ export default function ProfileWizard() {
       relationship_intent: d.intent!,
       income_range: d.incomeRange,
       education_level: d.educationLevel,
+      marital_status: d.maritalStatus,
+      has_children: d.hasChildren,
+      wants_children: d.wantsChildren,
+      smoking: d.smoking,
+      drinking: d.drinking,
+      exercise: d.exercise,
+      occupation: d.occupation.trim() || null,
+      interests: d.interests,
       current_city: d.currentCity.trim(),
       residence_country_code: d.residenceCountry as string,
       open_to_relocating: d.openToRelocating,
@@ -124,7 +132,7 @@ export default function ProfileWizard() {
       setSaving(false);
       const code = errorCode(error);
       if (code === 'must_be_18') goTo(0);
-      if (code === 'local_residence_requires_local_phone') goTo(2);
+      if (code === 'local_residence_requires_local_phone') goTo(3);
       if (code === 'phone_not_verified') {
         // The account has no confirmed phone after all: refresh so routing returns to that step.
         await supabase.auth.refreshSession();
@@ -200,8 +208,9 @@ export default function ProfileWizard() {
           <Text style={typography.title}>{STEPS[step]}</Text>
           {step === 0 && <AboutYou draft={draft} update={update} />}
           {step === 1 && <Background draft={draft} update={update} />}
-          {step === 2 && <Residence draft={draft} update={update} rules={rules} phone={phone} />}
-          {step === 3 && <Bio draft={draft} update={update} />}
+          {step === 2 && <FamilyLifestyle draft={draft} update={update} />}
+          {step === 3 && <Residence draft={draft} update={update} rules={rules} phone={phone} />}
+          {step === 4 && <Bio draft={draft} update={update} />}
         </ScrollView>
 
         <View style={styles.footer}>

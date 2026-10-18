@@ -63,6 +63,48 @@ export const EDUCATION_LEVELS: Option<Enums<'education_level_t'>>[] = [
   { value: 'prefer_not_to_say', label: 'Prefer not to say' },
 ];
 
+export const MARITAL_STATUSES: Option<Enums<'marital_status_t'>>[] = [
+  { value: 'never_married', label: 'Never married' },
+  { value: 'divorced', label: 'Divorced' },
+  { value: 'widowed', label: 'Widowed' },
+];
+
+export const HAS_CHILDREN: Option<Enums<'has_children_t'>>[] = [
+  { value: 'no', label: 'No' },
+  { value: 'yes_live_with_me', label: 'Yes, they live with me' },
+  { value: 'yes_not_with_me', label: "Yes, they don't live with me" },
+];
+
+export const WANTS_CHILDREN: Option<Enums<'wants_children_t'>>[] = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+  { value: 'open', label: 'Open to it' },
+  { value: 'not_sure', label: 'Not sure yet' },
+];
+
+export const SMOKING: Option<Enums<'smoking_t'>>[] = [
+  { value: 'never', label: 'Never' },
+  { value: 'socially', label: 'Socially' },
+  { value: 'regularly', label: 'Regularly' },
+  { value: 'trying_to_quit', label: 'Trying to quit' },
+];
+
+export const DRINKING: Option<Enums<'drinking_t'>>[] = [
+  { value: 'never', label: 'Never' },
+  { value: 'rarely', label: 'Rarely' },
+  { value: 'socially', label: 'Socially' },
+  { value: 'regularly', label: 'Regularly' },
+];
+
+export const EXERCISE: Option<Enums<'exercise_t'>>[] = [
+  { value: 'daily', label: 'Every day' },
+  { value: 'often', label: 'Often' },
+  { value: 'sometimes', label: 'Sometimes' },
+  { value: 'rarely', label: 'Rarely' },
+];
+
+export const OCCUPATION_MAX = 60; // mirrors the profiles.occupation check constraint
+
 export const DISPLAY_NAME_MAX = 40;
 export const BIO_MAX = 500;
 export const MIN_AGE = 18;

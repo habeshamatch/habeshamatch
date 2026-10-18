@@ -23,7 +23,13 @@ import {
   type Preferences,
 } from '@/lib/preferences';
 import {
+  DRINKING,
   EDUCATION_LEVELS,
+  EXERCISE,
+  HAS_CHILDREN,
+  MARITAL_STATUSES,
+  SMOKING,
+  WANTS_CHILDREN,
   HEIGHT_MAX_CM,
   HEIGHT_MIN_CM,
   INCOME_THRESHOLDS,
@@ -136,14 +142,39 @@ export default function PreferencesScreen() {
     );
   }
 
-  const mustHaveCount = (['religion', 'origin', 'languages', 'intent', 'education', 'country'] as const).filter(
+  const mustHaveCount = (
+    [
+      'religion',
+      'origin',
+      'languages',
+      'intent',
+      'education',
+      'maritalStatus',
+      'hasChildren',
+      'wantsChildren',
+      'smoking',
+      'drinking',
+      'exercise',
+      'country',
+    ] as const
+  ).filter(
     (k) => prefs[k].values.length > 0 && prefs[k].kind === 'hard',
   ).length +
     (prefs.height.enabled && prefs.height.kind === 'hard' ? 1 : 0) +
     (prefs.income.min && prefs.income.kind === 'hard' ? 1 : 0);
 
   const listCard = (
-    key: 'religion' | 'origin' | 'intent' | 'education',
+    key:
+      | 'religion'
+      | 'origin'
+      | 'intent'
+      | 'education'
+      | 'maritalStatus'
+      | 'hasChildren'
+      | 'wantsChildren'
+      | 'smoking'
+      | 'drinking'
+      | 'exercise',
     title: string,
     options: { value: string; label: string }[],
     opts: { single?: boolean; hint?: string } = {},
@@ -296,6 +327,15 @@ export default function PreferencesScreen() {
           )}
         </PreferenceCard>
 
+        <Text style={[typography.subtitle, styles.group]}>Family & lifestyle</Text>
+        {listCard('maritalStatus', 'Marital status', MARITAL_STATUSES)}
+        {listCard('hasChildren', 'Has children', HAS_CHILDREN)}
+        {listCard('wantsChildren', 'Wants children', WANTS_CHILDREN)}
+        {listCard('smoking', 'Smoking', SMOKING)}
+        {listCard('drinking', 'Drinking', DRINKING)}
+        {listCard('exercise', 'Exercise', EXERCISE)}
+
+        <Text style={[typography.subtitle, styles.group]}>Work and location</Text>
         <PreferenceCard
           title="Income"
           hint='At least this much per year, in US dollars. People who chose "Prefer not to say" do not meet this.'
@@ -445,6 +485,9 @@ const styles = StyleSheet.create({
   pair: {
     flexDirection: 'row',
     gap: spacing.md,
+  },
+  group: {
+    marginTop: spacing.xl,
   },
   card: {
     marginTop: spacing.md,

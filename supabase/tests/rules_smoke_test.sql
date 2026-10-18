@@ -174,3 +174,12 @@ update profiles set income_range = 'prefer_not_to_say' where id = '00000000-0000
 select 'income: prefer not to say fails' t, pref_item_met('income', '{"min":"under_10k"}', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
 update profiles set income_range = null where id = '00000000-0000-0000-0000-00000000000b';
 select 'income: not answered fails' t, coalesce(pref_item_met('income', '{"min":"under_10k"}', p), false) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+
+-- ===== family and lifestyle preferences =====
+update profiles set smoking = 'never', wants_children = 'yes', marital_status = 'never_married' where id = '00000000-0000-0000-0000-00000000000b';
+select 'lifestyle: never smokes meets [never,trying_to_quit]' t, pref_item_met('smoking', '["never","trying_to_quit"]', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- t
+select 'lifestyle: wants children fails [no]' t, pref_item_met('wants_children', '["no"]', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+select 'lifestyle: drinking not answered fails' t, coalesce(pref_item_met('drinking', '["never"]', p), false) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+select 'card shows lifestyle' t, smoking, wants_children, marital_status from to_card((select p from profiles p where id = '00000000-0000-0000-0000-00000000000b'), null);  -- never yes never_married
+select t_err($$update profiles set interests = array['a','b','c','d','e','f','g','h','i'] where id = '00000000-0000-0000-0000-00000000000b'$$,
+  'new row for relation "profiles" violates check constraint "profiles_interests_check"') as interests_max_8;

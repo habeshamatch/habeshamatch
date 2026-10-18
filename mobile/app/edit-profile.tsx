@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { FieldLabel, Notice, TextField } from '@/components/FormControls';
-import { Background, Bio, Residence, stepProblem } from '@/components/ProfileFields';
+import { Background, Bio, FamilyLifestyle, Residence, stepProblem } from '@/components/ProfileFields';
 import { fetchMyProfile, profileToDraft, residenceLockedUntil, saveMyProfile } from '@/lib/account';
 import { friendlyError } from '@/lib/errors';
 import type { ProfileDraft } from '@/lib/profileDraft';
@@ -79,7 +79,7 @@ export default function EditProfile() {
       setProblem('Please enter your first name.');
       return;
     }
-    for (const step of [1, 2, 3]) {
+    for (const step of [1, 2, 3, 4]) {
       const issue = stepProblem(step, draft, rules.data, session?.user.phone);
       if (issue) {
         setProblem(issue);
@@ -120,6 +120,9 @@ export default function EditProfile() {
 
           <Text style={[typography.subtitle, styles.section]}>Background</Text>
           <Background draft={draft} update={update} />
+
+          <Text style={[typography.subtitle, styles.section]}>Family & lifestyle</Text>
+          <FamilyLifestyle draft={draft} update={update} />
 
           <Text style={[typography.subtitle, styles.section]}>Where you live</Text>
           <Residence
