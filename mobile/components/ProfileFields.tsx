@@ -215,7 +215,13 @@ export function Residence({
   update,
   rules,
   phone,
-}: StepProps & { rules: ResidenceRules; phone: string | undefined }) {
+  lockedUntil = null,
+}: StepProps & {
+  rules: ResidenceRules;
+  phone: string | undefined;
+  // Edit profile only: residence changed recently, so the country cannot change until this date.
+  lockedUntil?: Date | null;
+}) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const country = draft.residenceCountry ? getCountry(draft.residenceCountry) : null;
   const localPhone = hasLocalTierPhone(phone, rules);
@@ -239,16 +245,19 @@ export function Residence({
       <FieldLabel hint="Where you permanently live, not where you are visiting.">Country of residence</FieldLabel>
       <Pressable
         onPress={() => setPickerOpen(true)}
+        disabled={!!lockedUntil}
         style={styles.countryField}
         accessibilityRole="button"
-        accessibilityLabel={`Country of residence: ${country?.name ?? 'not chosen'}. Change`}
+        accessibilityLabel={`Country of residence: ${country?.name ?? 'not chosen'}.${lockedUntil ? '' : ' Change'}`}
       >
         <Text style={typography.body}>{country ? `${country.flag}  ${country.name}` : 'Choose a country'}</Text>
-        <Text style={[typography.button, { color: colors.accent }]}>Change</Text>
+        {!lockedUntil && <Text style={[typography.button, { color: colors.accent }]}>Change</Text>}
       </Pressable>
 
       <Notice>
-        {`You can change your country of residence once every ${rules.cooldownDays} days, so choose where you actually live.`}
+        {lockedUntil
+          ? `You changed your country of residence recently. You can change it again on ${lockedUntil.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}.`
+          : `You can change your country of residence once every ${rules.cooldownDays} days, so choose where you actually live.`}
       </Notice>
 
       {pickedLocal && !localPhone && country && (

@@ -28,6 +28,11 @@ Currently (2026-10-14): Twilio Verify is ON for the remote project with real cre
 - [x] Verify the domain in Resend (DNS records), ideally a subdomain such as `mail.habeshamatch.com`.
 - [x] Supabase dashboard > Authentication > Emails > SMTP Settings: change the sender from `onboarding@resend.dev` to an address on the domain. Until then Resend only delivers to the Resend account's own email.
 
+## Website pages (required by the App Store and Play Store)
+
+- [ ] Publish https://habeshamatch.app/privacy (privacy policy) and https://habeshamatch.app/terms (terms of service). The app's Profile tab links to both (`mobile/lib/links.ts`).
+- [ ] Make sure hello@habeshamatch.app receives mail (Contact support in the app).
+
 ## Database
 
 - [x] Push migrations `20261007000000_require_verified_phone.sql` and `20261011000000_add_income_range.sql` to the remote project (done 2026-10-14).
