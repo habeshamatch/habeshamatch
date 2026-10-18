@@ -77,7 +77,7 @@ export async function fetchMyPhotos(userId: string): Promise<MyPhoto[]> {
 
 // Resize so the longest side is at most maxDimension and re-encode as JPEG. Re-encoding also drops
 // EXIF metadata such as GPS location. Returns the local URI of the compressed file.
-async function compressPhoto(
+export async function compressPhoto(
   asset: { uri: string; width: number; height: number },
   maxDimension: number,
   quality: number,
