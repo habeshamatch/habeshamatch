@@ -43,7 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile)
+│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only

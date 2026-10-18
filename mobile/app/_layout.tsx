@@ -10,6 +10,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Button } from '@/components/Button';
 import { isPhoneVerified } from '@/lib/auth';
@@ -22,11 +23,13 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <RootNavigator />
-      </SessionProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <RootNavigator />
+        </SessionProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -103,6 +106,10 @@ function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   error: {
     flex: 1,
     alignItems: 'center',
