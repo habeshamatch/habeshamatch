@@ -120,6 +120,15 @@ select t_err($$insert into messages (conversation_id, sender_id, body)
   select conversation_id, auth.uid(), repeat('x', 2001) from get_my_conversations() limit 1$$,
   'new row for relation "messages" violates check constraint "messages_body_check"') as message_max_2000;
 insert into blocks values ('00000000-0000-0000-0000-00000000000b','00000000-0000-0000-0000-00000000000a');
+select 'blocked list' t, display_name from get_my_blocked_users();  -- Abel
+-- reports: always open, moderation fields cleared, cannot report as someone else
+insert into reports (reporter_id, reported_id, category, details, action_taken, resolved_at)
+  values (auth.uid(), '00000000-0000-0000-0000-00000000000a', 'harassment', 'Rude messages', 'banned', now());
+select 'report stored as' t, status, action_taken is null, resolved_at is null from reports where reporter_id = auth.uid();  -- open t t
+select t_err($$insert into reports (reporter_id, reported_id, category) values ('00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000a', 'spam')$$,
+  'new row violates row-level security policy for table "reports"') as cannot_report_as_other;
+select t_err($$insert into reports (reporter_id, reported_id, category, status) values (auth.uid(), '00000000-0000-0000-0000-00000000000a', 'spam', 'dismissed')$$,
+  'new row violates row-level security policy for table "reports"') as report_must_be_open;
 
 -- ===== Abel after block =====
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000a"}';
