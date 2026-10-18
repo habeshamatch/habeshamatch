@@ -43,7 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile)
+│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
@@ -103,6 +103,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` of the viewer's soft preferences. Ranked by soft score. The threshold is currently 0 (migration `20261017000002`), so nice-to-haves only rank and never hide anyone while the community is small; raise it later in `app_config`. Anyone here can be messaged directly, no approval.
 - **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly.
 - **Core messaging invariant:** you can only start a chat with someone whose hard preferences you meet. Nobody ever receives a first message from someone who fails their deal-breakers.
+- **Messages tab layout:** a NEW MATCHES row at the top (conversations with no messages yet; they move into the list once someone writes), starting with a "Liked you" tile showing `get_likes_received_count()`. The tile uses silhouettes, never blurred photos. Tapping it opens `liked-you` for Premium and the paywall for everyone else (local tier included, per the tier table).
 - **Swipe section:** ignores criteria except gender and age range, which must fit in both directions. Mutual like opens a chat that does not count toward the daily limit. Deck shows same country first, then same region type (diaspora or home), then the rest.
 
 ### Safety (required for App Store approval)
