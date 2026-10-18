@@ -27,7 +27,7 @@ export type ProfileCard = {
 
 export const DISCOVER_PAGE_SIZE = 20;
 
-function toCard(row: CardRow, urls: Map<string, string>): ProfileCard | null {
+export function toCard(row: CardRow, urls: Map<string, string>): ProfileCard | null {
   if (!row.id) return null;
   return {
     id: row.id,

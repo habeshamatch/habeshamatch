@@ -94,6 +94,7 @@ export default function Swipe() {
       }
     } finally {
       queryClient.invalidateQueries({ queryKey: ['my-limits'] });
+      queryClient.invalidateQueries({ queryKey: ['likes-count'] }); // swiping on someone removes them from Liked you
     }
   };
 

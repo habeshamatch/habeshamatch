@@ -1,34 +1,87 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { fetchMyLimits } from '@/lib/chats';
 import { friendlyError } from '@/lib/errors';
+import { fetchLikesCount } from '@/lib/likes';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // Conversations, newest activity first. Kept live by the subscription in the tabs layout.
 export default function Messages() {
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: fetchInbox });
+  const likes = useQuery({ queryKey: ['likes-count'], queryFn: fetchLikesCount });
+  const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
 
-  // Refresh when the tab comes back into view (e.g. someone started a chat with you).
+  // Refresh when the tab comes back into view (e.g. someone started a chat with you or liked you).
   useFocusEffect(
     useCallback(() => {
       inbox.refetch();
+      likes.refetch();
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
     }, []),
   );
 
-  const header = <Text style={[typography.title, styles.title]}>Messages</Text>;
+  // New matches: chats where nobody has written yet. They sit in the row at the top and move
+  // into the list below once the first message is sent.
+  const newMatches = inbox.data?.filter((c) => !c.lastMessage) ?? [];
+  const conversations = inbox.data?.filter((c) => !!c.lastMessage) ?? [];
+  const likeCount = likes.data ?? 0;
+  const isPremium = limits.data?.tier === 'premium';
+
+  const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
+  const header = (
+    <View>
+      {title}
+      {(newMatches.length > 0 || likeCount > 0) && (
+        <View style={styles.matches}>
+          <Text style={[typography.caption, styles.sectionTitle]}>NEW MATCHES</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
+            {likeCount > 0 && (
+              <LikedYouTile
+                count={likeCount}
+                onPress={() => router.push(isPremium ? '/liked-you' : '/paywall')}
+              />
+            )}
+            {newMatches.map((m) => (
+              <Pressable
+                key={m.conversationId}
+                onPress={() => router.push(`/chat/${m.conversationId}`)}
+                style={styles.matchItem}
+                accessibilityRole="button"
+                accessibilityLabel={`New match: ${m.otherName}. Say hello`}
+              >
+                <View style={styles.matchRing}>
+                  <Avatar
+                    url={m.otherPhotoUrl}
+                    cacheKey={m.otherPhotoPath ? `thumb:${m.otherPhotoPath}` : undefined}
+                    name={m.otherName}
+                    size={64}
+                  />
+                </View>
+                <Text style={[typography.caption, styles.matchName]} numberOfLines={1}>
+                  {m.otherName}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+      {conversations.length > 0 && <Text style={[typography.caption, styles.sectionTitle]}>CONVERSATIONS</Text>}
+    </View>
+  );
 
   if (inbox.isPending) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        {header}
+        {title}
         <ActivityIndicator color={colors.accent} style={styles.loading} />
       </SafeAreaView>
     );
@@ -36,7 +89,7 @@ export default function Messages() {
   if (inbox.isError && !inbox.data) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        {header}
+        {title}
         <View style={styles.empty}>
           <Text style={[typography.body, styles.center]}>{friendlyError(inbox.error)}</Text>
           <Button label="Try again" variant="secondary" onPress={() => inbox.refetch()} />
@@ -48,15 +101,25 @@ export default function Messages() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
-        data={inbox.data}
+        data={conversations}
         keyExtractor={(c) => c.conversationId}
         ListHeaderComponent={header}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => <Row item={item} />}
         refreshControl={
-          <RefreshControl refreshing={inbox.isRefetching} onRefresh={() => inbox.refetch()} tintColor={colors.accent} />
+          <RefreshControl
+            refreshing={inbox.isRefetching}
+            onRefresh={() => {
+              inbox.refetch();
+              likes.refetch();
+            }}
+            tintColor={colors.accent}
+          />
         }
         ListEmptyComponent={
+          newMatches.length > 0 ? (
+            <Text style={[typography.bodyMuted, styles.hint]}>Say hello to your new matches above.</Text>
+          ) : (
           <View style={styles.empty}>
             <Text style={[typography.subtitle, styles.center]}>No conversations yet</Text>
             <Text style={[typography.bodyMuted, styles.center]}>
@@ -64,9 +127,34 @@ export default function Messages() {
             </Text>
             <Button label="Find people on Discover" variant="secondary" onPress={() => router.navigate('/discover')} />
           </View>
+          )
         }
       />
     </SafeAreaView>
+  );
+}
+
+// Teaser for people who liked you. Silhouettes, never blurred photos (blur can be undone).
+function LikedYouTile({ count, onPress }: { count: number; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={styles.matchItem}
+      accessibilityRole="button"
+      accessibilityLabel={`${count} ${count === 1 ? 'person likes' : 'people like'} you. See who`}
+    >
+      <View style={[styles.matchRing, styles.likesRing]}>
+        <View style={styles.likesCircle}>
+          <Ionicons name="people" size={30} color={colors.textMuted} />
+        </View>
+        <View style={styles.likesBadge}>
+          <Text style={styles.likesBadgeText}>{count > 99 ? '99+' : count}</Text>
+        </View>
+      </View>
+      <Text style={[typography.caption, styles.matchName, { color: colors.accent }]} numberOfLines={1}>
+        {count === 1 ? '1 like' : `${count} likes`}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -117,6 +205,65 @@ const styles = StyleSheet.create({
   title: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
+  },
+  sectionTitle: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    letterSpacing: 1,
+  },
+  matches: {
+    marginBottom: spacing.md,
+  },
+  matchRow: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+  },
+  matchItem: {
+    width: 72,
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  matchRing: {
+    padding: 2,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    borderColor: colors.accent,
+  },
+  matchName: {
+    color: colors.text,
+  },
+  likesRing: {
+    borderStyle: 'dashed',
+  },
+  likesCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceRaised,
+  },
+  likesBadge: {
+    position: 'absolute',
+    right: -4,
+    top: -4,
+    minWidth: 24,
+    height: 24,
+    paddingHorizontal: 6,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.rose,
+  },
+  likesBadgeText: {
+    ...typography.caption,
+    color: colors.text,
+    fontFamily: typography.button.fontFamily,
+  },
+  hint: {
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
   list: {
     paddingTop: spacing.md,
