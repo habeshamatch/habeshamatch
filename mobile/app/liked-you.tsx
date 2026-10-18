@@ -1,23 +1,54 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { ProfileTile } from '@/components/ProfileTile';
-import { friendlyError, isPremiumRequired } from '@/lib/errors';
+import { MatchModal, type Match } from '@/components/MatchModal';
+import { RoundButton } from '@/components/RoundButton';
+import { SwipeCard, type SwipeCardHandle, type SwipeDirection } from '@/components/SwipeCard';
+import { nextLimitReset } from '@/lib/chats';
+import type { ProfileCard } from '@/lib/discover';
+import { errorCode, friendlyError, isPremiumRequired } from '@/lib/errors';
 import { fetchLikesReceived } from '@/lib/likes';
+import { recordSwipe } from '@/lib/swipe';
 import { colors, spacing, typography } from '@/lib/theme';
 
-const COLUMNS = 2;
-const GAP = spacing.md;
-
-// Premium: everyone who liked you and you have not swiped on yet. Like them back from their
-// profile or the Swipe tab to match. (Prompt 3.2 adds swiping right here.)
+// Premium: people who liked you and you have not swiped on yet, as a card stack.
+// Swiping right always makes a match (they already liked you). Swipes count toward the daily limit.
 export default function LikedYou() {
-  const { width } = useWindowDimensions();
-  const tileWidth = Math.floor((width - spacing.lg * 2 - GAP) / COLUMNS);
+  const queryClient = useQueryClient();
+  const topCard = useRef<SwipeCardHandle>(null);
   const likes = useQuery({ queryKey: ['likes-received'], queryFn: fetchLikesReceived });
+  const [swipedIds, setSwipedIds] = useState<string[]>([]);
+  const [match, setMatch] = useState<Match | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
+
+  const cards: ProfileCard[] = (likes.data ?? []).filter((c) => !swipedIds.includes(c.id));
+
+  const onSwiped = async (direction: SwipeDirection) => {
+    const card = cards[0];
+    if (!card) return;
+    setSwipedIds((ids) => [...ids, card.id]);
+    setNotice(null);
+    try {
+      const result = await recordSwipe(card.id, direction);
+      if (result.matched && result.conversationId) {
+        setMatch({ name: card.name, photoUrl: card.photoUrl, conversationId: result.conversationId });
+      }
+    } catch (e) {
+      if (errorCode(e) === 'daily_swipe_limit_reached') {
+        setSwipedIds((ids) => ids.filter((id) => id !== card.id)); // not recorded: keep them for later
+        setLimitReached(true);
+      } else if (errorCode(e) !== 'not_permitted') {
+        setNotice(friendlyError(e));
+      }
+    } finally {
+      for (const queryKey of [['likes-count'], ['inbox'], ['my-limits']]) queryClient.invalidateQueries({ queryKey });
+    }
+  };
 
   const back = (
     <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={12} style={styles.back}>
@@ -26,8 +57,9 @@ export default function LikedYou() {
   );
 
   let body;
-  if (likes.isPending) body = <ActivityIndicator color={colors.accent} style={styles.loading} />;
-  else if (likes.isError)
+  if (likes.isPending) {
+    body = <ActivityIndicator color={colors.accent} style={styles.loading} />;
+  } else if (likes.isError) {
     body = (
       <View style={styles.message}>
         <Text style={[typography.body, styles.center]}>
@@ -40,28 +72,69 @@ export default function LikedYou() {
         )}
       </View>
     );
-  else
+  } else if (limitReached) {
+    const resetTime = nextLimitReset().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
     body = (
-      <FlatList
-        data={likes.data}
-        keyExtractor={(c) => c.id}
-        numColumns={COLUMNS}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <ProfileTile card={item} width={tileWidth} onPress={() => router.push(`/profile/${item.id}`)} />
-        )}
-        ListEmptyComponent={
-          <Text style={[typography.bodyMuted, styles.center]}>No new likes right now. Check back soon.</Text>
-        }
-      />
+      <View style={styles.message}>
+        <Text style={[typography.subtitle, styles.center]}>{"That's all your swipes for today"}</Text>
+        <Text style={[typography.bodyMuted, styles.center]}>
+          {`Come back after ${resetTime}. They will still be here.`}
+        </Text>
+      </View>
     );
+  } else if (cards.length === 0) {
+    body = (
+      <View style={styles.message}>
+        <Text style={[typography.subtitle, styles.center]}>{"You're all caught up"}</Text>
+        <Text style={[typography.bodyMuted, styles.center]}>New likes will show up here.</Text>
+        <Button label="Back to Messages" variant="secondary" onPress={() => router.back()} />
+      </View>
+    );
+  } else {
+    body = (
+      <>
+        <View style={styles.deck}>
+          {cards
+            .slice(0, 2)
+            .reverse()
+            .map((card, i, shown) => {
+              const isTop = i === shown.length - 1;
+              return (
+                <View key={card.id} style={[StyleSheet.absoluteFill, !isTop && styles.behind]}>
+                  <SwipeCard
+                    ref={isTop ? topCard : undefined}
+                    card={card}
+                    active={isTop}
+                    onSwiped={onSwiped}
+                    onOpenProfile={() => router.push(`/profile/${card.id}`)}
+                  />
+                </View>
+              );
+            })}
+        </View>
+        <View style={styles.buttons}>
+          <RoundButton icon="close" color={colors.rose} label="Pass" onPress={() => topCard.current?.swipe('pass')} />
+          <RoundButton icon="heart" color={colors.accent} label="Like back" onPress={() => topCard.current?.swipe('like')} />
+        </View>
+      </>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       {back}
-      <Text style={[typography.title, styles.title]}>Liked you</Text>
+      <View style={styles.header}>
+        <Text style={typography.title}>Liked you</Text>
+        {cards.length > 0 && !limitReached && (
+          <Text style={typography.caption}>{`${cards.length} ${cards.length === 1 ? 'person' : 'people'}`}</Text>
+        )}
+      </View>
+      {cards.length > 0 && !limitReached && (
+        <Text style={[typography.bodyMuted, styles.sub]}>They already like you. Swipe right to match.</Text>
+      )}
+      {notice && <Text style={[typography.caption, styles.notice]}>{notice}</Text>}
       {body}
+      <MatchModal match={match} onClose={() => setMatch(null)} />
     </SafeAreaView>
   );
 }
@@ -76,23 +149,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
-  title: {
+  header: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+  },
+  sub: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
+  },
+  notice: {
+    color: colors.rose,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
   },
   loading: {
     marginTop: spacing.xxl,
   },
-  list: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
+  deck: {
+    flex: 1,
+    marginHorizontal: spacing.lg,
   },
-  row: {
-    gap: GAP,
-    marginBottom: GAP,
+  behind: {
+    transform: [{ scale: 0.95 }, { translateY: 10 }],
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.xxl,
+    paddingVertical: spacing.lg,
   },
   message: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.md,
     padding: spacing.lg,
   },
