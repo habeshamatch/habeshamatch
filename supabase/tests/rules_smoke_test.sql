@@ -51,6 +51,9 @@ select t_err($$insert into profiles (id, display_name, date_of_birth, gender, or
   'phone_not_verified') as no_phone_blocked_in_app;
 reset role; set request.jwt.claims = '{}';
 
+-- Every member must be approved (selfie verified + approved photo) to take part.
+update profiles set is_photo_verified = true;
+
 insert into preference_core values
  ('00000000-0000-0000-0000-00000000000a','female',25,35),
  ('00000000-0000-0000-0000-00000000000b','male',25,35),
@@ -62,6 +65,31 @@ insert into preference_items (user_id, attribute, kind, value) values
  ('00000000-0000-0000-0000-00000000000a','height','soft','{"min":160,"max":170}');
 insert into photos (user_id, storage_path, position, moderation_status)
  select id, id::text || '/1.jpg', 1, 'approved' from profiles;
+
+-- ===== an UNAPPROVED member (Dawit's selfie not verified yet) =====
+update profiles set is_photo_verified = false where id = '00000000-0000-0000-0000-00000000000d';
+set role authenticated;
+set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000d"}';
+select t_err('select * from get_meets_my_criteria()', 'approval_pending') as unapproved_cannot_browse;
+select t_err('select * from get_swipe_deck()', 'approval_pending') as unapproved_cannot_swipe_deck;
+select t_err($$select record_swipe('00000000-0000-0000-0000-00000000000c', 'pass')$$, 'approval_pending') as unapproved_cannot_swipe;
+select t_err($$select start_conversation('00000000-0000-0000-0000-00000000000c')$$, 'approval_pending') as unapproved_cannot_chat;
+select t_err($$select get_profile('00000000-0000-0000-0000-00000000000c')$$, 'approval_pending') as unapproved_cannot_view_profiles;
+select t_err($$insert into verification_requests (user_id, selfie_path, pose) values (auth.uid(), auth.uid()::text || '/s.jpg', 'Thumbs up')$$,
+  'two_photos_required') as submit_needs_two_photos;
+insert into photos (user_id, storage_path, position) values (auth.uid(), auth.uid()::text || '/2.jpg', 2);
+insert into verification_requests (user_id, selfie_path, pose, status, rejection_reason)
+  values (auth.uid(), auth.uid()::text || '/s.jpg', 'Thumbs up', 'approved', 'self-approved?');
+select 'submission stored as' t, status, rejection_reason is null from verification_requests where user_id = auth.uid();  -- pending t
+select t_err($$insert into verification_requests (user_id, selfie_path) values (auth.uid(), auth.uid()::text || '/s2.jpg')$$,
+  'duplicate key value violates unique constraint "verification_one_pending"') as one_pending_submission;
+reset role; set request.jwt.claims = '{}';
+set role authenticated;
+set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000c"}';
+select 'unapproved Dawit visible to Chaltu' t, count(*) from get_swipe_deck() where display_name = 'Dawit';  -- 0
+reset role; set request.jwt.claims = '{}';
+delete from photos where storage_path like '00000000-0000-0000-0000-00000000000d/2.jpg';
+update profiles set is_photo_verified = true where id = '00000000-0000-0000-0000-00000000000d';
 
 -- ===== act as Abel (free, Canada) =====
 set role authenticated;

@@ -601,6 +601,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          pose: string | null
+          rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           selfie_path: string
@@ -610,6 +612,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          pose?: string | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           selfie_path: string
@@ -619,6 +623,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          pose?: string | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           selfie_path?: string
@@ -750,6 +756,7 @@ export type Database = {
         }
       }
       is_admin: { Args: never; Returns: boolean }
+      is_approved_member: { Args: { p_user: string }; Returns: boolean }
       is_blocked_between: { Args: { a: string; b: string }; Returns: boolean }
       is_discoverable: {
         Args: { p_cand: string; p_viewer: string }
@@ -783,6 +790,7 @@ export type Database = {
       }
       reorder_my_photos: { Args: { p_photo_ids: string[] }; Returns: undefined }
       require_active_user: { Args: never; Returns: string }
+      require_approved_user: { Args: never; Returns: string }
       residence_type: { Args: { p_country: string }; Returns: string }
       soft_score: {
         Args: { p_cand: string; p_viewer: string }

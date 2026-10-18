@@ -154,7 +154,7 @@ select pg_temp.seed_id(n), name,
        string_to_array((array['coffee_ceremony,cooking,travel', 'football,fitness,music', 'reading,faith_community,volunteering',
                               'movies,dancing,family_time', 'hiking,photography,coffee_ceremony', 'entrepreneurship,technology,travel'])[1 + n % 6], ','),
        relocate, long_dist,
-       n % 4 = 0,                                     -- some verified (blue tick)
+       true,                                          -- every member is verified (mandatory review)
        n in (6, 14, 20),                              -- a few premium diaspora users
        case when n in (6, 14, 20) then now() + interval '30 days' end,
        now() - interval '60 days',
