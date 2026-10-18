@@ -99,6 +99,7 @@ function RootNavigator() {
           <Stack.Screen name="chat/[id]" />
           <Stack.Screen name="blocked" />
           <Stack.Screen name="liked-you" />
+          <Stack.Screen name="edit-profile" />
           <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
         </Stack.Protected>
       </Stack>

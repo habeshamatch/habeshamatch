@@ -45,7 +45,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "start:local": "node scripts/use-supabase.mjs local && expo start -c",
+    "start:live": "node scripts/use-supabase.mjs live && expo start -c"
   },
   "private": true
 }
