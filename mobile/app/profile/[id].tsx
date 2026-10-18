@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -16,9 +16,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { Sheet } from '@/components/Sheet';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { fetchMyLimits, findConversationWith, nextLimitReset, startConversation } from '@/lib/chats';
 import { fetchProfile } from '@/lib/discover';
-import { friendlyError } from '@/lib/errors';
+import { errorCode, friendlyError, isPremiumRequired } from '@/lib/errors';
 import {
   heightLabel,
   intentLabel,
@@ -27,6 +29,7 @@ import {
   placeLabel,
   religionLabel,
 } from '@/lib/profileLabels';
+import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // Someone's public profile. Only what get_profile returns is shown (age, never date of birth).
@@ -34,8 +37,35 @@ export default function ProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { width } = useWindowDimensions();
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [limitSheet, setLimitSheet] = useState(false);
+  const [messageError, setMessageError] = useState<string | null>(null);
+  const { session } = useSession();
+  const myId = session?.user.id ?? '';
+  const queryClient = useQueryClient();
 
   const query = useQuery({ queryKey: ['profile', id], queryFn: () => fetchProfile(id), enabled: !!id });
+  const existing = useQuery({
+    queryKey: ['conversation-with', id],
+    queryFn: () => findConversationWith(myId, id),
+    enabled: !!id && !!myId,
+  });
+  const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
+
+  const message = useMutation({
+    mutationFn: () => startConversation(id),
+    onSuccess: (conversationId) => {
+      queryClient.invalidateQueries({ queryKey: ['my-limits'] });
+      queryClient.setQueryData(['conversation-with', id], conversationId);
+      router.push(`/chat/${conversationId}`);
+    },
+    onError: (e) => {
+      if (isPremiumRequired(e)) router.push('/paywall');
+      else if (errorCode(e) === 'daily_new_chat_limit_reached') {
+        queryClient.invalidateQueries({ queryKey: ['my-limits'] });
+        setLimitSheet(true);
+      } else setMessageError(friendlyError(e));
+    },
+  });
 
   const back = (
     <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={12} style={styles.back}>
@@ -64,6 +94,10 @@ export default function ProfileScreen() {
   }
 
   const p = query.data;
+  const hasChat = !!existing.data;
+  const l = limits.data;
+  const chatsLeft = l ? Math.max(l.newChatsLimit - l.newChatsUsed, 0) : null;
+  const resetTime = nextLimitReset().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   const photoHeight = width * 1.25;
   const onPhotoScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) =>
     setPhotoIndex(Math.round(e.nativeEvent.contentOffset.x / width));
@@ -80,7 +114,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {back}
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={{ height: photoHeight }}>
@@ -145,6 +179,44 @@ export default function ProfileScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        {messageError && (
+          <Text style={[typography.caption, styles.error]} accessibilityLiveRegion="polite">
+            {messageError}
+          </Text>
+        )}
+        <Button
+          label={hasChat ? 'Open chat' : `Message ${p.name}`}
+          onPress={() => {
+            setMessageError(null);
+            message.mutate();
+          }}
+          loading={message.isPending}
+          disabled={existing.isPending}
+        />
+        {!hasChat && l?.showChatLimit && chatsLeft !== null && (
+          <Text style={[typography.caption, styles.center]}>
+            {chatsLeft} of {l.newChatsLimit} new chats left today. Replies are always free.
+          </Text>
+        )}
+      </View>
+
+      <Sheet visible={limitSheet} onClose={() => setLimitSheet(false)}>
+        <Text style={typography.subtitle}>{"You've used today's new chats"}</Text>
+        <Text style={typography.bodyMuted}>
+          {`Free members can start ${l?.newChatsLimit ?? 'a few'} new conversations a day. You can still reply to anyone who messages you. New chats open again at ${resetTime}.`}
+        </Text>
+        <Text style={typography.bodyMuted}>Premium members are not held to the free daily limit on new chats.</Text>
+        <Button
+          label="See Premium"
+          onPress={() => {
+            setLimitSheet(false);
+            router.push('/paywall');
+          }}
+        />
+        <Button label="Not now" variant="text" onPress={() => setLimitSheet(false)} />
+      </Sheet>
     </SafeAreaView>
   );
 }
@@ -223,5 +295,18 @@ const styles = StyleSheet.create({
   detailValue: {
     flexShrink: 1,
     textAlign: 'right',
+  },
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.lg,
+    gap: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.surfaceRaised,
+    backgroundColor: colors.background,
+  },
+  error: {
+    color: colors.rose,
+    textAlign: 'center',
   },
 });
