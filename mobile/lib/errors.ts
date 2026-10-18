@@ -18,6 +18,7 @@ const DATABASE_MESSAGES = {
   account_not_active: 'Your account is not active. Please contact support.',
   not_authenticated: 'Please sign in again.',
   phone_not_verified: 'Please verify your phone number before setting up your profile.',
+  not_found: 'This profile is no longer available.',
 } as const;
 
 const AUTH_MESSAGES: Record<string, string> = {
