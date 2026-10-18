@@ -107,7 +107,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 
 ### Safety (required for App Store approval)
 - 18+ only, enforced at profile creation.
-- Block and report available from every profile and chat.
+- Block and report available from every profile and chat (`components/SafetyMenu.tsx`, the "⋯" button). Reporting offers "Also block" (on by default). A block hides both people from each other everywhere (discovery, profiles, photos, inbox, messages; `get_profile` too). Blocked people are listed under Profile, Blocked people (`get_my_blocked_users()`, first names only) with Unblock. The server clears moderation fields on new reports (trigger `reports_defaults`).
 - Photos start as `pending` and are invisible to others until an admin approves them. Files are in the PRIVATE Storage bucket `photos` at `{user_id}/...` (JPEG only, 5 MB); storage policies let users write and delete only their own folder and read others' files only when the `photos` row is approved and the owner is discoverable to them. View photos with signed URLs. Compress on device (`mobile/lib/photos.ts`) before upload; each photo also gets a ~400px thumbnail at `{path}.thumb.jpg` (`photo_thumb_path()`), readable by others exactly when the photo is. Lists use thumbnails (with a fallback to the full photo); profile pages use full photos. Reorder only via `reorder_my_photos(ids)`; owners have no UPDATE policy on `photos`.
 - Photo verification (selfie) is free, reviewed manually in the admin panel, and awards the blue tick.
 - In-app account deletion (edge function deletes auth user, storage files, and all rows).

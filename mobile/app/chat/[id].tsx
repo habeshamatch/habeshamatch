@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { SafetyMenu } from '@/components/SafetyMenu';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { friendlyError } from '@/lib/errors';
 import {
@@ -181,6 +182,7 @@ export default function ChatScreen() {
           {other.otherVerified && <VerifiedBadge size={14} />}
         </Pressable>
       )}
+      {other && <SafetyMenu userId={other.otherUserId} name={other.otherName} onBlocked={() => router.dismissAll()} />}
     </View>
   );
 
