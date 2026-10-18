@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { SafetyMenu } from '@/components/SafetyMenu';
 import { Sheet } from '@/components/Sheet';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { fetchMyLimits, findConversationWith, nextLimitReset, startConversation } from '@/lib/chats';
@@ -115,7 +116,12 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      {back}
+      <View style={styles.topBar}>
+        {back}
+        <View style={styles.menu}>
+          <SafetyMenu userId={p.id} name={p.name} onBlocked={() => router.dismissAll()} />
+        </View>
+      </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={{ height: photoHeight }}>
           {p.photoUrls.length > 0 ? (
@@ -230,6 +236,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menu: {
+    paddingHorizontal: spacing.lg,
   },
   loading: {
     marginTop: spacing.xxl,

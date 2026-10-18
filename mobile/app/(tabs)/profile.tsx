@@ -19,6 +19,7 @@ export default function ProfileTab() {
       <View style={styles.actions}>
         <Button label="Edit preferences" variant="secondary" onPress={() => router.push('/preferences')} />
         <Button label="Edit photos" variant="secondary" onPress={() => router.push('/photos')} />
+        <Button label="Blocked people" variant="secondary" onPress={() => router.push('/blocked')} />
       </View>
       <View style={styles.bottom}>
         {error && <Text style={typography.caption}>{error}</Text>}

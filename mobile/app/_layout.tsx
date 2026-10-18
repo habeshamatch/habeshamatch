@@ -94,6 +94,7 @@ function RootNavigator() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="profile/[id]" />
           <Stack.Screen name="chat/[id]" />
+          <Stack.Screen name="blocked" />
           <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
         </Stack.Protected>
       </Stack>

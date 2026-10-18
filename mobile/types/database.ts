@@ -641,6 +641,14 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_my_blocked_users: {
+        Args: never
+        Returns: {
+          blocked_at: string
+          display_name: string
+          user_id: string
+        }[]
+      }
       get_my_conversations: {
         Args: never
         Returns: {
