@@ -2,26 +2,21 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { MatchModal, type Match } from '@/components/MatchModal';
+import { RoundButton } from '@/components/RoundButton';
 import { SwipeCard, type SwipeCardHandle, type SwipeDirection } from '@/components/SwipeCard';
 import { fetchMyLimits, nextLimitReset } from '@/lib/chats';
 import { errorCode, friendlyError } from '@/lib/errors';
-import { fetchMyPhotos } from '@/lib/photos';
-import { useSession } from '@/lib/session';
 import { fetchSwipeDeck, recordSwipe, type SwipeCard as Card } from '@/lib/swipe';
-import { colors, radius, spacing, typography } from '@/lib/theme';
+import { colors, spacing, typography } from '@/lib/theme';
 
 const REFILL_AT = 5; // fetch more cards when this few are left
 
-type Match = { card: Card; conversationId: string };
-
 export default function Swipe() {
-  const { session } = useSession();
-  const myId = session?.user.id ?? '';
   const queryClient = useQueryClient();
   const topCard = useRef<SwipeCardHandle>(null);
 
@@ -36,7 +31,6 @@ export default function Swipe() {
   const fetching = useRef(false);
 
   const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
-  const myPhotos = useQuery({ queryKey: ['my-photos', myId], queryFn: () => fetchMyPhotos(myId), enabled: !!match });
 
   const refill = useCallback(async () => {
     if (fetching.current) return;
@@ -80,7 +74,7 @@ export default function Swipe() {
     try {
       const result = await recordSwipe(card.id, direction);
       if (result.matched && result.conversationId) {
-        setMatch({ card, conversationId: result.conversationId });
+        setMatch({ name: card.name, photoUrl: card.photoUrl, conversationId: result.conversationId });
         queryClient.invalidateQueries({ queryKey: ['inbox'] });
       }
     } catch (e) {
@@ -187,58 +181,8 @@ export default function Swipe() {
       {notice && <Text style={[typography.caption, styles.notice]}>{notice}</Text>}
       {body}
 
-      <Modal visible={!!match} animationType="fade" transparent onRequestClose={() => setMatch(null)}>
-        <View style={styles.matchBackdrop}>
-          {match && (
-            <View style={styles.matchBox}>
-              <Text style={[typography.display, styles.center, { color: colors.accent }]}>{"It's a match!"}</Text>
-              <Text style={[typography.body, styles.center]}>{`You and ${match.card.name} liked each other.`}</Text>
-              <View style={styles.pair}>
-                <Avatar url={myPhotos.data?.[0]?.url ?? null} name="You" size={96} />
-                <Ionicons name="heart" size={32} color={colors.rose} />
-                <Avatar url={match.card.photoUrl} name={match.card.name} size={96} />
-              </View>
-              <Text style={[typography.caption, styles.center]}>
-                This chat does not use one of your daily new chats.
-              </Text>
-              <Button
-                label="Send a message"
-                onPress={() => {
-                  const id = match.conversationId;
-                  setMatch(null);
-                  router.push(`/chat/${id}`);
-                }}
-              />
-              <Button label="Keep swiping" variant="text" onPress={() => setMatch(null)} />
-            </View>
-          )}
-        </View>
-      </Modal>
+      <MatchModal match={match} onClose={() => setMatch(null)} />
     </SafeAreaView>
-  );
-}
-
-function RoundButton({
-  icon,
-  color,
-  label,
-  onPress,
-}: {
-  icon: 'close' | 'heart';
-  color: string;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.round, pressed && styles.pressed]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      hitSlop={8}
-    >
-      <Ionicons name={icon} size={32} color={color} />
-    </Pressable>
   );
 }
 
@@ -274,19 +218,6 @@ const styles = StyleSheet.create({
     gap: spacing.xxl,
     paddingVertical: spacing.lg,
   },
-  round: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.surfaceRaised,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
   message: {
     flex: 1,
     alignItems: 'center',
@@ -296,24 +227,5 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
-  },
-  matchBackdrop: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: spacing.lg,
-    backgroundColor: colors.overlay,
-  },
-  matchBox: {
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-  },
-  pair: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    marginVertical: spacing.md,
   },
 });
