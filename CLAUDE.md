@@ -43,7 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── scripts/                 # seed-photos.mjs: placeholder images for seed profiles (local only, macOS)
+│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
@@ -111,7 +111,7 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Photos start as `pending` and are invisible to others until an admin approves them. Files are in the PRIVATE Storage bucket `photos` at `{user_id}/...` (JPEG only, 5 MB); storage policies let users write and delete only their own folder and read others' files only when the `photos` row is approved and the owner is discoverable to them. View photos with signed URLs. Compress on device (`mobile/lib/photos.ts`) before upload; each photo also gets a ~400px thumbnail at `{path}.thumb.jpg` (`photo_thumb_path()`), readable by others exactly when the photo is. Lists use thumbnails (with a fallback to the full photo); profile pages use full photos. Reorder only via `reorder_my_photos(ids)`; owners have no UPDATE policy on `photos`.
 - Photo verification (selfie) is free, reviewed manually in the admin panel, and awards the blue tick.
 - In-app account deletion (edge function deletes auth user, storage files, and all rows).
-- Text-only messaging, max 2000 characters.
+- Text-only messaging, max 2000 characters. Messages are sent with an app-chosen id (so the live echo is not shown twice; a duplicate-id error means it was already sent). The server sets `created_at` and `read_at` for app users (trigger `messages_defaults`). Live updates use Supabase Realtime on `messages` (RLS decides who receives what); Realtime can take a few seconds to start after subscribing, so the app refetches when a channel connects, when the app returns to the foreground, and when the inbox shows a newer message than the open chat.
 
 ### Profile fields
 Name, date of birth (age shown, never DOB), gender (male/female), height (stored in cm, shown as ft/in or cm by region), origin (Eritrea/Ethiopia), current city, permanent residence country, religion (single choice), languages (up to 8, stored as ISO 639 codes from `mobile/lib/languages.ts`, never free text), relationship intent (single choice), yearly income range in USD (`income_range`, includes prefer not to say; not shown to others yet), education level (`education_level`, includes prefer not to say), bio (500 chars), open to relocating, open to long distance, up to 6 photos.

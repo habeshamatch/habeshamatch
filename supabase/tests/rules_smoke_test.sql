@@ -109,6 +109,16 @@ select 'swipe back' t, record_swipe('00000000-0000-0000-0000-00000000000a','like
 select 'convos' t, other_name, origin from get_my_conversations();
 insert into messages (conversation_id, sender_id, body)
   select conversation_id, auth.uid(), 'Selam!' from get_my_conversations() limit 1;
+-- the server sets the time and unread state, whatever the app sends
+insert into messages (conversation_id, sender_id, body, created_at, read_at)
+  select conversation_id, auth.uid(), 'Backdated?', now() - interval '3 days', now() from get_my_conversations() limit 1;
+select 'message time forced to now, unread' t, created_at > now() - interval '1 minute', read_at is null from messages where body = 'Backdated?';  -- t t
+select t_err($$insert into messages (conversation_id, sender_id, body)
+  select conversation_id, '00000000-0000-0000-0000-00000000000a', 'Spoofed' from get_my_conversations() limit 1$$,
+  'new row violates row-level security policy for table "messages"') as cannot_send_as_someone_else;
+select t_err($$insert into messages (conversation_id, sender_id, body)
+  select conversation_id, auth.uid(), repeat('x', 2001) from get_my_conversations() limit 1$$,
+  'new row for relation "messages" violates check constraint "messages_body_check"') as message_max_2000;
 insert into blocks values ('00000000-0000-0000-0000-00000000000b','00000000-0000-0000-0000-00000000000a');
 
 -- ===== Abel after block =====
