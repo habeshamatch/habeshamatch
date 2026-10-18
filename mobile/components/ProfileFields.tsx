@@ -13,11 +13,19 @@ import {
   QUICK_LANGUAGE_CODES,
   QUICK_LANGUAGES,
 } from '@/lib/languages';
+import { INTERESTS, MAX_INTERESTS } from '@/lib/interests';
 import { formatForDisplay, getCountry } from '@/lib/phone';
 import type { ProfileDraft } from '@/lib/profileDraft';
 import {
   BIO_MAX,
   DISPLAY_NAME_MAX,
+  DRINKING,
+  EXERCISE,
+  HAS_CHILDREN,
+  MARITAL_STATUSES,
+  OCCUPATION_MAX,
+  SMOKING,
+  WANTS_CHILDREN,
   EDUCATION_LEVELS,
   GENDERS,
   HEIGHT_MAX_CM,
@@ -65,12 +73,19 @@ export function stepProblem(step: number, d: ProfileDraft, rules: ResidenceRules
       if (!d.incomeRange) return 'Please choose your income range, or "Prefer not to say".';
       return null;
     case 2:
+      if (!d.maritalStatus) return 'Please choose your marital status.';
+      if (!d.hasChildren) return 'Please say whether you have children.';
+      if (!d.wantsChildren) return 'Please say whether you want children.';
+      if (!d.smoking) return 'Please choose how often you smoke.';
+      if (!d.drinking) return 'Please choose how often you drink.';
+      return null;
+    case 3:
       if (!d.currentCity.trim()) return 'Please enter the city you live in.';
       if (!d.residenceCountry) return 'Please choose your country of residence.';
       if (isLocalTierCountry(d.residenceCountry, rules) && !hasLocalTierPhone(phone, rules))
         return 'Please read the note about your country of residence.';
       return null;
-    case 3:
+    case 4:
       if (d.bio.length > BIO_MAX) return `Your bio can be up to ${BIO_MAX} characters.`;
       return null;
     default:
@@ -206,6 +221,55 @@ export function Background({ draft, update }: StepProps) {
         onToggle={(v) => update({ incomeRange: v })}
         label="Yearly income"
       />
+    </View>
+  );
+}
+
+export function FamilyLifestyle({ draft, update }: StepProps) {
+  const pick = <T extends string>(options: { value: T; label: string }[], value: T | null, key: keyof ProfileDraft, label: string) => (
+    <Chips options={options} selected={value ? [value] : []} onToggle={(v) => update({ [key]: v } as Partial<ProfileDraft>)} label={label} />
+  );
+  const toggleInterest = (code: string) => {
+    if (draft.interests.includes(code)) update({ interests: draft.interests.filter((c) => c !== code) });
+    else if (draft.interests.length < MAX_INTERESTS) update({ interests: [...draft.interests, code] });
+  };
+  return (
+    <View>
+      <FieldLabel>Marital status</FieldLabel>
+      {pick(MARITAL_STATUSES, draft.maritalStatus, 'maritalStatus', 'Marital status')}
+
+      <FieldLabel>Do you have children?</FieldLabel>
+      {pick(HAS_CHILDREN, draft.hasChildren, 'hasChildren', 'Do you have children')}
+
+      <FieldLabel>Do you want children?</FieldLabel>
+      {pick(WANTS_CHILDREN, draft.wantsChildren, 'wantsChildren', 'Do you want children')}
+
+      <FieldLabel>Smoking</FieldLabel>
+      {pick(SMOKING, draft.smoking, 'smoking', 'Smoking')}
+
+      <FieldLabel>Drinking</FieldLabel>
+      {pick(DRINKING, draft.drinking, 'drinking', 'Drinking')}
+
+      <FieldLabel hint="Optional">Exercise</FieldLabel>
+      <Chips
+        options={EXERCISE}
+        selected={draft.exercise ? [draft.exercise] : []}
+        onToggle={(v) => update({ exercise: draft.exercise === v ? null : v })}
+        label="Exercise"
+      />
+
+      <FieldLabel hint="Optional">Occupation</FieldLabel>
+      <TextField
+        value={draft.occupation}
+        onChangeText={(t) => update({ occupation: t })}
+        placeholder="e.g. Nurse"
+        maxLength={OCCUPATION_MAX}
+        autoCapitalize="sentences"
+        accessibilityLabel="Occupation"
+      />
+
+      <FieldLabel hint={`Optional. Choose up to ${MAX_INTERESTS}.`}>Interests</FieldLabel>
+      <Chips multiple options={INTERESTS} selected={draft.interests} onToggle={toggleInterest} label="Interests" />
     </View>
   );
 }

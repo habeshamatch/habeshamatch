@@ -1,5 +1,6 @@
 import { clearDraft, type ProfileDraft } from '@/lib/profileDraft';
 import { defaultHeightUnit } from '@/lib/height';
+import { isKnownInterest } from '@/lib/interests';
 import { isKnownLanguage } from '@/lib/languages';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/types/database';
@@ -29,6 +30,14 @@ export function profileToDraft(p: MyProfile): ProfileDraft {
     intent: p.relationship_intent,
     incomeRange: p.income_range,
     educationLevel: p.education_level,
+    maritalStatus: p.marital_status,
+    hasChildren: p.has_children,
+    wantsChildren: p.wants_children,
+    smoking: p.smoking,
+    drinking: p.drinking,
+    exercise: p.exercise,
+    occupation: p.occupation ?? '',
+    interests: p.interests.filter(isKnownInterest),
     currentCity: p.current_city ?? '',
     residenceCountry: p.residence_country_code,
     openToRelocating: p.open_to_relocating,
@@ -51,6 +60,14 @@ export async function saveMyProfile(userId: string, d: ProfileDraft): Promise<vo
       relationship_intent: d.intent ?? undefined,
       income_range: d.incomeRange,
       education_level: d.educationLevel,
+      marital_status: d.maritalStatus,
+      has_children: d.hasChildren,
+      wants_children: d.wantsChildren,
+      smoking: d.smoking,
+      drinking: d.drinking,
+      exercise: d.exercise,
+      occupation: d.occupation.trim() || null,
+      interests: d.interests,
       current_city: d.currentCity.trim(),
       residence_country_code: d.residenceCountry ?? undefined,
       open_to_relocating: d.openToRelocating,

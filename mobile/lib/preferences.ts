@@ -22,6 +22,12 @@ export type Preferences = {
   languages: ListPref; // ISO 639 codes, matched if any overlap
   intent: ListPref;
   education: ListPref; // acceptable education levels
+  maritalStatus: ListPref;
+  hasChildren: ListPref;
+  wantsChildren: ListPref;
+  smoking: ListPref;
+  drinking: ListPref;
+  exercise: ListPref;
   country: ListPref; // where they live: ISO country codes of residence
   height: HeightPref;
   income: IncomePref;
@@ -32,13 +38,31 @@ export const MAX_COUNTRIES = 15;
 
 // residence_type (abroad / back home) is no longer offered; an old residence_type row is not loaded,
 // so the next save removes it.
-type ListKey = 'religion' | 'origin' | 'languages' | 'intent' | 'education' | 'country';
+type ListKey =
+  | 'religion'
+  | 'origin'
+  | 'languages'
+  | 'intent'
+  | 'education'
+  | 'maritalStatus'
+  | 'hasChildren'
+  | 'wantsChildren'
+  | 'smoking'
+  | 'drinking'
+  | 'exercise'
+  | 'country';
 const LIST_ATTRIBUTES: Record<ListKey, Enums<'pref_attr_t'>> = {
   religion: 'religion',
   origin: 'origin',
   languages: 'languages',
   intent: 'relationship_intent',
   education: 'education',
+  maritalStatus: 'marital_status',
+  hasChildren: 'has_children',
+  wantsChildren: 'wants_children',
+  smoking: 'smoking',
+  drinking: 'drinking',
+  exercise: 'exercise',
   country: 'country',
 };
 
@@ -79,6 +103,12 @@ export async function loadPreferences(
     languages: emptyList(),
     intent: emptyList(),
     education: emptyList(),
+    maritalStatus: emptyList(),
+    hasChildren: emptyList(),
+    wantsChildren: emptyList(),
+    smoking: emptyList(),
+    drinking: emptyList(),
+    exercise: emptyList(),
     country: emptyList(),
     height: { enabled: false, min: 155, max: 190, kind: 'soft' },
     income: { min: null, kind: 'soft' },

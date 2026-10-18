@@ -17,6 +17,14 @@ export type ProfileDraft = {
   intent: Enums<'intent_t'> | null;
   incomeRange: Enums<'income_range_t'> | null;
   educationLevel: Enums<'education_level_t'> | null;
+  maritalStatus: Enums<'marital_status_t'> | null;
+  hasChildren: Enums<'has_children_t'> | null;
+  wantsChildren: Enums<'wants_children_t'> | null;
+  smoking: Enums<'smoking_t'> | null;
+  drinking: Enums<'drinking_t'> | null;
+  exercise: Enums<'exercise_t'> | null;
+  occupation: string;
+  interests: string[]; // codes from lib/interests.ts
   currentCity: string;
   residenceCountry: string | null;
   openToRelocating: boolean;
@@ -38,6 +46,14 @@ export function emptyDraft(heightUnit: HeightUnit): ProfileDraft {
     intent: null,
     incomeRange: null,
     educationLevel: null,
+    maritalStatus: null,
+    hasChildren: null,
+    wantsChildren: null,
+    smoking: null,
+    drinking: null,
+    exercise: null,
+    occupation: '',
+    interests: [],
     currentCity: '',
     residenceCountry: null,
     openToRelocating: false,
