@@ -26,6 +26,7 @@ import {
   EDUCATION_LEVELS,
   HEIGHT_MAX_CM,
   HEIGHT_MIN_CM,
+  INCOME_THRESHOLDS,
   INTENTS,
   MIN_AGE,
   ORIGINS,
@@ -61,6 +62,7 @@ export default function PreferencesScreen() {
 
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [alreadySaved, setAlreadySaved] = useState(false); // false during onboarding
+  const [softThresholdPct, setSoftThresholdPct] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -74,6 +76,7 @@ export default function PreferencesScreen() {
         if (cancelled) return;
         setPrefs(loaded.prefs);
         setAlreadySaved(loaded.saved);
+        setSoftThresholdPct(Math.round(loaded.softMatchThreshold * 100));
       })
       .catch((e) => {
         if (!cancelled) setLoadError(friendlyError(e));
@@ -135,7 +138,9 @@ export default function PreferencesScreen() {
 
   const mustHaveCount = (['religion', 'origin', 'languages', 'intent', 'education', 'country'] as const).filter(
     (k) => prefs[k].values.length > 0 && prefs[k].kind === 'hard',
-  ).length + (prefs.height.enabled && prefs.height.kind === 'hard' ? 1 : 0);
+  ).length +
+    (prefs.height.enabled && prefs.height.kind === 'hard' ? 1 : 0) +
+    (prefs.income.min && prefs.income.kind === 'hard' ? 1 : 0);
 
   const listCard = (
     key: 'religion' | 'origin' | 'intent' | 'education',
@@ -213,7 +218,7 @@ export default function PreferencesScreen() {
         <Text style={typography.caption}>Gender and age always apply, in both directions.</Text>
 
         <Notice>
-          {'Everything below is optional. "Must have" is a deal-breaker: you only see people who match it, and people who do not match it cannot start a chat with you. "Nice to have" puts better matches first without hiding anyone.'}
+          {`Everything below is optional. "Must have" is a deal-breaker: you only see people who match it, and people who do not match it cannot start a chat with you. "Nice to have" ranks people: those who match more of them come first, and people who match less than ${softThresholdPct}% of your nice-to-haves are left out of your main matches. With only one nice-to-have, it works almost like a must-have.`}
         </Notice>
         {mustHaveCount >= 3 && (
           <Notice tone="warning">
@@ -285,6 +290,21 @@ export default function PreferencesScreen() {
           ) : (
             <LinkButton label="+ Set a height range" onPress={() => update({ height: { ...prefs.height, enabled: true } })} />
           )}
+        </PreferenceCard>
+
+        <PreferenceCard
+          title="Income"
+          hint='At least this much per year, in US dollars. People who chose "Prefer not to say" do not meet this.'
+          pref={{ values: prefs.income.min ? [prefs.income.min] : [], kind: prefs.income.kind }}
+          onKind={(kind) => update({ income: { ...prefs.income, kind } })}
+          onClear={() => update({ income: { ...prefs.income, min: null } })}
+        >
+          <Chips
+            options={INCOME_THRESHOLDS}
+            selected={prefs.income.min ? [prefs.income.min] : []}
+            onToggle={(v) => update({ income: { ...prefs.income, min: prefs.income.min === v ? null : v } })}
+            label="Income at least"
+          />
         </PreferenceCard>
 
         <PreferenceCard

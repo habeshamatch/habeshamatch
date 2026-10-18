@@ -785,6 +785,7 @@ export type Database = {
         | "residence_type"
         | "country"
         | "education"
+        | "income"
       pref_kind_t: "hard" | "soft"
       religion_t:
         | "orthodox"
@@ -984,6 +985,7 @@ export const Constants = {
         "residence_type",
         "country",
         "education",
+        "income",
       ],
       pref_kind_t: ["hard", "soft"],
       religion_t: [

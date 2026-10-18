@@ -142,3 +142,13 @@ update profiles set education_level = 'high_school' where id = '00000000-0000-00
 select 'education: high school fails it' t, pref_item_met('education', '["bachelors","masters","doctorate"]', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
 update profiles set education_level = null where id = '00000000-0000-0000-0000-00000000000b';
 select 'education: not answered fails it' t, coalesce(pref_item_met('education', '["bachelors"]', p), false) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+
+-- ===== income preference: "at least" a bracket =====
+update profiles set income_range = '75k_100k' where id = '00000000-0000-0000-0000-00000000000b';
+select 'income: 75-100k meets at least 50k' t, pref_item_met('income', '{"min":"50k_75k"}', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- t
+select 'income: 75-100k meets at least 75k' t, pref_item_met('income', '{"min":"75k_100k"}', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- t
+select 'income: 75-100k fails at least 100k' t, pref_item_met('income', '{"min":"100k_150k"}', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+update profiles set income_range = 'prefer_not_to_say' where id = '00000000-0000-0000-0000-00000000000b';
+select 'income: prefer not to say fails' t, pref_item_met('income', '{"min":"under_10k"}', p) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f
+update profiles set income_range = null where id = '00000000-0000-0000-0000-00000000000b';
+select 'income: not answered fails' t, coalesce(pref_item_met('income', '{"min":"under_10k"}', p), false) from profiles p where id = '00000000-0000-0000-0000-00000000000b';  -- f

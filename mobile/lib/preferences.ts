@@ -10,6 +10,8 @@ import type { Enums, Json } from '@/types/database';
 export type PrefKind = Enums<'pref_kind_t'>;
 export type ListPref = { values: string[]; kind: PrefKind }; // empty values = not set
 export type HeightPref = { enabled: boolean; min: number; max: number; kind: PrefKind };
+// Income: "at least" this bracket. Saved as {"min": "<bracket>"}; null = not set.
+export type IncomePref = { min: Enums<'income_range_t'> | null; kind: PrefKind };
 
 export type Preferences = {
   seekingGender: Enums<'gender_t'> | null;
@@ -22,6 +24,7 @@ export type Preferences = {
   education: ListPref; // acceptable education levels
   country: ListPref; // where they live: ISO country codes of residence
   height: HeightPref;
+  income: IncomePref;
 };
 
 export const AGE_MAX = 99; // mirrors preference_core.age_max check
@@ -50,12 +53,18 @@ function ageFrom(dob: string): number {
 }
 
 // Saved preferences, or sensible defaults built from the user's own profile on first use.
-export async function loadPreferences(userId: string): Promise<{ prefs: Preferences; saved: boolean }> {
-  const [profile, core, items] = await Promise.all([
+// softMatchThreshold: share of nice-to-haves a person must meet to appear in Meets My Criteria
+// (app_config.soft_match_threshold, e.g. 0.3). Read from the database, never hardcoded.
+export async function loadPreferences(
+  userId: string,
+): Promise<{ prefs: Preferences; saved: boolean; softMatchThreshold: number }> {
+  const [profile, core, items, threshold] = await Promise.all([
     supabase.from('profiles').select('gender, date_of_birth').eq('id', userId).single(),
     supabase.from('preference_core').select('seeking_gender, age_min, age_max').eq('user_id', userId).maybeSingle(),
     supabase.from('preference_items').select('attribute, kind, value').eq('user_id', userId),
+    supabase.from('app_config').select('value').eq('key', 'soft_match_threshold').single(),
   ]);
+  if (threshold.error) throw threshold.error;
   if (profile.error) throw profile.error;
   if (core.error) throw core.error;
   if (items.error) throw items.error;
@@ -72,9 +81,15 @@ export async function loadPreferences(userId: string): Promise<{ prefs: Preferen
     education: emptyList(),
     country: emptyList(),
     height: { enabled: false, min: 155, max: 190, kind: 'soft' },
+    income: { min: null, kind: 'soft' },
   };
 
   for (const item of items.data) {
+    if (item.attribute === 'income') {
+      const v = item.value as { min?: Enums<'income_range_t'> };
+      prefs.income = { min: v.min ?? null, kind: item.kind };
+      continue;
+    }
     if (item.attribute === 'height') {
       const v = item.value as { min?: number; max?: number };
       prefs.height = {
@@ -90,7 +105,7 @@ export async function loadPreferences(userId: string): Promise<{ prefs: Preferen
       prefs[key] = { values: item.value.filter((v): v is string => typeof v === 'string'), kind: item.kind };
     }
   }
-  return { prefs, saved: !!core.data };
+  return { prefs, saved: !!core.data, softMatchThreshold: Number(threshold.data.value) };
 }
 
 // Saves everything: the required core, every set attribute, and removes attributes set to "any".
@@ -117,6 +132,10 @@ export async function savePreferences(userId: string, prefs: Preferences): Promi
       kind: prefs.height.kind,
       value: { min: prefs.height.min, max: prefs.height.max },
     });
+  }
+
+  if (prefs.income.min) {
+    rows.push({ user_id: userId, attribute: 'income', kind: prefs.income.kind, value: { min: prefs.income.min } });
   }
 
   if (rows.length > 0) {

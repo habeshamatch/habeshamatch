@@ -43,6 +43,17 @@ export const INCOME_RANGES: Option<Enums<'income_range_t'>>[] = [
   { value: 'prefer_not_to_say', label: 'Prefer not to say' },
 ];
 
+// Income preference thresholds: each means "this bracket or higher".
+export const INCOME_THRESHOLDS: Option<Enums<'income_range_t'>>[] = [
+  { value: '10k_25k', label: '$10k+' },
+  { value: '25k_50k', label: '$25k+' },
+  { value: '50k_75k', label: '$50k+' },
+  { value: '75k_100k', label: '$75k+' },
+  { value: '100k_150k', label: '$100k+' },
+  { value: '150k_250k', label: '$150k+' },
+  { value: 'over_250k', label: '$250k+' },
+];
+
 export const EDUCATION_LEVELS: Option<Enums<'education_level_t'>>[] = [
   { value: 'high_school', label: 'High school' },
   { value: 'vocational', label: 'Diploma or vocational' },
