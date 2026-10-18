@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* HabeshaMatch brand tokens (same as mobile/lib/theme.ts). */
+@theme {
+  --color-background: #1C1917;
+  --color-surface: #292524;
+  --color-raised: #3A3330;
+  --color-accent: #D4A24C;
+  --color-accent-soft: #E8C77E;
+  --color-rose: #C97B84;
+  --color-text: #FAF7F2;
+  --color-muted: #A8A29E;
+  --color-verified: #3B82F6;
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+}
