@@ -18,7 +18,7 @@ The owner is a technical project manager, not a full-time mobile developer. Expl
 | Email (sign in codes) | Custom SMTP in Supabase Auth before launch (the built-in sender is for testing only) |
 | Subscriptions | RevenueCat over App Store and Google Play billing. Never Stripe for in-app purchases |
 | Push notifications | Expo Notifications |
-| Admin panel | Next.js web app in `admin/`, hosted on Vercel, same Supabase project |
+| Admin panel | Next.js 16 web app in `admin/`, hosted on Vercel, same Supabase project. Setup and live admins: `docs/ADMIN.md` |
 | Images | Compress and resize on device with expo-image-manipulator before upload |
 
 ## Folder structure
@@ -47,7 +47,7 @@ habeshamatch/
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
-└── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md, LAUNCH_CHECKLIST.md
+└── docs/                        # BUILD_PROMPTS.md, SETUP_AND_MCP.md, LAUNCH_CHECKLIST.md, ADMIN.md
 ```
 
 ## Sign in and phone verification
@@ -163,6 +163,7 @@ Headings: a warm serif (Playfair Display or DM Serif Display via @expo-google-fo
 - Every schema change is a NEW migration file. Never edit an applied migration.
 - After any migration: regenerate types, run `supabase/tests/rules_smoke_test.sql` locally, fix any FAIL.
 - Never put the Supabase service role key, Twilio, or RevenueCat secret keys in the mobile app. Secrets live in Supabase secrets or Vercel env vars only.
+- Admin panel rules: every page and server action starts with `requireAdmin()` (`admin/lib/auth.ts`, checks the `admins` table); the secret key client is `server-only` (`admin/lib/supabase/admin.ts`); every moderation decision goes through `logAction()` into `moderation_actions`. Admin-only database functions (`admin_search_users`, `admin_stats`) are executable by `service_role` only. Keep `admin/lib/database.types.ts` in sync with `mobile/types/database.ts` when regenerating types.
 - Build for slow, expensive mobile data: compress images (max 1080px, ~70% JPEG), use thumbnails in lists, paginate everything, cache with React Query (`mobile/lib/queryClient.ts`, cleared on sign out or account switch).
 - Local test data: after `supabase db reset`, run `node supabase/scripts/seed-photos.mjs` so seed profiles have photo files.
 - Choosing the backend while developing: `npm run start:local` (in `mobile/`) points the app at the Supabase on this Mac using its current Wi-Fi address (it changes now and then) and starts Expo; `npm run start:live` points it back at the live project.
