@@ -419,7 +419,9 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
-          marital_status?: Database["public"]["Enums"]["marital_status_t"] | null
+          marital_status?:
+            | Database["public"]["Enums"]["marital_status_t"]
+            | null
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
@@ -430,7 +432,9 @@ export type Database = {
           residence_changed_at?: string
           residence_country_code: string
           smoking?: Database["public"]["Enums"]["smoking_t"] | null
-          wants_children?: Database["public"]["Enums"]["wants_children_t"] | null
+          wants_children?:
+            | Database["public"]["Enums"]["wants_children_t"]
+            | null
         }
         Update: {
           account_status?: Database["public"]["Enums"]["account_status_t"]
@@ -455,7 +459,9 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
-          marital_status?: Database["public"]["Enums"]["marital_status_t"] | null
+          marital_status?:
+            | Database["public"]["Enums"]["marital_status_t"]
+            | null
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
@@ -466,7 +472,9 @@ export type Database = {
           residence_changed_at?: string
           residence_country_code?: string
           smoking?: Database["public"]["Enums"]["smoking_t"] | null
-          wants_children?: Database["public"]["Enums"]["wants_children_t"] | null
+          wants_children?:
+            | Database["public"]["Enums"]["wants_children_t"]
+            | null
         }
         Relationships: []
       }
@@ -788,11 +796,7 @@ export type Database = {
     Enums: {
       account_status_t: "active" | "suspended" | "banned" | "deleted"
       convo_origin_t: "criteria" | "suggested" | "swipe_match"
-      drinking_t:
-        | "never"
-        | "rarely"
-        | "socially"
-        | "regularly"
+      drinking_t: "never" | "rarely" | "socially" | "regularly"
       education_level_t:
         | "high_school"
         | "vocational"
@@ -800,11 +804,7 @@ export type Database = {
         | "masters"
         | "doctorate"
         | "prefer_not_to_say"
-      exercise_t:
-        | "daily"
-        | "often"
-        | "sometimes"
-        | "rarely"
+      exercise_t: "daily" | "often" | "sometimes" | "rarely"
       gender_t: "male" | "female"
       has_children_t: "no" | "yes_live_with_me" | "yes_not_with_me"
       income_range_t:
@@ -854,18 +854,10 @@ export type Database = {
         | "underage"
         | "other"
       report_status_t: "open" | "actioned" | "dismissed"
-      smoking_t:
-        | "never"
-        | "socially"
-        | "regularly"
-        | "trying_to_quit"
+      smoking_t: "never" | "socially" | "regularly" | "trying_to_quit"
       swipe_dir_t: "like" | "pass"
       tier_t: "free" | "local" | "premium"
-      wants_children_t:
-        | "yes"
-        | "no"
-        | "open"
-        | "not_sure"
+      wants_children_t: "yes" | "no" | "open" | "not_sure"
     }
     CompositeTypes: {
       profile_card: {
@@ -1022,12 +1014,7 @@ export const Constants = {
     Enums: {
       account_status_t: ["active", "suspended", "banned", "deleted"],
       convo_origin_t: ["criteria", "suggested", "swipe_match"],
-      drinking_t: [
-        "never",
-        "rarely",
-        "socially",
-        "regularly",
-      ],
+      drinking_t: ["never", "rarely", "socially", "regularly"],
       education_level_t: [
         "high_school",
         "vocational",
@@ -1036,18 +1023,9 @@ export const Constants = {
         "doctorate",
         "prefer_not_to_say",
       ],
-      exercise_t: [
-        "daily",
-        "often",
-        "sometimes",
-        "rarely",
-      ],
+      exercise_t: ["daily", "often", "sometimes", "rarely"],
       gender_t: ["male", "female"],
-      has_children_t: [
-        "no",
-        "yes_live_with_me",
-        "yes_not_with_me",
-      ],
+      has_children_t: ["no", "yes_live_with_me", "yes_not_with_me"],
       income_range_t: [
         "under_10k",
         "10k_25k",
@@ -1060,11 +1038,7 @@ export const Constants = {
         "prefer_not_to_say",
       ],
       intent_t: ["marriage", "serious_relationship", "getting_to_know"],
-      marital_status_t: [
-        "never_married",
-        "divorced",
-        "widowed",
-      ],
+      marital_status_t: ["never_married", "divorced", "widowed"],
       moderation_status_t: ["pending", "approved", "rejected"],
       origin_t: ["eritrea", "ethiopia"],
       pref_attr_t: [
@@ -1103,20 +1077,10 @@ export const Constants = {
         "other",
       ],
       report_status_t: ["open", "actioned", "dismissed"],
-      smoking_t: [
-        "never",
-        "socially",
-        "regularly",
-        "trying_to_quit",
-      ],
+      smoking_t: ["never", "socially", "regularly", "trying_to_quit"],
       swipe_dir_t: ["like", "pass"],
       tier_t: ["free", "local", "premium"],
-      wants_children_t: [
-        "yes",
-        "no",
-        "open",
-        "not_sure",
-      ],
+      wants_children_t: ["yes", "no", "open", "not_sure"],
     },
   },
 } as const
