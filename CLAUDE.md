@@ -164,6 +164,7 @@ Headings: a warm serif (Playfair Display or DM Serif Display via @expo-google-fo
 - Never put the Supabase service role key, Twilio, or RevenueCat secret keys in the mobile app. Secrets live in Supabase secrets or Vercel env vars only.
 - Build for slow, expensive mobile data: compress images (max 1080px, ~70% JPEG), use thumbnails in lists, paginate everything, cache with React Query (`mobile/lib/queryClient.ts`, cleared on sign out or account switch).
 - Local test data: after `supabase db reset`, run `node supabase/scripts/seed-photos.mjs` so seed profiles have photo files.
+- Choosing the backend while developing: `npm run start:local` (in `mobile/`) points the app at the Supabase on this Mac using its current Wi-Fi address (it changes now and then) and starts Expo; `npm run start:live` points it back at the live project.
 - Writing style in UI copy: no em dashes.
 - Small commits with clear messages. Work on a branch per feature, merge to `main` when it works.
 
