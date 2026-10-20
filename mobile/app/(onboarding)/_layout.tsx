@@ -41,8 +41,9 @@ export default function OnboardingLayout() {
       <Stack.Protected guard={phoneVerified && hasProfile && (approved || submitted)}>
         <Stack.Screen name="preferences" />
       </Stack.Protected>
-      {/* 6. Under review / rejected / suspended, until approved. */}
-      <Stack.Protected guard={phoneVerified && hasProfile && !approved}>
+      {/* 6. Under review / rejected / suspended. Not guarded on approval: removing the screen the
+          member is looking at leaves nothing to go back to, so review.tsx moves on by itself. */}
+      <Stack.Protected guard={phoneVerified && hasProfile}>
         <Stack.Screen name="review" />
       </Stack.Protected>
     </Stack>

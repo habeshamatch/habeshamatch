@@ -14,7 +14,7 @@ import { colors, spacing, typography } from '@/lib/theme';
 // Shown until an admin approves the member (or when their account is suspended or banned).
 // Checks again whenever the app comes back to the front, and on pull to refresh.
 export default function ReviewScreen() {
-  const { verification, accountStatus, hasPreferences, refreshProfile } = useSession();
+  const { approved, verification, accountStatus, hasPreferences, refreshProfile } = useSession();
   const [refreshing, setRefreshing] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -34,6 +34,11 @@ export default function ReviewScreen() {
     });
     return () => sub.remove();
   }, [refreshProfile]);
+
+  // Approved: index.tsx sends them on (to the app, or preferences if not set yet).
+  useEffect(() => {
+    if (approved && accountStatus === 'active') router.replace('/');
+  }, [approved, accountStatus]);
 
   const restricted = accountStatus === 'suspended' || accountStatus === 'banned';
   const rejected = !restricted && verification.status === 'rejected';
