@@ -7,12 +7,20 @@ import { supabase } from '@/lib/supabase';
 // 'loading' until we know; 'error' if the check failed (e.g. offline) and should be retried.
 export type ProfileStatus = 'loading' | 'missing' | 'exists' | 'error';
 
+// The member's latest verification submission (selfie + photos reviewed by an admin).
+export type Verification = { status: 'none' | 'pending' | 'approved' | 'rejected'; reason: string | null };
+
 type SessionState = {
   session: Session | null;
   loading: boolean; // true until the stored session has been read on launch
   profileStatus: ProfileStatus;
   photoCount: number; // the user's own photos, any moderation status
-  hasPreferences: boolean; // preference_core saved: the last onboarding step is done
+  hasPreferences: boolean; // preference_core saved
+  // Approved member: active, selfie verified by an admin, at least one approved photo. Mirrors
+  // is_approved_member() in the database, which enforces it; only approved members use the tabs.
+  approved: boolean;
+  accountStatus: string | null; // 'active', 'suspended', 'banned'
+  verification: Verification;
   refreshProfile: () => Promise<void>;
 };
 
@@ -22,24 +30,57 @@ const SessionContext = createContext<SessionState>({
   profileStatus: 'loading',
   photoCount: 0,
   hasPreferences: false,
+  approved: false,
+  accountStatus: null,
+  verification: { status: 'none', reason: null },
   refreshProfile: async () => {},
 });
 
-type ProfileState = { status: ProfileStatus; photoCount: number; hasPreferences: boolean };
-const LOADING: ProfileState = { status: 'loading', photoCount: 0, hasPreferences: false };
+type ProfileState = {
+  status: ProfileStatus;
+  photoCount: number;
+  hasPreferences: boolean;
+  approved: boolean;
+  accountStatus: string | null;
+  verification: Verification;
+};
+const LOADING: ProfileState = {
+  status: 'loading',
+  photoCount: 0,
+  hasPreferences: false,
+  approved: false,
+  accountStatus: null,
+  verification: { status: 'none', reason: null },
+};
 
-// Onboarding progress from the server: profile row, number of photos, and saved preferences.
+// Onboarding and approval progress from the server.
 async function fetchProfileState(userId: string): Promise<ProfileState> {
-  const [profile, photos, prefs] = await Promise.all([
-    supabase.from('profiles').select('id').eq('id', userId).maybeSingle(),
-    supabase.from('photos').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+  const [profile, photos, approvedPhotos, prefs, latest] = await Promise.all([
+    supabase.from('profiles').select('id, is_photo_verified, account_status').eq('id', userId).maybeSingle(),
+    supabase.from('photos').select('id', { count: 'exact', head: true }).eq('user_id', userId).neq('moderation_status', 'rejected'),
+    supabase.from('photos').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('moderation_status', 'approved'),
     supabase.from('preference_core').select('user_id').eq('user_id', userId).maybeSingle(),
+    supabase
+      .from('verification_requests')
+      .select('status, rejection_reason')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
-  if (profile.error || photos.error || prefs.error) return { ...LOADING, status: 'error' };
+  if (profile.error || photos.error || approvedPhotos.error || prefs.error || latest.error) {
+    return { ...LOADING, status: 'error' };
+  }
+  const p = profile.data;
   return {
-    status: profile.data ? 'exists' : 'missing',
-    photoCount: photos.count ?? 0,
+    status: p ? 'exists' : 'missing',
+    photoCount: photos.count ?? 0, // photos that are not rejected
     hasPreferences: !!prefs.data,
+    approved: !!p && p.account_status === 'active' && p.is_photo_verified && (approvedPhotos.count ?? 0) > 0,
+    accountStatus: p?.account_status ?? null,
+    verification: latest.data
+      ? { status: latest.data.status, reason: latest.data.rejection_reason }
+      : { status: 'none', reason: null },
   };
 }
 
@@ -117,6 +158,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         profileStatus: profileState.status,
         photoCount: profileState.photoCount,
         hasPreferences: profileState.hasPreferences,
+        approved: profileState.approved,
+        accountStatus: profileState.accountStatus,
+        verification: profileState.verification,
         refreshProfile,
       }}
     >

@@ -40,7 +40,7 @@
         "expo-image-picker",
         {
           "photosPermission": "HabeshaMatch uses your photo library so you can add photos to your profile.",
-          "cameraPermission": false,
+          "cameraPermission": "HabeshaMatch uses your camera to take a verification selfie. It is only seen by our review team.",
           "microphonePermission": false
         }
       ]

@@ -19,13 +19,14 @@ import { Notice } from '@/components/FormControls';
 import { friendlyError } from '@/lib/errors';
 import { addPhoto, deletePhoto, fetchMyPhotos, MAX_PHOTOS, reorderPhotos, type MyPhoto } from '@/lib/photos';
 import { useSession } from '@/lib/session';
+import { MIN_PHOTOS } from '@/lib/verification';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 const COLUMNS = 3;
 const GAP = spacing.sm;
 
 export default function PhotosScreen() {
-  const { session, refreshProfile, hasPreferences } = useSession();
+  const { session, refreshProfile, approved } = useSession();
   const userId = session?.user.id ?? '';
   const { width } = useWindowDimensions();
   const tileWidth = Math.floor((width - spacing.lg * 2 - GAP * (COLUMNS - 1)) / COLUMNS);
@@ -119,14 +120,17 @@ export default function PhotosScreen() {
       );
     });
 
+  const usable = photos?.filter((p) => p.status !== 'rejected').length ?? 0;
+
   const next = () => {
-    if (count === 0) {
-      setError('Add at least one photo to continue.');
+    if (usable < MIN_PHOTOS) {
+      setError(`Add at least ${MIN_PHOTOS} photos to continue. Photos marked Not approved don't count.`);
       return;
     }
-    // Opened from the Profile tab after onboarding: go back. During onboarding: next step.
-    if (hasPreferences) router.back();
-    else router.replace('/preferences');
+    // Approved members editing from the Profile tab: go back. Otherwise the next step
+    // (selfie, preferences or review) is decided by the entry route.
+    if (approved) router.back();
+    else router.replace('/');
   };
 
   if (!photos) {
@@ -158,7 +162,8 @@ export default function PhotosScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={typography.title}>Add your photos</Text>
         <Text style={typography.bodyMuted}>
-          Add up to {MAX_PHOTOS}. Your first photo is your main photo. Tap a photo to move or delete it.
+          Add {MIN_PHOTOS} to {MAX_PHOTOS} clear photos of yourself. Your first photo is your main photo. Tap a photo to
+          move or delete it.
         </Text>
 
         <View style={styles.grid}>
@@ -234,7 +239,7 @@ export default function PhotosScreen() {
           </Text>
         )}
         <Button
-          label={hasPreferences ? 'Done' : 'Continue'}
+          label={approved ? 'Done' : 'Continue'}
           onPress={next}
           disabled={uploading > 0 || busy}
           loading={busy}

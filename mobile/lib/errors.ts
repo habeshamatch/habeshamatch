@@ -19,6 +19,8 @@ const DATABASE_MESSAGES = {
   not_authenticated: 'Please sign in again.',
   phone_not_verified: 'Please verify your phone number before setting up your profile.',
   not_found: 'This profile is no longer available.',
+  approval_pending: "Your profile is still being reviewed. You can start meeting people once it's approved.",
+  two_photos_required: 'Please add at least 2 photos before verifying.',
 } as const;
 
 const AUTH_MESSAGES: Record<string, string> = {

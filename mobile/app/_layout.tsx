@@ -42,7 +42,7 @@ function RootNavigator() {
     Inter_500Medium,
     Inter_600SemiBold,
   });
-  const { session, loading, profileStatus, photoCount, hasPreferences, refreshProfile } = useSession();
+  const { session, loading, profileStatus, approved, hasPreferences, refreshProfile } = useSession();
 
   // Never show one account's cached data to another: clear the cache on sign out or account switch.
   const userId = session?.user.id ?? null;
@@ -74,8 +74,8 @@ function RootNavigator() {
   }
 
   const signedIn = !!session;
-  const onboardingComplete =
-    needsProfileStatus && profileStatus === 'exists' && photoCount > 0 && hasPreferences;
+  // The main app opens only for approved members (selfie and photos reviewed by an admin).
+  const onboardingComplete = needsProfileStatus && profileStatus === 'exists' && approved && hasPreferences;
 
   return (
     <>
