@@ -86,12 +86,14 @@ export default function Discover() {
         refreshControl={
           <RefreshControl
             refreshing={query.isRefetching && !query.isFetchingNextPage}
-            onRefresh={() => query.refetch()}
+            onRefresh={() => {
+              query.refetch();
+            }}
             tintColor={colors.accent}
           />
         }
         ListFooterComponent={
-          query.isFetchingNextPage ? <ActivityIndicator color={colors.accent} style={styles.footer} /> : null
+          query.isFetchingNextPage ? <ActivityIndicator color={colors.accent} style={styles.footer} /> : undefined
         }
         ListEmptyComponent={
           <View style={styles.empty}>

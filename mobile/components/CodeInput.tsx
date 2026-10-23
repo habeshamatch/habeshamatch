@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, type TextInputInstance, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
@@ -19,7 +19,7 @@ export const CodeInput = forwardRef<CodeInputHandle, Props>(function CodeInput(
   { value, onChange, onComplete, autoComplete },
   ref,
 ) {
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
   useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
 
   return (

@@ -11,7 +11,8 @@ import { colors, fonts } from '@/lib/theme';
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
 function TabIcon({ name, color, size }: { name: IconName; color: ColorValue; size: number }) {
-  return <Ionicons name={name} color={color} size={size} />;
+  // The tab bar always passes a string; ColorValue also allows numbers, which Ionicons does not.
+  return <Ionicons name={name} color={typeof color === 'string' ? color : undefined} size={size} />;
 }
 
 // Main app, shown once onboarding is complete.
