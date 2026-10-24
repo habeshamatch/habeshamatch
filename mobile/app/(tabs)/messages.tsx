@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
   RefreshControl,
   ScrollView,
-  SectionList,
+  FlatList,
   StyleSheet,
   Text,
   View,
@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { Segmented } from '@/components/Segmented';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { friendlyError } from '@/lib/errors';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
@@ -35,14 +36,17 @@ export default function Messages() {
   // New matches: chats where nobody has written yet. They sit in the row at the top and move
   // into the list below once the first message is sent.
   const newMatches = inbox.data?.filter((c) => !c.lastMessage) ?? [];
-  // Then two fixed groups: Conversations (they have written at least once; a chat stays here
-  // for good) and Sent (you wrote, they have never replied). Newest activity first in each.
+  // Then two tabs: Conversations (they have written at least once; a chat stays here for good)
+  // and Sent (you wrote, they have never replied). Newest activity first in each.
+  const [tab, setTab] = useState<'conversations' | 'sent'>('conversations');
   const started = inbox.data?.filter((c) => !!c.lastMessage && c.otherHasWritten) ?? [];
   const sent = inbox.data?.filter((c) => !!c.lastMessage && !c.otherHasWritten) ?? [];
-  const groups = [
-    { title: 'CONVERSATIONS', data: started },
-    { title: 'SENT', hint: 'Waiting for their first reply.', data: sent },
-  ].filter((g) => g.data.length > 0);
+  const unread = started.reduce((sum, c) => sum + c.unread, 0);
+  const tabs = [
+    { value: 'conversations' as const, label: 'Conversations', badge: unread },
+    { value: 'sent' as const, label: 'Sent' },
+  ];
+  const rows = tab === 'conversations' ? started : sent;
 
   const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
   const header = (
@@ -76,6 +80,12 @@ export default function Messages() {
           </ScrollView>
         </View>
       )}
+      <View style={styles.tabs}>
+        <Segmented options={tabs} value={tab} onChange={setTab} />
+        {tab === 'sent' && sent.length > 0 && (
+          <Text style={typography.caption}>Waiting for their first reply.</Text>
+        )}
+      </View>
     </View>
   );
 
@@ -101,20 +111,11 @@ export default function Messages() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <SectionList
-        sections={groups}
+      <FlatList
+        data={rows}
         keyExtractor={(c) => c.conversationId}
         ListHeaderComponent={header}
         contentContainerStyle={styles.list}
-        stickySectionHeadersEnabled={false}
-        renderSectionHeader={({ section }) => (
-          <View style={styles.groupHeader}>
-            <Text style={[typography.caption, styles.sectionTitle]}>
-              {`${section.title} · ${section.data.length}`}
-            </Text>
-            {section.hint && <Text style={[typography.caption, styles.groupHint]}>{section.hint}</Text>}
-          </View>
-        )}
         renderItem={({ item }) => <Row item={item} />}
         refreshControl={
           <RefreshControl
@@ -126,7 +127,17 @@ export default function Messages() {
           />
         }
         ListEmptyComponent={
-          newMatches.length > 0 ? (
+          tab === 'sent' ? (
+            <Text style={[typography.bodyMuted, styles.hint]}>
+              {started.length > 0 || newMatches.length > 0
+                ? 'Nothing waiting. Everyone you wrote to has replied.'
+                : 'Chats you start show up here until they reply.'}
+            </Text>
+          ) : started.length === 0 && sent.length > 0 ? (
+            <Text style={[typography.bodyMuted, styles.hint]}>
+              No replies yet. Your messages are under Sent until someone writes back.
+            </Text>
+          ) : newMatches.length > 0 ? (
             <Text style={[typography.bodyMuted, styles.hint]}>Say hello to your new matches above.</Text>
           ) : (
           <View style={styles.empty}>
@@ -200,13 +211,10 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
     letterSpacing: 1,
   },
-  groupHeader: {
-    paddingTop: spacing.md,
-  },
-  groupHint: {
+  tabs: {
+    gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-    marginTop: -spacing.xs,
+    paddingBottom: spacing.md,
   },
   matches: {
     marginBottom: spacing.md,
