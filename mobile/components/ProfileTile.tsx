@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -6,10 +7,11 @@ import type { ProfileCard } from '@/lib/discover';
 import { placeLabel } from '@/lib/profileLabels';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
-type Props = { card: ProfileCard; width: number; onPress: () => void };
+type Props = { card: ProfileCard; width: number; onPress: () => void; onDismiss?: () => void };
 
 // Grid card on Discover: thumbnail, name, age, place, blue tick, match percentage.
-export function ProfileTile({ card, width, onPress }: Props) {
+// With onDismiss, a small ✕ in the corner removes the person in one tap (Suggested).
+export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
   const place = placeLabel(card.city, card.countryCode);
   return (
     <Pressable
@@ -38,6 +40,17 @@ export function ProfileTile({ card, width, onPress }: Props) {
           <View style={styles.match}>
             <Text style={styles.matchText}>{card.matchPercent}% match</Text>
           </View>
+        )}
+        {onDismiss && (
+          <Pressable
+            onPress={onDismiss}
+            style={({ pressed }) => [styles.dismiss, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel={`Not for me: remove ${card.name} from Suggested`}
+            hitSlop={10}
+          >
+            <Ionicons name="close" size={16} color={colors.text} />
+          </Pressable>
         )}
       </View>
       <View style={styles.info}>
@@ -82,6 +95,17 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: radius.pill,
     backgroundColor: colors.accent,
+  },
+  dismiss: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    width: 28,
+    height: 28,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.overlay,
   },
   matchText: {
     ...typography.caption,

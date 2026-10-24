@@ -677,6 +677,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dismiss_suggestion: { Args: { p_target: string }; Returns: undefined }
       get_for_you_new_counts: { Args: { p_since?: string }; Returns: Json }
       get_likes_received: {
         Args: { p_limit?: number }
@@ -743,7 +744,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      get_suggested_count: { Args: never; Returns: number }
+      get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_suggested: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
@@ -823,6 +824,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      undo_dismiss_suggestion: { Args: { p_target: string }; Returns: undefined }
       undo_last_swipe: { Args: never; Returns: string }
       user_tier: {
         Args: { p_user: string }

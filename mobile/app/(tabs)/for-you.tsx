@@ -1,8 +1,17 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState, type ComponentProps } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -11,11 +20,17 @@ import { Segmented } from '@/components/Segmented';
 import { fetchMyLimits } from '@/lib/chats';
 import { DISCOVER_PAGE_SIZE, type ProfileCard } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
-import { saveForYouSeen } from '@/lib/forYou';
+import { loadForYouSeen, saveForYouSeen } from '@/lib/forYou';
 import { fetchLikesCount, fetchLikesReceived } from '@/lib/likes';
-import { fetchDailyPicks, fetchSuggested, fetchSuggestedCount } from '@/lib/premium';
+import {
+  dismissSuggestion,
+  fetchDailyPicks,
+  fetchSuggested,
+  fetchSuggestedCount,
+  undoDismissSuggestion,
+} from '@/lib/premium';
 import { useSession } from '@/lib/session';
-import { colors, spacing, typography } from '@/lib/theme';
+import { colors, radius, spacing, typography } from '@/lib/theme';
 
 const COLUMNS = 2;
 const GAP = spacing.md;
@@ -27,6 +42,8 @@ const INTRO: Record<Section, string> = {
   picks: 'A few people chosen for you every day: you fit each other, and you have not talked yet.',
   suggested: "These people are looking for someone like you, but don't match all your must-haves.",
 };
+
+const UNDO_SECONDS = 5;
 
 // Everyone who might want you, in one place: who liked you, today's picks, and Suggested.
 // All three lists are Premium. Everyone sees the counts (a number never says who), and a short
@@ -42,7 +59,19 @@ export default function ForYou() {
   const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
   const isPremium = limits.data?.tier === 'premium';
   const likesCount = useQuery({ queryKey: ['likes-count'], queryFn: fetchLikesCount });
-  const suggestedCount = useQuery({ queryKey: ['suggested-count', userId], queryFn: fetchSuggestedCount, enabled: !!userId });
+  // Total in Suggested (shown in the intro and on the paywall teaser) ...
+  const suggestedCount = useQuery({
+    queryKey: ['suggested-count', userId],
+    queryFn: () => fetchSuggestedCount(),
+    enabled: !!userId,
+  });
+  // ... and only the people new to it since the Suggested section was last opened (its badge).
+  const seen = useQuery({ queryKey: ['for-you-seen', userId], queryFn: () => loadForYouSeen(userId), enabled: !!userId });
+  const suggestedNew = useQuery({
+    queryKey: ['suggested-new', userId, seen.data?.suggestedAt],
+    queryFn: () => fetchSuggestedCount(seen.data?.suggestedAt),
+    enabled: !!userId && !!seen.data,
+  });
 
   const likes = useQuery({
     queryKey: ['likes-received', 'thumb'],
@@ -58,17 +87,29 @@ export default function ForYou() {
     enabled: !!userId && isPremium && section === 'suggested',
   });
 
+  // Opening the tab clears its badge; opening Suggested also clears Suggested's own badge.
+  const markSeen = useCallback(
+    (suggestedToo: boolean) => {
+      if (!userId) return;
+      saveForYouSeen(userId, suggestedToo).then((s) => {
+        queryClient.setQueryData(['for-you-seen', userId], s);
+        queryClient.setQueryData(['for-you-badge', userId, s.at, s.picksDate], 0);
+        if (suggestedToo) queryClient.setQueryData(['suggested-new', userId, s.suggestedAt], 0);
+      });
+    },
+    [userId, queryClient],
+  );
+  const chooseSection = (next: Section) => {
+    setSection(next);
+    if (next === 'suggested') markSeen(true);
+  };
+
   // Back on the tab: someone may have liked you, or you may have started a chat with a pick.
-  // Opening the tab also clears its badge (everything here now counts as seen).
   useFocusEffect(
     useCallback(() => {
-      if (userId) {
-        saveForYouSeen(userId).then((seen) => {
-          queryClient.setQueryData(['for-you-seen', userId], seen);
-          queryClient.setQueryData(['for-you-badge', userId, seen.at, seen.picksDate], 0);
-        });
-      }
+      markSeen(section === 'suggested');
       likesCount.refetch();
+      suggestedCount.refetch();
       if (isPremium) {
         likes.refetch();
         picks.refetch();
@@ -76,6 +117,41 @@ export default function ForYou() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
     }, [isPremium, userId]),
   );
+
+  // "Not for me": one tap removes someone from Suggested, with a few seconds to undo.
+  const [removed, setRemoved] = useState<ProfileCard | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+  }, []);
+  const refreshSuggestedCounts = () => {
+    queryClient.invalidateQueries({ queryKey: ['suggested-count'] });
+    queryClient.invalidateQueries({ queryKey: ['suggested-new'] });
+    queryClient.invalidateQueries({ queryKey: ['for-you-badge'] });
+  };
+  const dismiss = (card: ProfileCard) => {
+    queryClient.setQueryData<InfiniteData<ProfileCard[]>>(['suggested', userId], (d) =>
+      d ? { ...d, pages: d.pages.map((page) => page.filter((c) => c.id !== card.id)) } : d,
+    );
+    setRemoved(card);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setRemoved(null), UNDO_SECONDS * 1000);
+    dismissSuggestion(card.id)
+      .catch(() => queryClient.invalidateQueries({ queryKey: ['suggested'] })) // put them back if it failed
+      .finally(refreshSuggestedCounts);
+  };
+  const undo = async () => {
+    const card = removed;
+    if (!card) return;
+    setRemoved(null);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    try {
+      await undoDismissSuggestion(card.id);
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ['suggested'] });
+      refreshSuggestedCounts();
+    }
+  };
 
   const refresh = () => {
     likesCount.refetch();
@@ -89,14 +165,19 @@ export default function ForYou() {
   const sections: { value: Section; label: string; badge?: number }[] = [
     { value: 'likes', label: 'Liked you', badge: likesCount.data },
     { value: 'picks', label: 'Picks', badge: isPremium ? picks.data?.length : undefined },
-    { value: 'suggested', label: 'Suggested', badge: suggestedCount.data },
+    { value: 'suggested', label: 'Suggested', badge: suggestedNew.data },
   ];
+  const total = suggestedCount.data ?? 0;
+  const intro =
+    section === 'suggested' && isPremium && total > 0
+      ? `${total > 99 ? '99+' : total} ${total === 1 ? 'person is' : 'people are'} looking for someone like you, but ${total === 1 ? "doesn't" : "don't"} match all your must-haves.`
+      : INTRO[section];
 
   const header = (
     <View style={styles.header}>
       <Text style={typography.title}>For you</Text>
-      <Segmented options={sections} value={section} onChange={setSection} />
-      <Text style={typography.bodyMuted}>{INTRO[section]}</Text>
+      <Segmented options={sections} value={section} onChange={chooseSection} />
+      <Text style={typography.bodyMuted}>{intro}</Text>
       {isPremium && section === 'likes' && (likes.data?.length ?? 0) > 0 && (
         <Button label="Like back" onPress={() => router.push('/liked-you')} />
       )}
@@ -145,9 +226,18 @@ export default function ForYou() {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.padded}
         ListHeaderComponent={header}
-        renderItem={({ item }) => (
-          <ProfileTile card={item} width={tileWidth} onPress={() => router.push(`/profile/${item.id}`)} />
-        )}
+        renderItem={({ item }) =>
+          section === 'suggested' ? (
+            <ProfileTile
+              card={item}
+              width={tileWidth}
+              onPress={() => router.push({ pathname: '/profile/[id]', params: { id: item.id, from: 'suggested' } })}
+              onDismiss={() => dismiss(item)}
+            />
+          ) : (
+            <ProfileTile card={item} width={tileWidth} onPress={() => router.push(`/profile/${item.id}`)} />
+          )
+        }
         onEndReached={() => {
           if (section === 'suggested' && suggested.hasNextPage && !suggested.isFetchingNextPage) suggested.fetchNextPage();
         }}
@@ -173,6 +263,16 @@ export default function ForYou() {
         initialNumToRender={6}
         windowSize={7}
       />
+      {removed && (
+        <View style={styles.undoBar} accessibilityLiveRegion="polite">
+          <Text style={[typography.body, styles.flex]} numberOfLines={1}>
+            {`${removed.name} removed from Suggested`}
+          </Text>
+          <Pressable onPress={undo} accessibilityRole="button" hitSlop={10}>
+            <Text style={[typography.button, styles.undoText]}>Undo</Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -259,5 +359,24 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
+  },
+  flex: {
+    flex: 1,
+  },
+  undoBar: {
+    position: 'absolute',
+    left: spacing.lg,
+    right: spacing.lg,
+    bottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceRaised,
+  },
+  undoText: {
+    color: colors.accent,
   },
 });

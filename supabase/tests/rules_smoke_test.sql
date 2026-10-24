@@ -133,7 +133,14 @@ set role authenticated; set request.jwt.claims = '{"role":"authenticated","sub":
 select 'tier' t, get_my_tier();
 select 'suggested' t, display_name from get_suggested();                            -- expect Chaltu
 select 'daily picks' t, display_name from get_daily_picks();                         -- expect no rows: Bethel already has a chat, Chaltu fails Abel's must-haves
+select dismiss_suggestion('00000000-0000-0000-0000-00000000000c');
+select 'suggested after Not for me' t, get_suggested_count();                         -- expect 0
+select undo_dismiss_suggestion('00000000-0000-0000-0000-00000000000c');
+select 'suggested after undo' t, get_suggested_count();                               -- expect 1
+select t_err($$insert into suggested_dismissals (user_id, target_id) values (auth.uid(), '00000000-0000-0000-0000-00000000000c')$$,
+  'new row violates row-level security policy for table "suggested_dismissals"') as dismissals_only_via_function;
 select 'msg Chaltu' t, start_conversation('00000000-0000-0000-0000-00000000000c') is not null;
+select 'suggested leaves out chats' t, get_suggested_count();                         -- expect 0 (Chaltu is in Messages)
 select 'swipe Bethel' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');
 select 'undo' t, undo_last_swipe() = '00000000-0000-0000-0000-00000000000b';         -- t
 select 'swipe Bethel again' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');

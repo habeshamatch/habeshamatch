@@ -23,11 +23,24 @@ export async function fetchSuggested(offset: number): Promise<ProfileCard[]> {
   return toCards(data);
 }
 
-// How many people are in Suggested. A number only, so everyone sees it (the list is Premium).
-export async function fetchSuggestedCount(): Promise<number> {
-  const { data, error } = await supabase.rpc('get_suggested_count');
+// How many people are in Suggested (or only those new to it since `since`). A number only, so
+// everyone sees it (the list is Premium).
+export async function fetchSuggestedCount(since?: string | null): Promise<number> {
+  const { data, error } = await supabase.rpc('get_suggested_count', since ? { p_since: since } : {});
   if (error) throw error;
   return data;
+}
+
+// "Not for me": quietly removes someone from your Suggested list (they never know). Undo puts
+// them back.
+export async function dismissSuggestion(targetId: string): Promise<void> {
+  const { error } = await supabase.rpc('dismiss_suggestion', { p_target: targetId });
+  if (error) throw error;
+}
+
+export async function undoDismissSuggestion(targetId: string): Promise<void> {
+  const { error } = await supabase.rpc('undo_dismiss_suggestion', { p_target: targetId });
+  if (error) throw error;
 }
 
 // Today's picks (made once a day, or the first time they are opened that day).
