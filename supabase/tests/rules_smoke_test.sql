@@ -99,6 +99,9 @@ select 'tier' t, get_my_tier();
 select 'criteria' t, display_name, match_score from get_meets_my_criteria();       -- expect Bethel 100
 select t_err('select * from get_suggested()', 'premium_required') as suggested_locked;
 select t_err($$select start_conversation('00000000-0000-0000-0000-00000000000c')$$, 'premium_required') as suggested_msg_locked;
+select t_err('select * from get_daily_picks()', 'premium_required') as picks_locked;
+select t_err('select undo_last_swipe()', 'premium_required') as undo_locked;
+select t_err('select generate_daily_picks()', 'permission denied for function generate_daily_picks') as picks_job_hidden;
 select t_err($$update profiles set is_premium = true where id = auth.uid()$$, 'protected_field') as protect_premium;
 select t_err($$select meets_hard(auth.uid(), auth.uid())$$, 'permission denied for function meets_hard') as internals_hidden;
 select count(*) as can_read_others_profiles from profiles;                         -- expect 1 (own)
@@ -126,8 +129,11 @@ update profiles set is_premium = true, premium_expires_at = now() + interval '30
 set role authenticated; set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000a"}';
 select 'tier' t, get_my_tier();
 select 'suggested' t, display_name from get_suggested();                            -- expect Chaltu
+select 'daily picks' t, display_name from get_daily_picks();                         -- expect no rows: Bethel already has a chat, Chaltu fails Abel's must-haves
 select 'msg Chaltu' t, start_conversation('00000000-0000-0000-0000-00000000000c') is not null;
 select 'swipe Bethel' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');
+select 'undo' t, undo_last_swipe() = '00000000-0000-0000-0000-00000000000b';         -- t
+select 'swipe Bethel again' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');
 
 -- ===== Bethel (free) likes back =====
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000b"}';
