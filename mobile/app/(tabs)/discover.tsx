@@ -1,27 +1,16 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ProfileTile } from '@/components/ProfileTile';
-import { MultiSelectSheet } from '@/components/MultiSelectSheet';
-import { COUNTRY_NAMES } from '@/lib/countryNames';
+import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
 import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchDiscoverCountries, fetchMeetsMyCriteria } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
 import { useSession } from '@/lib/session';
-import { colors, radius, spacing, typography } from '@/lib/theme';
+import { colors, spacing, typography } from '@/lib/theme';
 
 const COLUMNS = 2;
 const GAP = spacing.md;
@@ -35,7 +24,6 @@ export default function Discover() {
   const { width } = useWindowDimensions();
   const tileWidth = Math.floor((width - spacing.lg * 2 - GAP) / COLUMNS);
   const [countries, setCountries] = useState<string[]>([]);
-  const [filterOpen, setFilterOpen] = useState(false);
   const countryKey = [...countries].sort().join(',');
 
   const query = useInfiniteQuery({
@@ -56,20 +44,6 @@ export default function Discover() {
     queryFn: fetchDiscoverCountries,
     enabled: !!userId,
   });
-  const filterSections = useMemo(
-    () => [
-      {
-        title: 'Where they live',
-        items: (available.data ?? []).map((c) => ({
-          value: c.code,
-          label: `${COUNTRY_NAMES[c.code] ?? c.code} (${c.people})`,
-        })),
-      },
-    ],
-    [available.data],
-  );
-  const filterLabel = countries.map((c) => COUNTRY_NAMES[c] ?? c).join(', ');
-
   const mustHaves = useQuery({
     queryKey: ['must-have-count', userId],
     queryFn: () => countMyMustHaves(userId),
@@ -84,31 +58,10 @@ export default function Discover() {
     <View style={styles.header}>
       <View style={styles.titleRow}>
         <Text style={typography.title}>Discover</Text>
-        {(available.data?.length ?? 0) > 1 || countries.length > 0 ? (
-          <Pressable
-            onPress={() => setFilterOpen(true)}
-            style={[styles.filterButton, countries.length > 0 && styles.filterOn]}
-            accessibilityRole="button"
-            accessibilityLabel={countries.length ? `Filter, ${countries.length} countries chosen` : 'Filter by country'}
-            hitSlop={8}
-          >
-            <Ionicons name="options-outline" size={18} color={countries.length ? colors.background : colors.accent} />
-            <Text style={[typography.caption, styles.filterText, countries.length > 0 && styles.filterTextOn]}>
-              {countries.length ? `Filter · ${countries.length}` : 'Filter'}
-            </Text>
-          </Pressable>
-        ) : null}
+        <CountryFilterButton available={available.data} selected={countries} onChange={setCountries} />
       </View>
-      {countries.length > 0 ? (
-        <View style={styles.filterRow}>
-          <Text style={[typography.bodyMuted, styles.flex]} numberOfLines={2}>
-            {`Showing people in ${filterLabel}.`}
-          </Text>
-          <Pressable onPress={() => setCountries([])} accessibilityRole="button" hitSlop={8}>
-            <Text style={[typography.caption, styles.clear]}>Clear</Text>
-          </Pressable>
-        </View>
-      ) : (
+      <CountryFilterSummary selected={countries} onClear={() => setCountries([])} />
+      {countries.length === 0 && (
         <Text style={typography.bodyMuted}>People who meet your criteria, best matches first.</Text>
       )}
     </View>
@@ -185,16 +138,6 @@ export default function Discover() {
         initialNumToRender={6}
         windowSize={7}
       />
-      <MultiSelectSheet
-        visible={filterOpen}
-        title="Filter by country"
-        searchPlaceholder="Search countries"
-        sections={filterSections}
-        selected={countries}
-        onChange={setCountries}
-        onClose={() => setFilterOpen(false)}
-        max={Math.max(filterSections[0].items.length, 1)}
-      />
     </SafeAreaView>
   );
 }
@@ -207,36 +150,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.accent,
-  },
-  filterOn: {
-    backgroundColor: colors.accent,
-  },
-  filterText: {
-    color: colors.accent,
-  },
-  filterTextOn: {
-    color: colors.background,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  flex: {
-    flex: 1,
-  },
-  clear: {
-    color: colors.accent,
   },
   header: {
     gap: spacing.sm,

@@ -781,7 +781,7 @@ export type Database = {
         }
       }
       get_suggested: {
-        Args: { p_limit?: number; p_offset?: number }
+        Args: { p_countries?: string[]; p_limit?: number; p_offset?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
         SetofOptions: {
           from: "*"
@@ -789,6 +789,13 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      get_suggested_countries: {
+        Args: never
+        Returns: {
+          country_code: string
+          people: number
+        }[]
       }
       get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_swipe_deck: {
