@@ -790,6 +790,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_suggested_countries: {
         Args: never
         Returns: {
@@ -797,7 +798,6 @@ export type Database = {
           people: number
         }[]
       }
-      get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_swipe_deck: {
         Args: { p_limit?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
