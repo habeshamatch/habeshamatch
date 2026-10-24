@@ -1,7 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
@@ -26,7 +35,14 @@ export default function Messages() {
   // New matches: chats where nobody has written yet. They sit in the row at the top and move
   // into the list below once the first message is sent.
   const newMatches = inbox.data?.filter((c) => !c.lastMessage) ?? [];
-  const conversations = inbox.data?.filter((c) => !!c.lastMessage) ?? [];
+  // Then two fixed groups: Conversations (they have written at least once; a chat stays here
+  // for good) and Sent (you wrote, they have never replied). Newest activity first in each.
+  const started = inbox.data?.filter((c) => !!c.lastMessage && c.otherHasWritten) ?? [];
+  const sent = inbox.data?.filter((c) => !!c.lastMessage && !c.otherHasWritten) ?? [];
+  const groups = [
+    { title: 'CONVERSATIONS', data: started },
+    { title: 'SENT', hint: 'Waiting for their first reply.', data: sent },
+  ].filter((g) => g.data.length > 0);
 
   const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
   const header = (
@@ -60,7 +76,6 @@ export default function Messages() {
           </ScrollView>
         </View>
       )}
-      {conversations.length > 0 && <Text style={[typography.caption, styles.sectionTitle]}>CONVERSATIONS</Text>}
     </View>
   );
 
@@ -86,11 +101,20 @@ export default function Messages() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <FlatList
-        data={conversations}
+      <SectionList
+        sections={groups}
         keyExtractor={(c) => c.conversationId}
         ListHeaderComponent={header}
         contentContainerStyle={styles.list}
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section }) => (
+          <View style={styles.groupHeader}>
+            <Text style={[typography.caption, styles.sectionTitle]}>
+              {`${section.title} · ${section.data.length}`}
+            </Text>
+            {section.hint && <Text style={[typography.caption, styles.groupHint]}>{section.hint}</Text>}
+          </View>
+        )}
         renderItem={({ item }) => <Row item={item} />}
         refreshControl={
           <RefreshControl
@@ -146,7 +170,11 @@ function Row({ item }: { item: InboxItem }) {
         </View>
         <View style={styles.rowTop}>
           <Text style={[unread ? typography.body : typography.bodyMuted, styles.preview]} numberOfLines={1}>
-            {item.lastMessage ?? (item.origin === 'swipe_match' ? 'You matched! Say hello.' : 'Say hello.')}
+            {item.lastMessage
+              ? `${item.otherHasWritten ? '' : 'You: '}${item.lastMessage}`
+              : item.origin === 'swipe_match'
+                ? 'You matched! Say hello.'
+                : 'Say hello.'}
           </Text>
           {unread && (
             <View style={styles.badge}>
@@ -171,6 +199,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
     letterSpacing: 1,
+  },
+  groupHeader: {
+    paddingTop: spacing.md,
+  },
+  groupHint: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    marginTop: -spacing.xs,
   },
   matches: {
     marginBottom: spacing.md,

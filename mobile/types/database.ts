@@ -722,6 +722,7 @@ export type Database = {
           last_message: string
           last_message_at: string
           origin: Database["public"]["Enums"]["convo_origin_t"]
+          other_has_written: boolean
           other_name: string
           other_photo_path: string
           other_user_id: string

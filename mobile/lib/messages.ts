@@ -20,6 +20,7 @@ export type InboxItem = {
   lastMessage: string | null;
   lastMessageAt: string;
   unread: number;
+  otherHasWritten: boolean; // false: only you have written so far (the Sent group)
 };
 
 // Conversations, newest activity first. Blocked people are already left out by the database.
@@ -41,6 +42,7 @@ export async function fetchInbox(): Promise<InboxItem[]> {
     lastMessage: c.last_message,
     lastMessageAt: c.last_message_at,
     unread: c.unread_count,
+    otherHasWritten: c.other_has_written,
   }));
 }
 
