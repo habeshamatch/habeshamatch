@@ -120,6 +120,8 @@ select 'still pending after self-approve attempt' t, count(*) from photos where 
 select 'profile Bethel' t, display_name, age, match_score from get_profile('00000000-0000-0000-0000-00000000000b');  -- Bethel, 28, 100
 select t_err($$select get_profile('00000000-0000-0000-0000-000000000099')$$, 'not_found') as profile_unknown_user;
 select 'chat with Bethel' t, start_conversation('00000000-0000-0000-0000-00000000000b') is not null;
+select 'criteria leaves out chats' t, count(*) from get_meets_my_criteria();          -- expect 0 (Bethel is in Messages now)
+select t_err($$select * from get_meets_my_criteria(20, 0, 'random')$$, 'not_permitted') as unknown_sort;
 select get_my_limits();
 reset role; set request.jwt.claims = '{}';
 update app_config set value = '1' where key = 'free_new_chats_per_day';

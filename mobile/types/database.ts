@@ -689,7 +689,7 @@ export type Database = {
       }
       get_likes_received_count: { Args: never; Returns: number }
       get_meets_my_criteria: {
-        Args: { p_limit?: number; p_offset?: number }
+        Args: { p_limit?: number; p_offset?: number; p_sort?: string }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
         SetofOptions: {
           from: "*"
