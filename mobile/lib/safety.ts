@@ -54,4 +54,5 @@ export async function fetchBlocked(): Promise<BlockedUser[]> {
 }
 
 // Query keys that show other people; refreshed after a block or unblock.
-export const PEOPLE_QUERY_KEYS = [['inbox'], ['meets-my-criteria'], ['blocked'], ['my-limits'], ['likes-count'], ['likes-received']];
+export const PEOPLE_QUERY_KEYS = [['inbox'], ['meets-my-criteria'], ['blocked'], ['my-limits'], ['likes-count'], ['likes-received'],
+  ['suggested'], ['suggested-count'], ['suggested-new'], ['daily-picks'], ['for-you-badge']];

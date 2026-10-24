@@ -20,7 +20,7 @@ import { colors, spacing, typography } from '@/lib/theme';
 export default function LikedYou() {
   const queryClient = useQueryClient();
   const topCard = useRef<SwipeCardHandle>(null);
-  const likes = useQuery({ queryKey: ['likes-received'], queryFn: fetchLikesReceived });
+  const likes = useQuery({ queryKey: ['likes-received'], queryFn: () => fetchLikesReceived('full') });
   const [swipedIds, setSwipedIds] = useState<string[]>([]);
   const [match, setMatch] = useState<Match | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -87,7 +87,7 @@ export default function LikedYou() {
       <View style={styles.message}>
         <Text style={[typography.subtitle, styles.center]}>{"You're all caught up"}</Text>
         <Text style={[typography.bodyMuted, styles.center]}>New likes will show up here.</Text>
-        <Button label="Back to Messages" variant="secondary" onPress={() => router.back()} />
+        <Button label="Back" variant="secondary" onPress={() => router.back()} />
       </View>
     );
   } else {

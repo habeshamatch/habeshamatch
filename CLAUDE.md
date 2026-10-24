@@ -30,7 +30,7 @@ habeshamatch/
 │   ├── app/                     # expo-router screens
 │   │   ├── (auth)/              # welcome, email, email-code (Google and Apple later)
 │   │   ├── (onboarding)/        # phone, phone-code, profile-setup, photos, selfie, preferences, review
-│   │   ├── (tabs)/              # discover, swipe, messages, profile
+│   │   ├── (tabs)/              # discover, swipe, for-you, messages, profile
 │   │   ├── chat/[id].tsx
 │   │   ├── profile/[id].tsx
 │   │   └── paywall.tsx
@@ -43,7 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you)
+│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you), make-premium.mjs (Premium on or off for a local account), simulate-suggested.mjs (test members for your Suggested section)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
@@ -100,10 +100,14 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 ### Matching
 - Preferences are saved by `mobile/lib/preferences.ts`: `preference_core` (gender, age range) always; one `preference_items` row per attribute the user sets, marked hard ("Must have") or soft ("Nice to have"); attributes left as "Any" have no row. "Where they live" is a searchable multi-select of countries (`country`). The `residence_type` (abroad / back home) attribute still works in the database but the app no longer offers it; saving preferences removes an old one. Income is "at least" a bracket, saved as `{"min": "<income_range_t>"}`; "prefer not to say" or no answer never meets it.
 - **Hard preferences:** deal-breakers. Gender and age range are always hard (`preference_core`). Other attributes (`preference_items`) are marked hard or soft by the user.
-- **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` of the viewer's soft preferences. Ranked by soft score. The threshold is currently 0 (migration `20261017000002`), so nice-to-haves only rank and never hide anyone while the community is small; raise it later in `app_config`. Anyone here can be messaged directly, no approval.
-- **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly.
+- **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` of the viewer's soft preferences. Ranked by soft score. The threshold is currently 0 (migration `20261017000002`), so nice-to-haves only rank and never hide anyone while the community is small; raise it later in `app_config`. Anyone here can be messaged directly, no approval. Nobody is hidden for being inactive; ordering does the work (migration `20261024000002`, `get_meets_my_criteria(limit, offset, sort)`): people you already chat with are left out (they are in Messages), people you passed on in Swipe go last, and ties break with a daily shuffle that differs per viewer so the same few people are not on top for everyone. Order: active within `discover_recent_days` (7) first, then within `discover_inactive_days` (30), then the rest; best nice-to-have score first within each. A Filter button on Discover narrows the list to chosen residence countries (`p_countries`), picked from the countries the member's current matches live in, with counts (`get_meets_my_criteria_countries()`); it never widens or changes their preferences, and resets when the app restarts. Phase two ideas, once there are many members: "Active today" and "Near me" sorting.
+- **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly. Shown in the For you tab (see below) with the line "These people are looking for someone like you, but don't match all your must-haves." Everyone sees how many (`get_suggested_count()`, a number only).
+- **Suggested stays short** (migration `20261024000004`, one rule in `is_suggested_for()`): people you chat with, people you passed on in Swipe, and people you removed yourself are left out. "Not for me" is a ✕ on each Suggested tile (with a few seconds to Undo) and a button on their profile when opened from Suggested (`/profile/[id]?from=suggested`); it is quiet (they never know) and only affects your Suggested list (`suggested_dismissals`, changed only via `dismiss_suggestion()` / `undo_dismiss_suggestion()`). The Suggested badge inside For you counts only people new to the list since the section was last opened (`get_suggested_count(since)`, new = approved as a member since then); the total shows in the intro line and on the paywall teaser.
+- **Daily picks (premium):** `daily_picks_per_day` (5) people a day who fit both ways, have no chat with you and you have not passed on, best nice-to-have score first; people picked in the last `daily_picks_repeat_after_days` go to the back. Made by `generate_daily_picks()` every day at 00:05 UTC (Supabase Cron job `generate-daily-picks`, migration `20261024000000`), and on demand by `get_daily_picks()` when a member has none yet today. Shown under Picks in the For you tab; tapping opens the profile. Someone you start a chat with drops out of the picks.
+- **Undo (premium):** one step back on the Swipe screen (`undo_last_swipe()`), not for a swipe that became a match. Everyone else's Undo button opens the paywall.
 - **Core messaging invariant:** you can only start a chat with someone whose hard preferences you meet. Nobody ever receives a first message from someone who fails their deal-breakers.
-- **Messages tab layout:** a NEW MATCHES row at the top (conversations with no messages yet; they move into the list once someone writes), starting with a "Liked you" tile showing `get_likes_received_count()`. The tile uses silhouettes, never blurred photos. Tapping it opens `liked-you` for Premium and the paywall for everyone else (local tier included, per the tier table).
+- **For you tab** (`app/(tabs)/for-you.tsx`, between Swipe and Messages): everyone who might want you, as three sections, each with a rose count badge: Liked you (`get_likes_received_count()`), Picks (today's picks, Premium only) and Suggested (`get_suggested_count()`). All three lists are Premium; everyone else sees the real count, a short explanation and See Premium (local tier included, per the tier table), never the people, and never blurred photos. Premium members see grids of profiles; Liked you also has a Like back button opening the `liked-you` card stack (swipe right to match). The tab itself is badged with what is NEW since the member last opened it, then clears, like unread messages: new likes + people new to Suggested (approved since then) + today's picks until opened that day (`get_for_you_new_counts(since)`, numbers only). When they last opened it is kept on the phone (`mobile/lib/forYou.ts`). Never badge totals that don't change: an always-lit badge gets ignored.
+- **Messages tab layout:** a NEW MATCHES row at the top (conversations with no messages yet; they move into the list once someone writes), then two tabs (the same switcher as For you): Conversations (the other person has written at least once; a chat stays there for good, whoever wrote last; badged with unread messages) and Sent (only you have written so far; previews start with "You:"). `get_my_conversations()` returns `other_has_written` for this.
 - **Swipe section:** ignores criteria except gender and age range, which must fit in both directions. Mutual like opens a chat that does not count toward the daily limit. Deck shows same country first, then same region type (diaspora or home), then the rest.
 
 ### Safety (required for App Store approval)
@@ -126,13 +130,14 @@ Name, date of birth (age shown, never DOB), gender (male/female), height (stored
 |---|---|
 | `get_my_tier()` | free, local, or premium |
 | `get_my_limits()` | Chats and swipes used and allowed today |
-| `get_meets_my_criteria(limit, offset)` | Main discovery feed |
+| `get_meets_my_criteria(limit, offset, countries)` | Main discovery feed; countries optionally narrows it |
+| `get_meets_my_criteria_countries()` | Countries the feed's people live in, with counts (Discover filter) |
 | `get_suggested(limit, offset)` | Premium only |
 | `get_swipe_deck(limit)` | Swipe cards |
 | `record_swipe(target, 'like'/'pass')` | Returns `{matched, conversation_id}` |
 | `undo_last_swipe()` | Premium only |
 | `get_likes_received_count()` / `get_likes_received()` | Count for all, list for premium |
-| `get_daily_picks()` | Premium only |
+| `get_daily_picks()` | Premium only; makes today's picks if there are none yet |
 | `get_profile(user_id)` | Public profile card |
 | `start_conversation(target)` | Enforces all messaging rules |
 | `get_my_conversations()` | Inbox with last message and unread count |

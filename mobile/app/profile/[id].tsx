@@ -20,6 +20,7 @@ import { SafetyMenu } from '@/components/SafetyMenu';
 import { Sheet } from '@/components/Sheet';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { fetchMyLimits, findConversationWith, nextLimitReset, startConversation } from '@/lib/chats';
+import { dismissSuggestion } from '@/lib/premium';
 import { fetchProfile } from '@/lib/discover';
 import { errorCode, friendlyError, isPremiumRequired } from '@/lib/errors';
 import { interestLabel } from '@/lib/interests';
@@ -42,7 +43,8 @@ import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // Someone's public profile. Only what get_profile returns is shown (age, never date of birth).
 export default function ProfileScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // from=suggested: opened from the Suggested list, so it also offers "Not for me".
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const { width } = useWindowDimensions();
   const [photoIndex, setPhotoIndex] = useState(0);
   const [limitSheet, setLimitSheet] = useState(false);
@@ -62,7 +64,10 @@ export default function ProfileScreen() {
   const message = useMutation({
     mutationFn: () => startConversation(id),
     onSuccess: (conversationId) => {
-      queryClient.invalidateQueries({ queryKey: ['my-limits'] });
+      // A chat takes them out of Discover, Suggested and the picks (they are in Messages now).
+      for (const queryKey of [['my-limits'], ['meets-my-criteria'], ['suggested'], ['suggested-count'], ['daily-picks']]) {
+        queryClient.invalidateQueries({ queryKey });
+      }
       queryClient.setQueryData(['conversation-with', id], conversationId);
       router.push(`/chat/${conversationId}`);
     },
@@ -73,6 +78,17 @@ export default function ProfileScreen() {
         setLimitSheet(true);
       } else setMessageError(friendlyError(e));
     },
+  });
+
+  const notForMe = useMutation({
+    mutationFn: () => dismissSuggestion(id),
+    onSuccess: () => {
+      for (const queryKey of [['suggested'], ['suggested-count'], ['suggested-new'], ['for-you-badge']]) {
+        queryClient.invalidateQueries({ queryKey });
+      }
+      router.back();
+    },
+    onError: (e) => setMessageError(friendlyError(e)),
   });
 
   const back = (
@@ -225,6 +241,15 @@ export default function ProfileScreen() {
           loading={message.isPending}
           disabled={existing.isPending}
         />
+        {from === 'suggested' && !hasChat && (
+          <Button
+            label="Not for me"
+            variant="text"
+            onPress={() => notForMe.mutate()}
+            loading={notForMe.isPending}
+            disabled={message.isPending}
+          />
+        )}
         {!hasChat && l?.showChatLimit && chatsLeft !== null && (
           <Text style={[typography.caption, styles.center]}>
             {chatsLeft} of {l.newChatsLimit} new chats left today. Replies are always free.

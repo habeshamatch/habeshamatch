@@ -1,30 +1,34 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { Segmented } from '@/components/Segmented';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
-import { fetchMyLimits } from '@/lib/chats';
 import { friendlyError } from '@/lib/errors';
-import { fetchLikesCount } from '@/lib/likes';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // Conversations, newest activity first. Kept live by the subscription in the tabs layout.
 export default function Messages() {
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: fetchInbox });
-  const likes = useQuery({ queryKey: ['likes-count'], queryFn: fetchLikesCount });
-  const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
 
-  // Refresh when the tab comes back into view (e.g. someone started a chat with you or liked you).
+  // Refresh when the tab comes back into view (e.g. someone started a chat with you).
   useFocusEffect(
     useCallback(() => {
       inbox.refetch();
-      likes.refetch();
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
     }, []),
   );
@@ -32,24 +36,26 @@ export default function Messages() {
   // New matches: chats where nobody has written yet. They sit in the row at the top and move
   // into the list below once the first message is sent.
   const newMatches = inbox.data?.filter((c) => !c.lastMessage) ?? [];
-  const conversations = inbox.data?.filter((c) => !!c.lastMessage) ?? [];
-  const likeCount = likes.data ?? 0;
-  const isPremium = limits.data?.tier === 'premium';
+  // Then two tabs: Conversations (they have written at least once; a chat stays here for good)
+  // and Sent (you wrote, they have never replied). Newest activity first in each.
+  const [tab, setTab] = useState<'conversations' | 'sent'>('conversations');
+  const started = inbox.data?.filter((c) => !!c.lastMessage && c.otherHasWritten) ?? [];
+  const sent = inbox.data?.filter((c) => !!c.lastMessage && !c.otherHasWritten) ?? [];
+  const unread = started.reduce((sum, c) => sum + c.unread, 0);
+  const tabs = [
+    { value: 'conversations' as const, label: 'Conversations', badge: unread },
+    { value: 'sent' as const, label: 'Sent' },
+  ];
+  const rows = tab === 'conversations' ? started : sent;
 
   const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
   const header = (
     <View>
       {title}
-      {(newMatches.length > 0 || likeCount > 0) && (
+      {newMatches.length > 0 && (
         <View style={styles.matches}>
           <Text style={[typography.caption, styles.sectionTitle]}>NEW MATCHES</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
-            {likeCount > 0 && (
-              <LikedYouTile
-                count={likeCount}
-                onPress={() => router.push(isPremium ? '/liked-you' : '/paywall')}
-              />
-            )}
             {newMatches.map((m) => (
               <Pressable
                 key={m.conversationId}
@@ -74,7 +80,12 @@ export default function Messages() {
           </ScrollView>
         </View>
       )}
-      {conversations.length > 0 && <Text style={[typography.caption, styles.sectionTitle]}>CONVERSATIONS</Text>}
+      <View style={styles.tabs}>
+        <Segmented options={tabs} value={tab} onChange={setTab} />
+        {tab === 'sent' && sent.length > 0 && (
+          <Text style={typography.caption}>Waiting for their first reply.</Text>
+        )}
+      </View>
     </View>
   );
 
@@ -101,7 +112,7 @@ export default function Messages() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
-        data={conversations}
+        data={rows}
         keyExtractor={(c) => c.conversationId}
         ListHeaderComponent={header}
         contentContainerStyle={styles.list}
@@ -111,13 +122,22 @@ export default function Messages() {
             refreshing={inbox.isRefetching}
             onRefresh={() => {
               inbox.refetch();
-              likes.refetch();
             }}
             tintColor={colors.accent}
           />
         }
         ListEmptyComponent={
-          newMatches.length > 0 ? (
+          tab === 'sent' ? (
+            <Text style={[typography.bodyMuted, styles.hint]}>
+              {started.length > 0 || newMatches.length > 0
+                ? 'Nothing waiting. Everyone you wrote to has replied.'
+                : 'Chats you start show up here until they reply.'}
+            </Text>
+          ) : started.length === 0 && sent.length > 0 ? (
+            <Text style={[typography.bodyMuted, styles.hint]}>
+              No replies yet. Your messages are under Sent until someone writes back.
+            </Text>
+          ) : newMatches.length > 0 ? (
             <Text style={[typography.bodyMuted, styles.hint]}>Say hello to your new matches above.</Text>
           ) : (
           <View style={styles.empty}>
@@ -131,30 +151,6 @@ export default function Messages() {
         }
       />
     </SafeAreaView>
-  );
-}
-
-// Teaser for people who liked you. Silhouettes, never blurred photos (blur can be undone).
-function LikedYouTile({ count, onPress }: { count: number; onPress: () => void }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={styles.matchItem}
-      accessibilityRole="button"
-      accessibilityLabel={`${count} ${count === 1 ? 'person likes' : 'people like'} you. See who`}
-    >
-      <View style={[styles.matchRing, styles.likesRing]}>
-        <View style={styles.likesCircle}>
-          <Ionicons name="people" size={30} color={colors.textMuted} />
-        </View>
-        <View style={styles.likesBadge}>
-          <Text style={styles.likesBadgeText}>{count > 99 ? '99+' : count}</Text>
-        </View>
-      </View>
-      <Text style={[typography.caption, styles.matchName, { color: colors.accent }]} numberOfLines={1}>
-        {count === 1 ? '1 like' : `${count} likes`}
-      </Text>
-    </Pressable>
   );
 }
 
@@ -185,7 +181,11 @@ function Row({ item }: { item: InboxItem }) {
         </View>
         <View style={styles.rowTop}>
           <Text style={[unread ? typography.body : typography.bodyMuted, styles.preview]} numberOfLines={1}>
-            {item.lastMessage ?? (item.origin === 'swipe_match' ? 'You matched! Say hello.' : 'Say hello.')}
+            {item.lastMessage
+              ? `${item.otherHasWritten ? '' : 'You: '}${item.lastMessage}`
+              : item.origin === 'swipe_match'
+                ? 'You matched! Say hello.'
+                : 'Say hello.'}
           </Text>
           {unread && (
             <View style={styles.badge}>
@@ -211,6 +211,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
     letterSpacing: 1,
   },
+  tabs: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+  },
   matches: {
     marginBottom: spacing.md,
   },
@@ -231,34 +236,6 @@ const styles = StyleSheet.create({
   },
   matchName: {
     color: colors.text,
-  },
-  likesRing: {
-    borderStyle: 'dashed',
-  },
-  likesCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceRaised,
-  },
-  likesBadge: {
-    position: 'absolute',
-    right: -4,
-    top: -4,
-    minWidth: 24,
-    height: 24,
-    paddingHorizontal: 6,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.rose,
-  },
-  likesBadgeText: {
-    ...typography.caption,
-    color: colors.text,
-    fontFamily: typography.button.fontFamily,
   },
   hint: {
     textAlign: 'center',

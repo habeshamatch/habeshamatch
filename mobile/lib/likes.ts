@@ -11,13 +11,13 @@ export async function fetchLikesCount(): Promise<number> {
   return data;
 }
 
-export async function fetchLikesReceived(): Promise<ProfileCard[]> {
+// Full size for the Like back card stack, thumbnails for the grid on the For you tab.
+export async function fetchLikesReceived(size: 'full' | 'thumb' = 'full'): Promise<ProfileCard[]> {
   const { data, error } = await supabase.rpc('get_likes_received', { p_limit: 50 });
   if (error) throw error;
-  // Full size: they are shown as swipe cards.
   const urls = await signPhotoUrls(
     data.map((r) => r.primary_photo_path).filter((p): p is string => !!p),
-    'full',
+    size,
   );
   return data.map((r) => toCard(r, urls)).filter((c): c is ProfileCard => c !== null);
 }

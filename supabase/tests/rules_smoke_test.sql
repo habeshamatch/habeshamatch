@@ -99,6 +99,9 @@ select 'tier' t, get_my_tier();
 select 'criteria' t, display_name, match_score from get_meets_my_criteria();       -- expect Bethel 100
 select t_err('select * from get_suggested()', 'premium_required') as suggested_locked;
 select t_err($$select start_conversation('00000000-0000-0000-0000-00000000000c')$$, 'premium_required') as suggested_msg_locked;
+select t_err('select * from get_daily_picks()', 'premium_required') as picks_locked;
+select t_err('select undo_last_swipe()', 'premium_required') as undo_locked;
+select t_err('select generate_daily_picks()', 'permission denied for function generate_daily_picks') as picks_job_hidden;
 select t_err($$update profiles set is_premium = true where id = auth.uid()$$, 'protected_field') as protect_premium;
 select t_err($$select meets_hard(auth.uid(), auth.uid())$$, 'permission denied for function meets_hard') as internals_hidden;
 select count(*) as can_read_others_profiles from profiles;                         -- expect 1 (own)
@@ -117,6 +120,9 @@ select 'still pending after self-approve attempt' t, count(*) from photos where 
 select 'profile Bethel' t, display_name, age, match_score from get_profile('00000000-0000-0000-0000-00000000000b');  -- Bethel, 28, 100
 select t_err($$select get_profile('00000000-0000-0000-0000-000000000099')$$, 'not_found') as profile_unknown_user;
 select 'chat with Bethel' t, start_conversation('00000000-0000-0000-0000-00000000000b') is not null;
+select 'criteria leaves out chats' t, count(*) from get_meets_my_criteria();          -- expect 0 (Bethel is in Messages now)
+select 'country filter' t, count(*) from get_meets_my_criteria(20, 0, array['ZZ']);   -- expect 0 (nobody lives there)
+select 'filter countries' t, count(*) from get_meets_my_criteria_countries();          -- expect 0 (Bethel left out)
 select get_my_limits();
 reset role; set request.jwt.claims = '{}';
 update app_config set value = '1' where key = 'free_new_chats_per_day';
@@ -126,12 +132,23 @@ update profiles set is_premium = true, premium_expires_at = now() + interval '30
 set role authenticated; set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000a"}';
 select 'tier' t, get_my_tier();
 select 'suggested' t, display_name from get_suggested();                            -- expect Chaltu
+select 'daily picks' t, display_name from get_daily_picks();                         -- expect no rows: Bethel already has a chat, Chaltu fails Abel's must-haves
+select dismiss_suggestion('00000000-0000-0000-0000-00000000000c');
+select 'suggested after Not for me' t, get_suggested_count();                         -- expect 0
+select undo_dismiss_suggestion('00000000-0000-0000-0000-00000000000c');
+select 'suggested after undo' t, get_suggested_count();                               -- expect 1
+select t_err($$insert into suggested_dismissals (user_id, target_id) values (auth.uid(), '00000000-0000-0000-0000-00000000000c')$$,
+  'new row violates row-level security policy for table "suggested_dismissals"') as dismissals_only_via_function;
 select 'msg Chaltu' t, start_conversation('00000000-0000-0000-0000-00000000000c') is not null;
+select 'suggested leaves out chats' t, get_suggested_count();                         -- expect 0 (Chaltu is in Messages)
 select 'swipe Bethel' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');
+select 'undo' t, undo_last_swipe() = '00000000-0000-0000-0000-00000000000b';         -- t
+select 'swipe Bethel again' t, record_swipe('00000000-0000-0000-0000-00000000000b','like');
 
 -- ===== Bethel (free) likes back =====
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000b"}';
 select 'likes count' t, get_likes_received_count();                                  -- expect 1
+select 'new likes' t, get_for_you_new_counts(null)->>'likes', get_for_you_new_counts(now())->>'likes';  -- expect 1, 0
 select t_err('select * from get_likes_received()', 'premium_required') as likes_list_locked;
 select 'swipe back' t, record_swipe('00000000-0000-0000-0000-00000000000a','like');  -- matched true
 select 'convos' t, other_name, origin from get_my_conversations();
