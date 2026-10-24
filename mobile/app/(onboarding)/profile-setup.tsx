@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  type ScrollViewInstance,
   StyleSheet,
   Text,
   View,
@@ -36,7 +37,7 @@ export default function ProfileWizard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   // Load the saved draft (resume) and the residence rules from the database.
   // "Try again" bumps loadAttempt to run this again.

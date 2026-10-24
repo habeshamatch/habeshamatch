@@ -220,7 +220,7 @@ export default function ChatScreen() {
             }}
             onEndReachedThreshold={0.3}
             ListFooterComponent={
-              messages.isFetchingNextPage ? <ActivityIndicator color={colors.accent} style={styles.older} /> : null
+              messages.isFetchingNextPage ? <ActivityIndicator color={colors.accent} style={styles.older} /> : undefined
             }
             ListEmptyComponent={
               <Text style={[typography.bodyMuted, styles.emptyText]}>

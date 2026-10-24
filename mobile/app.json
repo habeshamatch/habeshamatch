@@ -43,7 +43,8 @@
           "cameraPermission": "HabeshaMatch uses your camera to take a verification selfie. It is only seen by our review team.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "scheme": "habeshamatch",
     "backgroundColor": "#1C1917",
