@@ -16,11 +16,23 @@ async function toCards(rows: CardRow[]): Promise<ProfileCard[]> {
   return rows.map((r) => toCard(r, urls)).filter((c): c is ProfileCard => c !== null);
 }
 
-// Suggested: people whose must-haves you meet, but who don't meet all of yours.
-export async function fetchSuggested(offset: number): Promise<ProfileCard[]> {
-  const { data, error } = await supabase.rpc('get_suggested', { p_limit: DISCOVER_PAGE_SIZE, p_offset: offset });
+// Suggested: people whose must-haves you meet, but who don't meet all of yours. `countries`
+// (residence country codes) narrows it; empty means no filter.
+export async function fetchSuggested(offset: number, countries: string[] = []): Promise<ProfileCard[]> {
+  const { data, error } = await supabase.rpc('get_suggested', {
+    p_limit: DISCOVER_PAGE_SIZE,
+    p_offset: offset,
+    p_countries: countries,
+  });
   if (error) throw error;
   return toCards(data);
+}
+
+// Countries the people in your Suggested list live in, with how many (for the filter).
+export async function fetchSuggestedCountries(): Promise<{ code: string; people: number }[]> {
+  const { data, error } = await supabase.rpc('get_suggested_countries');
+  if (error) throw error;
+  return data.map((r) => ({ code: r.country_code, people: r.people }));
 }
 
 // How many people are in Suggested (or only those new to it since `since`). A number only, so

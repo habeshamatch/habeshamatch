@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
 import { ProfileTile } from '@/components/ProfileTile';
 import { Segmented } from '@/components/Segmented';
 import { fetchMyLimits } from '@/lib/chats';
@@ -27,6 +28,7 @@ import {
   fetchDailyPicks,
   fetchSuggested,
   fetchSuggestedCount,
+  fetchSuggestedCountries,
   undoDismissSuggestion,
 } from '@/lib/premium';
 import { useSession } from '@/lib/session';
@@ -79,12 +81,22 @@ export default function ForYou() {
     enabled: isPremium,
   });
   const picks = useQuery({ queryKey: ['daily-picks'], queryFn: fetchDailyPicks, enabled: isPremium });
+  // Country filter on Suggested (Premium). It resets when the member leaves the tab.
+  const [countries, setCountries] = useState<string[]>([]);
+  const countryKey = [...countries].sort().join(',');
+  const suggestedCountries = useQuery({
+    queryKey: ['suggested', 'countries', userId],
+    queryFn: fetchSuggestedCountries,
+    enabled: !!userId && isPremium && section === 'suggested',
+  });
+  const suggestedKey = ['suggested', userId, countryKey];
   const suggested = useInfiniteQuery({
-    queryKey: ['suggested', userId],
-    queryFn: ({ pageParam }) => fetchSuggested(pageParam),
+    queryKey: suggestedKey,
+    queryFn: ({ pageParam }) => fetchSuggested(pageParam, countries),
     initialPageParam: 0,
     getNextPageParam: (last, pages) => (last.length === DISCOVER_PAGE_SIZE ? pages.length * DISCOVER_PAGE_SIZE : undefined),
     enabled: !!userId && isPremium && section === 'suggested',
+    placeholderData: (previous) => previous, // keep the list on screen while a new filter loads
   });
 
   // Opening the tab clears its badge; opening Suggested also clears Suggested's own badge.
@@ -114,6 +126,7 @@ export default function ForYou() {
         likes.refetch();
         picks.refetch();
       }
+      return () => setCountries([]); // leaving the tab clears the Suggested filter
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
     }, [isPremium, userId]),
   );
@@ -130,7 +143,7 @@ export default function ForYou() {
     queryClient.invalidateQueries({ queryKey: ['for-you-badge'] });
   };
   const dismiss = (card: ProfileCard) => {
-    queryClient.setQueryData<InfiniteData<ProfileCard[]>>(['suggested', userId], (d) =>
+    queryClient.setQueryData<InfiniteData<ProfileCard[]>>(suggestedKey, (d) =>
       d ? { ...d, pages: d.pages.map((page) => page.filter((c) => c.id !== card.id)) } : d,
     );
     setRemoved(card);
@@ -159,7 +172,10 @@ export default function ForYou() {
     if (!isPremium) return;
     if (section === 'likes') likes.refetch();
     if (section === 'picks') picks.refetch();
-    if (section === 'suggested') suggested.refetch();
+    if (section === 'suggested') {
+      suggested.refetch();
+      suggestedCountries.refetch();
+    }
   };
 
   const sections: { value: Section; label: string; badge?: number }[] = [
@@ -177,7 +193,15 @@ export default function ForYou() {
     <View style={styles.header}>
       <Text style={typography.title}>For you</Text>
       <Segmented options={sections} value={section} onChange={chooseSection} />
-      <Text style={typography.bodyMuted}>{intro}</Text>
+      {section === 'suggested' && isPremium && (
+        <View style={styles.filterRow}>
+          <View style={styles.flex}>
+            <CountryFilterSummary selected={countries} onClear={() => setCountries([])} />
+          </View>
+          <CountryFilterButton available={suggestedCountries.data} selected={countries} onChange={setCountries} />
+        </View>
+      )}
+      {!(section === 'suggested' && countries.length > 0) && <Text style={typography.bodyMuted}>{intro}</Text>}
       {isPremium && section === 'likes' && (likes.data?.length ?? 0) > 0 && (
         <Button label="Like back" onPress={() => router.push('/liked-you')} />
       )}
@@ -218,8 +242,8 @@ export default function ForYou() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
-        // Remount per section so each list starts at the top.
-        key={section}
+        // Remount per section (and Suggested filter) so each list starts at the top.
+        key={section === 'suggested' ? `suggested:${countryKey}` : section}
         data={cards}
         keyExtractor={(c) => c.id}
         numColumns={COLUMNS}
@@ -255,6 +279,11 @@ export default function ForYou() {
             <View style={styles.empty}>
               <Text style={[typography.body, styles.center]}>{friendlyError(current.error)}</Text>
               <Button label="Try again" variant="secondary" onPress={refresh} />
+            </View>
+          ) : section === 'suggested' && countries.length > 0 ? (
+            <View style={styles.empty}>
+              <Text style={[typography.subtitle, styles.center]}>Nobody in those countries</Text>
+              <Button label="Clear filter" variant="secondary" onPress={() => setCountries([])} />
             </View>
           ) : (
             <Empty section={section} />
@@ -362,6 +391,12 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
   },
   undoBar: {
     position: 'absolute',
