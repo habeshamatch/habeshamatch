@@ -561,6 +561,39 @@ export type Database = {
           },
         ]
       }
+      suggested_dismissals: {
+        Row: {
+          created_at: string
+          target_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          target_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          target_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggested_dismissals_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggested_dismissals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       swipes: {
         Row: {
           created_at: string
@@ -667,6 +700,9 @@ export type Database = {
       admin_stats: { Args: never; Returns: Json }
       age_years: { Args: { dob: string }; Returns: number }
       cfg_num: { Args: { p_key: string }; Returns: number }
+      dismiss_suggestion: { Args: { p_target: string }; Returns: undefined }
+      generate_daily_picks: { Args: never; Returns: number }
+      generate_daily_picks_for: { Args: { p_user: string }; Returns: number }
       get_daily_picks: {
         Args: never
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
@@ -677,7 +713,6 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      dismiss_suggestion: { Args: { p_target: string }; Returns: undefined }
       get_for_you_new_counts: { Args: { p_since?: string }; Returns: Json }
       get_likes_received: {
         Args: { p_limit?: number }
@@ -700,19 +735,19 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_meets_my_criteria_countries: {
+        Args: never
+        Returns: {
+          country_code: string
+          people: number
+        }[]
+      }
       get_my_blocked_users: {
         Args: never
         Returns: {
           blocked_at: string
           display_name: string
           user_id: string
-        }[]
-      }
-      get_meets_my_criteria_countries: {
-        Args: never
-        Returns: {
-          country_code: string
-          people: number
         }[]
       }
       get_my_conversations: {
@@ -745,7 +780,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_suggested: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
@@ -756,6 +790,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_suggested_count: { Args: { p_since?: string }; Returns: number }
       get_swipe_deck: {
         Args: { p_limit?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
@@ -774,6 +809,10 @@ export type Database = {
         Returns: boolean
       }
       is_end_user: { Args: never; Returns: boolean }
+      is_suggested_for: {
+        Args: { p_cand: string; p_viewer: string }
+        Returns: boolean
+      }
       mark_conversation_read: {
         Args: { p_conversation: string }
         Returns: undefined
@@ -782,6 +821,7 @@ export type Database = {
         Args: { p_cand: string; p_viewer: string }
         Returns: boolean
       }
+      member_since: { Args: { p_user: string }; Returns: string }
       photo_thumb_path: { Args: { p_storage_path: string }; Returns: string }
       pref_item_met: {
         Args: {
@@ -825,7 +865,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      undo_dismiss_suggestion: { Args: { p_target: string }; Returns: undefined }
+      undo_dismiss_suggestion: {
+        Args: { p_target: string }
+        Returns: undefined
+      }
       undo_last_swipe: { Args: never; Returns: string }
       user_tier: {
         Args: { p_user: string }
