@@ -11,6 +11,7 @@ import { RoundButton } from '@/components/RoundButton';
 import { SwipeCard, type SwipeCardHandle, type SwipeDirection } from '@/components/SwipeCard';
 import { fetchMyLimits, nextLimitReset } from '@/lib/chats';
 import { errorCode, friendlyError } from '@/lib/errors';
+import { undoLastSwipe } from '@/lib/premium';
 import { fetchSwipeDeck, recordSwipe, type SwipeCard as Card } from '@/lib/swipe';
 import { colors, spacing, typography } from '@/lib/theme';
 
@@ -27,6 +28,8 @@ export default function Swipe() {
   const [limitReached, setLimitReached] = useState(false);
   const [match, setMatch] = useState<Match | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [lastSwiped, setLastSwiped] = useState<Card | null>(null); // what Undo brings back (Premium)
+  const [undoing, setUndoing] = useState(false);
   const swiped = useRef(new Set<string>()); // never show a card twice in this session
   const fetching = useRef(false);
 
@@ -63,6 +66,7 @@ export default function Swipe() {
   const used = limits.data?.swipesUsed ?? 0;
   const allowed = limits.data?.swipesLimit ?? 0;
   const outOfSwipes = limitReached || (!!limits.data && used >= allowed);
+  const isPremium = limits.data?.tier === 'premium';
 
   const onSwiped = async (direction: SwipeDirection) => {
     const card = cards[0];
@@ -70,12 +74,15 @@ export default function Swipe() {
     swiped.current.add(card.id);
     setCards((current) => current.slice(1)); // move on immediately; the server call follows
     setNotice(null);
+    setLastSwiped(null); // until this swipe is saved
     queryClient.setQueryData(['my-limits'], (l: typeof limits.data) => (l ? { ...l, swipesUsed: l.swipesUsed + 1 } : l));
     try {
       const result = await recordSwipe(card.id, direction);
       if (result.matched && result.conversationId) {
         setMatch({ name: card.name, photoUrl: card.photoUrl, conversationId: result.conversationId });
         queryClient.invalidateQueries({ queryKey: ['inbox'] });
+      } else {
+        setLastSwiped(card); // a match can't be undone
       }
     } catch (e) {
       if (errorCode(e) === 'daily_swipe_limit_reached') {
@@ -89,6 +96,34 @@ export default function Swipe() {
     } finally {
       queryClient.invalidateQueries({ queryKey: ['my-limits'] });
       queryClient.invalidateQueries({ queryKey: ['likes-count'] }); // swiping on someone removes them from Liked you
+    }
+  };
+
+  // Premium: take back the last swipe and show that card again. Everyone else sees the paywall.
+  const onUndo = async () => {
+    if (!isPremium) {
+      router.push('/paywall');
+      return;
+    }
+    const card = lastSwiped;
+    if (!card || undoing) return;
+    setUndoing(true);
+    setNotice(null);
+    try {
+      const undone = await undoLastSwipe();
+      if (undone === card.id) {
+        swiped.current.delete(card.id);
+        setCards((current) => [card, ...current.filter((c) => c.id !== card.id)]);
+        setLimitReached(false);
+      }
+      setLastSwiped(null); // one step back only
+    } catch (e) {
+      setNotice(friendlyError(e));
+      setLastSwiped(null);
+    } finally {
+      setUndoing(false);
+      queryClient.invalidateQueries({ queryKey: ['my-limits'] });
+      queryClient.invalidateQueries({ queryKey: ['likes-count'] });
     }
   };
 
@@ -163,8 +198,17 @@ export default function Swipe() {
             })}
         </View>
         <View style={styles.buttons}>
+          <RoundButton
+            small
+            icon="arrow-undo"
+            color={colors.accentSoft}
+            label={isPremium ? 'Undo last swipe' : 'Undo last swipe (Premium)'}
+            onPress={onUndo}
+            disabled={isPremium && (!lastSwiped || undoing)}
+          />
           <RoundButton icon="close" color={colors.rose} label="Pass" onPress={() => topCard.current?.swipe('pass')} />
           <RoundButton icon="heart" color={colors.accent} label="Like" onPress={() => topCard.current?.swipe('like')} />
+          <View style={styles.balance} />
         </View>
       </>
     );
@@ -215,8 +259,12 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: spacing.xxl,
+    alignItems: 'center',
+    gap: spacing.xl,
     paddingVertical: spacing.lg,
+  },
+  balance: {
+    width: 48, // mirrors the undo button so ✕ and ♥ stay centred
   },
   message: {
     flex: 1,

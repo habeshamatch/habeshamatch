@@ -43,7 +43,7 @@ habeshamatch/
 │   ├── migrations/              # SQL migrations, never edit an applied one
 │   ├── functions/               # edge functions
 │   ├── tests/                   # rules_smoke_test.sql (run on an empty db: supabase db reset --no-seed)
-│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you)
+│   ├── scripts/                 # local only: seed-photos.mjs (seed images, macOS), simulate-reply.mjs (reply as a seed profile), simulate-likes.mjs (seed profiles like you), make-premium.mjs (Premium on or off for a local account)
 │   ├── remote-auth/             # the only config used for `supabase config push` (auth settings) + email templates
 │   └── seed.sql                 # fake test profiles, local only
 ├── prototype/                   # original React web prototype, reference only
@@ -101,7 +101,9 @@ Tier is decided by declared permanent residence (`profiles.residence_country_cod
 - Preferences are saved by `mobile/lib/preferences.ts`: `preference_core` (gender, age range) always; one `preference_items` row per attribute the user sets, marked hard ("Must have") or soft ("Nice to have"); attributes left as "Any" have no row. "Where they live" is a searchable multi-select of countries (`country`). The `residence_type` (abroad / back home) attribute still works in the database but the app no longer offers it; saving preferences removes an old one. Income is "at least" a bracket, saved as `{"min": "<income_range_t>"}`; "prefer not to say" or no answer never meets it.
 - **Hard preferences:** deal-breakers. Gender and age range are always hard (`preference_core`). Other attributes (`preference_items`) are marked hard or soft by the user.
 - **Meets My Criteria:** both users pass each other's hard preferences AND the candidate meets at least `soft_match_threshold` of the viewer's soft preferences. Ranked by soft score. The threshold is currently 0 (migration `20261017000002`), so nice-to-haves only rank and never hide anyone while the community is small; raise it later in `app_config`. Anyone here can be messaged directly, no approval.
-- **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly.
+- **Suggested (premium):** the viewer meets the candidate's hard preferences, the candidate does NOT meet the viewer's. The viewer may make an exception and message directly. Shown as the second section of Discover ("Meets my criteria" | "Suggested") with the line "These people are looking for someone like you, but don't match all your must-haves." Everyone else sees a short explanation and the paywall, never the people.
+- **Daily picks (premium):** `daily_picks_per_day` (5) people a day who fit both ways, have no chat with you and you have not passed on, best nice-to-have score first; people picked in the last `daily_picks_repeat_after_days` go to the back. Made by `generate_daily_picks()` every day at 00:05 UTC (Supabase Cron job `generate-daily-picks`, migration `20261024000000`), and on demand by `get_daily_picks()` when a member has none yet today. Shown as TODAY'S PICKS at the top of the Messages tab; tapping opens the profile. Someone you start a chat with drops out of the picks.
+- **Undo (premium):** one step back on the Swipe screen (`undo_last_swipe()`), not for a swipe that became a match. Everyone else's Undo button opens the paywall.
 - **Core messaging invariant:** you can only start a chat with someone whose hard preferences you meet. Nobody ever receives a first message from someone who fails their deal-breakers.
 - **Messages tab layout:** a NEW MATCHES row at the top (conversations with no messages yet; they move into the list once someone writes), starting with a "Liked you" tile showing `get_likes_received_count()`. The tile uses silhouettes, never blurred photos. Tapping it opens `liked-you` for Premium and the paywall for everyone else (local tier included, per the tier table).
 - **Swipe section:** ignores criteria except gender and age range, which must fit in both directions. Mutual like opens a chat that does not count toward the daily limit. Deck shows same country first, then same region type (diaspora or home), then the rest.
@@ -132,7 +134,7 @@ Name, date of birth (age shown, never DOB), gender (male/female), height (stored
 | `record_swipe(target, 'like'/'pass')` | Returns `{matched, conversation_id}` |
 | `undo_last_swipe()` | Premium only |
 | `get_likes_received_count()` / `get_likes_received()` | Count for all, list for premium |
-| `get_daily_picks()` | Premium only |
+| `get_daily_picks()` | Premium only; makes today's picks if there are none yet |
 | `get_profile(user_id)` | Public profile card |
 | `start_conversation(target)` | Enforces all messaging rules |
 | `get_my_conversations()` | Inbox with last message and unread count |

@@ -12,6 +12,7 @@ import { fetchMyLimits } from '@/lib/chats';
 import { friendlyError } from '@/lib/errors';
 import { fetchLikesCount } from '@/lib/likes';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
+import { fetchDailyPicks } from '@/lib/premium';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // Conversations, newest activity first. Kept live by the subscription in the tabs layout.
@@ -19,14 +20,18 @@ export default function Messages() {
   const inbox = useQuery({ queryKey: ['inbox'], queryFn: fetchInbox });
   const likes = useQuery({ queryKey: ['likes-count'], queryFn: fetchLikesCount });
   const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
+  const isPremium = limits.data?.tier === 'premium';
+  // Today's picks (Premium). Made once a day; someone you start a chat with drops out of them.
+  const picks = useQuery({ queryKey: ['daily-picks'], queryFn: fetchDailyPicks, enabled: isPremium });
 
   // Refresh when the tab comes back into view (e.g. someone started a chat with you or liked you).
   useFocusEffect(
     useCallback(() => {
       inbox.refetch();
       likes.refetch();
+      if (isPremium) picks.refetch();
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
-    }, []),
+    }, [isPremium]),
   );
 
   // New matches: chats where nobody has written yet. They sit in the row at the top and move
@@ -34,12 +39,40 @@ export default function Messages() {
   const newMatches = inbox.data?.filter((c) => !c.lastMessage) ?? [];
   const conversations = inbox.data?.filter((c) => !!c.lastMessage) ?? [];
   const likeCount = likes.data ?? 0;
-  const isPremium = limits.data?.tier === 'premium';
+  const todaysPicks = isPremium ? (picks.data ?? []) : [];
 
   const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
   const header = (
     <View>
       {title}
+      {todaysPicks.length > 0 && (
+        <View style={styles.matches}>
+          <Text style={[typography.caption, styles.sectionTitle]}>{"TODAY'S PICKS"}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
+            {todaysPicks.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() => router.push(`/profile/${p.id}`)}
+                style={styles.matchItem}
+                accessibilityRole="button"
+                accessibilityLabel={`Today's pick: ${p.name}${p.age ? `, ${p.age}` : ''}. View profile`}
+              >
+                <View style={[styles.matchRing, styles.pickRing]}>
+                  <Avatar
+                    url={p.photoUrl}
+                    cacheKey={p.photoPath ? `thumb:${p.photoPath}` : undefined}
+                    name={p.name}
+                    size={64}
+                  />
+                </View>
+                <Text style={[typography.caption, styles.matchName]} numberOfLines={1}>
+                  {p.name}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
       {(newMatches.length > 0 || likeCount > 0) && (
         <View style={styles.matches}>
           <Text style={[typography.caption, styles.sectionTitle]}>NEW MATCHES</Text>
@@ -112,6 +145,7 @@ export default function Messages() {
             onRefresh={() => {
               inbox.refetch();
               likes.refetch();
+              if (isPremium) picks.refetch();
             }}
             tintColor={colors.accent}
           />
@@ -228,6 +262,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     borderWidth: 2,
     borderColor: colors.accent,
+  },
+  pickRing: {
+    borderColor: colors.accentSoft,
+    borderStyle: 'dashed', // picks are suggestions, not matches yet
   },
   matchName: {
     color: colors.text,
