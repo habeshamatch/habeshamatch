@@ -23,6 +23,13 @@ export async function fetchSuggested(offset: number): Promise<ProfileCard[]> {
   return toCards(data);
 }
 
+// How many people are in Suggested. A number only, so everyone sees it (the list is Premium).
+export async function fetchSuggestedCount(): Promise<number> {
+  const { data, error } = await supabase.rpc('get_suggested_count');
+  if (error) throw error;
+  return data;
+}
+
 // Today's picks (made once a day, or the first time they are opened that day).
 export async function fetchDailyPicks(): Promise<ProfileCard[]> {
   const { data, error } = await supabase.rpc('get_daily_picks');

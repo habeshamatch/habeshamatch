@@ -11,7 +11,7 @@ import { Segmented } from '@/components/Segmented';
 import { fetchMyLimits } from '@/lib/chats';
 import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchMeetsMyCriteria } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
-import { fetchSuggested } from '@/lib/premium';
+import { fetchSuggested, fetchSuggestedCount } from '@/lib/premium';
 import { useSession } from '@/lib/session';
 import { colors, spacing, typography } from '@/lib/theme';
 
@@ -19,11 +19,6 @@ const COLUMNS = 2;
 const GAP = spacing.md;
 
 type Section = 'criteria' | 'suggested';
-
-const SECTIONS: { value: Section; label: string }[] = [
-  { value: 'criteria', label: 'Meets my criteria' },
-  { value: 'suggested', label: 'Suggested' },
-];
 
 const SUGGESTED_EXPLAINER =
   "These people are looking for someone like you, but don't match all your must-haves.";
@@ -40,6 +35,12 @@ export default function Discover() {
   const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
   const isPremium = limits.data?.tier === 'premium';
   const showTeaser = section === 'suggested' && !!limits.data && !isPremium;
+  // Shown to everyone as a badge on Suggested (a count only; the people are Premium).
+  const suggestedCount = useQuery({ queryKey: ['suggested-count', userId], queryFn: fetchSuggestedCount, enabled: !!userId });
+  const sections: { value: Section; label: string; badge?: number }[] = [
+    { value: 'criteria', label: 'Meets my criteria' },
+    { value: 'suggested', label: 'Suggested', badge: suggestedCount.data },
+  ];
 
   const query = useInfiniteQuery({
     queryKey: [section === 'criteria' ? 'meets-my-criteria' : 'suggested', userId],
@@ -65,7 +66,7 @@ export default function Discover() {
   const header = (
     <View style={styles.header}>
       <Text style={typography.title}>Discover</Text>
-      <Segmented options={SECTIONS} value={section} onChange={setSection} />
+      <Segmented options={sections} value={section} onChange={setSection} />
       <Text style={typography.bodyMuted}>
         {section === 'criteria' ? 'People who meet your criteria, best matches first.' : SUGGESTED_EXPLAINER}
       </Text>
@@ -78,7 +79,11 @@ export default function Discover() {
         <View style={styles.list}>{header}</View>
         <View style={styles.empty}>
           <Ionicons name="sparkles-outline" size={48} color={colors.accent} />
-          <Text style={[typography.subtitle, styles.center]}>Suggested is a Premium feature</Text>
+          <Text style={[typography.subtitle, styles.center]}>
+            {suggestedCount.data
+              ? `${suggestedCount.data > 99 ? '99+' : suggestedCount.data} ${suggestedCount.data === 1 ? 'person is' : 'people are'} looking for someone like you`
+              : 'Suggested is a Premium feature'}
+          </Text>
           <Text style={[typography.bodyMuted, styles.center]}>
             {"See people who would welcome a message from you, even if they miss one of your must-haves. You decide whether to make an exception."}
           </Text>
@@ -128,6 +133,7 @@ export default function Discover() {
             refreshing={query.isRefetching && !query.isFetchingNextPage}
             onRefresh={() => {
               query.refetch();
+              suggestedCount.refetch();
             }}
             tintColor={colors.accent}
           />

@@ -735,6 +735,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_suggested_count: { Args: never; Returns: number }
       get_suggested: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]

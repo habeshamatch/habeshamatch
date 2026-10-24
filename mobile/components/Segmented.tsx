@@ -2,9 +2,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
-type Option<T extends string> = { value: T; label: string };
+type Option<T extends string> = { value: T; label: string; badge?: number };
 
-// Two or three side-by-side choices, one selected (e.g. Discover's sections).
+// Two or three side-by-side choices, one selected (e.g. Discover's sections). An option can
+// carry a count badge, like an unread count.
 export function Segmented<T extends string>({
   options,
   value,
@@ -25,8 +26,16 @@ export function Segmented<T extends string>({
             style={[styles.option, selected && styles.selected]}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
+            accessibilityLabel={o.badge ? `${o.label}, ${o.badge}` : o.label}
           >
-            <Text style={[typography.caption, styles.label, selected && styles.labelSelected]}>{o.label}</Text>
+            <View style={styles.content}>
+              <Text style={[typography.caption, styles.label, selected && styles.labelSelected]}>{o.label}</Text>
+              {!!o.badge && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{o.badge > 99 ? '99+' : o.badge}</Text>
+                </View>
+              )}
+            </View>
           </Pressable>
         );
       })}
@@ -50,8 +59,29 @@ const styles = StyleSheet.create({
   selected: {
     backgroundColor: colors.surfaceRaised,
   },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   label: {
     fontSize: 14,
+  },
+  badge: {
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.rose,
+  },
+  badgeText: {
+    ...typography.caption,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.text,
+    fontFamily: typography.button.fontFamily,
   },
   labelSelected: {
     color: colors.accent,
