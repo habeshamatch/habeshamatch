@@ -66,12 +66,18 @@ export function toCard(row: CardRow, urls: Map<string, string>): ProfileCard | n
   };
 }
 
+// How Discover is ordered (the database does the ordering, see get_meets_my_criteria):
+// best = recently active first, then best nice-to-have match; active = in the app today first;
+// near = same city, then same country, then same region (abroad or back home).
+export type DiscoverSort = 'best' | 'active' | 'near';
+
 // One page of Meets My Criteria. The database applies every rule (both sides' must-haves,
-// blocks, approved photos) and ranks by nice-to-haves; the app only displays it.
-export async function fetchMeetsMyCriteria(offset: number): Promise<ProfileCard[]> {
+// blocks, approved photos), leaves out people you already chat with, and orders the list.
+export async function fetchMeetsMyCriteria(offset: number, sort: DiscoverSort = 'best'): Promise<ProfileCard[]> {
   const { data, error } = await supabase.rpc('get_meets_my_criteria', {
     p_limit: DISCOVER_PAGE_SIZE,
     p_offset: offset,
+    p_sort: sort,
   });
   if (error) throw error;
   const urls = await signPhotoUrls(

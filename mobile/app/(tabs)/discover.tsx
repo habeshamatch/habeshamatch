@@ -1,12 +1,13 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ProfileTile } from '@/components/ProfileTile';
-import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchMeetsMyCriteria } from '@/lib/discover';
+import { Segmented } from '@/components/Segmented';
+import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchMeetsMyCriteria, type DiscoverSort } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
 import { useSession } from '@/lib/session';
 import { colors, spacing, typography } from '@/lib/theme';
@@ -14,20 +15,36 @@ import { colors, spacing, typography } from '@/lib/theme';
 const COLUMNS = 2;
 const GAP = spacing.md;
 
-// Meets My Criteria: people who pass both sides' must-haves, best nice-to-have matches first.
+const SORTS: { value: DiscoverSort; label: string }[] = [
+  { value: 'best', label: 'Best match' },
+  { value: 'active', label: 'Active today' },
+  { value: 'near', label: 'Near me' },
+];
+
+const SORT_INTRO: Record<DiscoverSort, string> = {
+  best: 'People who meet your criteria, best matches first.',
+  active: 'People who were on HabeshaMatch today come first.',
+  near: 'People in your city first, then your country, then the rest.',
+};
+
+// Meets My Criteria: people who pass both sides' must-haves. Nobody is hidden for being away a
+// while; they just come later in the list.
 export default function Discover() {
   const { session } = useSession();
   const userId = session?.user.id ?? '';
   const { width } = useWindowDimensions();
   const tileWidth = Math.floor((width - spacing.lg * 2 - GAP) / COLUMNS);
+  const [sort, setSort] = useState<DiscoverSort>('best');
 
   const query = useInfiniteQuery({
-    queryKey: ['meets-my-criteria', userId],
-    queryFn: ({ pageParam }) => fetchMeetsMyCriteria(pageParam),
+    queryKey: ['meets-my-criteria', userId, sort],
+    queryFn: ({ pageParam }) => fetchMeetsMyCriteria(pageParam, sort),
     initialPageParam: 0,
     // A full page means there may be more; ask for the next one from the next offset.
     getNextPageParam: (last, pages) => (last.length === DISCOVER_PAGE_SIZE ? pages.length * DISCOVER_PAGE_SIZE : undefined),
     enabled: !!userId,
+    // Switching the sort keeps the current list on screen until the new order arrives.
+    placeholderData: (previous) => previous,
   });
   const cards = query.data?.pages.flat() ?? [];
 
@@ -44,14 +61,15 @@ export default function Discover() {
   const header = (
     <View style={styles.header}>
       <Text style={typography.title}>Discover</Text>
-      <Text style={typography.bodyMuted}>People who meet your criteria, best matches first.</Text>
+      <Segmented options={SORTS} value={sort} onChange={setSort} />
+      <Text style={typography.bodyMuted}>{SORT_INTRO[sort]}</Text>
     </View>
   );
 
   if (query.isPending) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        {header}
+        <View style={styles.list}>{header}</View>
         <ActivityIndicator color={colors.accent} style={styles.loading} />
       </SafeAreaView>
     );
@@ -60,7 +78,7 @@ export default function Discover() {
   if (query.isError && cards.length === 0) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        {header}
+        <View style={styles.list}>{header}</View>
         <View style={styles.empty}>
           <Text style={[typography.body, styles.center]}>{friendlyError(query.error)}</Text>
           <Button label="Try again" variant="secondary" onPress={() => query.refetch()} />
@@ -72,6 +90,7 @@ export default function Discover() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
+        key={sort} // a new sort starts at the top
         data={cards}
         keyExtractor={(c) => c.id}
         numColumns={COLUMNS}
@@ -118,7 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    gap: spacing.xs,
+    gap: spacing.sm,
     paddingBottom: spacing.md,
   },
   list: {
