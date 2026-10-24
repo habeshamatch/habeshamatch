@@ -121,7 +121,8 @@ select 'profile Bethel' t, display_name, age, match_score from get_profile('0000
 select t_err($$select get_profile('00000000-0000-0000-0000-000000000099')$$, 'not_found') as profile_unknown_user;
 select 'chat with Bethel' t, start_conversation('00000000-0000-0000-0000-00000000000b') is not null;
 select 'criteria leaves out chats' t, count(*) from get_meets_my_criteria();          -- expect 0 (Bethel is in Messages now)
-select t_err($$select * from get_meets_my_criteria(20, 0, 'random')$$, 'not_permitted') as unknown_sort;
+select 'country filter' t, count(*) from get_meets_my_criteria(20, 0, array['ZZ']);   -- expect 0 (nobody lives there)
+select 'filter countries' t, count(*) from get_meets_my_criteria_countries();          -- expect 0 (Bethel left out)
 select get_my_limits();
 reset role; set request.jwt.claims = '{}';
 update app_config set value = '1' where key = 'free_new_chats_per_day';

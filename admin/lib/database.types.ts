@@ -689,7 +689,7 @@ export type Database = {
       }
       get_likes_received_count: { Args: never; Returns: number }
       get_meets_my_criteria: {
-        Args: { p_limit?: number; p_offset?: number; p_sort?: string }
+        Args: { p_countries?: string[]; p_limit?: number; p_offset?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
         SetofOptions: {
           from: "*"
@@ -704,6 +704,13 @@ export type Database = {
           blocked_at: string
           display_name: string
           user_id: string
+        }[]
+      }
+      get_meets_my_criteria_countries: {
+        Args: never
+        Returns: {
+          country_code: string
+          people: number
         }[]
       }
       get_my_conversations: {

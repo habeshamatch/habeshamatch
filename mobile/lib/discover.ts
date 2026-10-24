@@ -66,18 +66,15 @@ export function toCard(row: CardRow, urls: Map<string, string>): ProfileCard | n
   };
 }
 
-// How Discover is ordered (the database does the ordering, see get_meets_my_criteria):
-// best = recently active first, then best nice-to-have match; active = in the app today first;
-// near = same city, then same country, then same region (abroad or back home).
-export type DiscoverSort = 'best' | 'active' | 'near';
-
 // One page of Meets My Criteria. The database applies every rule (both sides' must-haves,
-// blocks, approved photos), leaves out people you already chat with, and orders the list.
-export async function fetchMeetsMyCriteria(offset: number, sort: DiscoverSort = 'best'): Promise<ProfileCard[]> {
+// blocks, approved photos), leaves out people you already chat with, and orders the list:
+// recently active first, then best nice-to-have match, with a daily shuffle for ties.
+// `countries` (residence country codes) narrows it further; empty means no filter.
+export async function fetchMeetsMyCriteria(offset: number, countries: string[] = []): Promise<ProfileCard[]> {
   const { data, error } = await supabase.rpc('get_meets_my_criteria', {
     p_limit: DISCOVER_PAGE_SIZE,
     p_offset: offset,
-    p_sort: sort,
+    p_countries: countries,
   });
   if (error) throw error;
   const urls = await signPhotoUrls(
@@ -85,6 +82,13 @@ export async function fetchMeetsMyCriteria(offset: number, sort: DiscoverSort = 
     'thumb',
   );
   return data.map((r) => toCard(r, urls)).filter((c): c is ProfileCard => c !== null);
+}
+
+// Countries the people on Discover live in, with how many, most first (for the filter).
+export async function fetchDiscoverCountries(): Promise<{ code: string; people: number }[]> {
+  const { data, error } = await supabase.rpc('get_meets_my_criteria_countries');
+  if (error) throw error;
+  return data.map((r) => ({ code: r.country_code, people: r.people }));
 }
 
 export type FullProfile = ProfileCard & { photoUrls: string[] };
