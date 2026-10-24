@@ -48,7 +48,7 @@ const names = psql(`with picked as (
     order by random() limit ${count})
   , ins as (
     insert into swipes (swiper_id, target_id, direction, created_at)
-    select id, '${myId}', 'like', now() - interval '1 day' from picked returning swiper_id)
+    select id, '${myId}', 'like', now() from picked returning swiper_id)
   select string_agg(p.display_name, ', ') from picked p join ins on ins.swiper_id = p.id;`);
 
 if (names) {
