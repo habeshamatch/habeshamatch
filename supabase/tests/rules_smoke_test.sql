@@ -141,6 +141,7 @@ select 'swipe Bethel again' t, record_swipe('00000000-0000-0000-0000-00000000000
 -- ===== Bethel (free) likes back =====
 set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000b"}';
 select 'likes count' t, get_likes_received_count();                                  -- expect 1
+select 'new likes' t, get_for_you_new_counts(null)->>'likes', get_for_you_new_counts(now())->>'likes';  -- expect 1, 0
 select t_err('select * from get_likes_received()', 'premium_required') as likes_list_locked;
 select 'swipe back' t, record_swipe('00000000-0000-0000-0000-00000000000a','like');  -- matched true
 select 'convos' t, other_name, origin from get_my_conversations();

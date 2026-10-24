@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState, type ComponentProps } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -11,6 +11,7 @@ import { Segmented } from '@/components/Segmented';
 import { fetchMyLimits } from '@/lib/chats';
 import { DISCOVER_PAGE_SIZE, type ProfileCard } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
+import { saveForYouSeen } from '@/lib/forYou';
 import { fetchLikesCount, fetchLikesReceived } from '@/lib/likes';
 import { fetchDailyPicks, fetchSuggested, fetchSuggestedCount } from '@/lib/premium';
 import { useSession } from '@/lib/session';
@@ -36,6 +37,7 @@ export default function ForYou() {
   const { width } = useWindowDimensions();
   const tileWidth = Math.floor((width - spacing.lg * 2 - GAP) / COLUMNS);
   const [section, setSection] = useState<Section>('likes');
+  const queryClient = useQueryClient();
 
   const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
   const isPremium = limits.data?.tier === 'premium';
@@ -57,15 +59,22 @@ export default function ForYou() {
   });
 
   // Back on the tab: someone may have liked you, or you may have started a chat with a pick.
+  // Opening the tab also clears its badge (everything here now counts as seen).
   useFocusEffect(
     useCallback(() => {
+      if (userId) {
+        saveForYouSeen(userId).then((seen) => {
+          queryClient.setQueryData(['for-you-seen', userId], seen);
+          queryClient.setQueryData(['for-you-badge', userId, seen.at, seen.picksDate], 0);
+        });
+      }
       likesCount.refetch();
       if (isPremium) {
         likes.refetch();
         picks.refetch();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only on focus
-    }, [isPremium]),
+    }, [isPremium, userId]),
   );
 
   const refresh = () => {

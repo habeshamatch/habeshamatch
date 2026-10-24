@@ -677,6 +677,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_for_you_new_counts: { Args: { p_since?: string }; Returns: Json }
       get_likes_received: {
         Args: { p_limit?: number }
         Returns: Database["public"]["CompositeTypes"]["profile_card"][]
