@@ -42,3 +42,11 @@ Currently (2026-10-14): Twilio Verify is ON for the remote project with real cre
 - [ ] Apple Developer account ($99/year): App ID with Sign in with Apple, then Supabase Apple provider with the App ID in Client IDs.
 - [ ] Google Cloud: Web, iOS and Android OAuth client IDs (Android needs the EAS and Play signing SHA-1s), then Supabase Google provider (Web client ID first, Skip nonce check on for iOS).
 - [ ] Development build (EAS) for native Google sign in.
+
+## Subscriptions (App Store)
+- [ ] Paid Apps Agreement shows Active in App Store Connect (Business).
+- [ ] EU trader status (Digital Services Act) answered, so the app can be sold in the EU. As a trader your address, phone and email are shown on the EU App Store.
+- [ ] Real review screenshots for `premium_1m`, `premium_3m`, `premium_6m` (placeholders used during setup).
+- [ ] RevenueCat webhook set to the live `revenuecat-webhook` function, with `REVENUECAT_WEBHOOK_AUTH` and `REVENUECAT_SECRET_KEY` set as Supabase secrets.
+- [ ] Production build (EAS profile `production`) needs `EXPO_PUBLIC_*` values as EAS environment variables (the local `.env` is not uploaded).
+- [ ] Google Play subscriptions and an Android RevenueCat key once the Google Play (organization) account exists.
