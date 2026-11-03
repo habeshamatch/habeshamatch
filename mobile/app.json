@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.solroot.kaba",
@@ -57,7 +57,7 @@
       ]
     ],
     "scheme": "habeshamatch",
-    "backgroundColor": "#3F5E9E",
+    "backgroundColor": "#FAF7F2",
     "experiments": {
       "typedRoutes": true
     },

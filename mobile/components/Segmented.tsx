@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   selected: {
-    backgroundColor: colors.action,
+    backgroundColor: colors.surface,
   },
   content: {
     flexDirection: 'row',

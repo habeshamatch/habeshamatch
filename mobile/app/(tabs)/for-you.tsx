@@ -12,13 +12,12 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
 import { ProfileTile } from '@/components/ProfileTile';
 import { Segmented } from '@/components/Segmented';
-import { ScreenTitle } from '@/components/ScreenTitle';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { fetchMyLimits } from '@/lib/chats';
 import { DISCOVER_PAGE_SIZE, type ProfileCard } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
@@ -190,9 +189,10 @@ export default function ForYou() {
       ? `${total > 99 ? '99+' : total} ${total === 1 ? 'person is' : 'people are'} looking for someone like you, but ${total === 1 ? "doesn't" : "don't"} match all your must-haves.`
       : INTRO[section];
 
+  const band = <ScreenHeader title="For you" />;
+
   const header = (
     <View style={styles.header}>
-      <ScreenTitle title="For you" />
       <Segmented options={sections} value={section} onChange={chooseSection} />
       {section === 'suggested' && isPremium && (
         <View style={styles.filterRow}>
@@ -211,19 +211,21 @@ export default function ForYou() {
 
   if (limits.isPending) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.container}>
+        {band}
         <View style={styles.padded}>{header}</View>
         <ActivityIndicator color={colors.accent} style={styles.loading} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!isPremium) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.container}>
+        {band}
         <View style={styles.padded}>{header}</View>
         <Teaser section={section} likes={likesCount.data ?? 0} suggested={suggestedCount.data ?? 0} />
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -241,7 +243,8 @@ export default function ForYou() {
   const cards: ProfileCard[] = current.data ?? [];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      {band}
       <FlatList
         // Remount per section (and Suggested filter) so each list starts at the top.
         key={section === 'suggested' ? `suggested:${countryKey}` : section}
@@ -303,7 +306,7 @@ export default function ForYou() {
           </Pressable>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

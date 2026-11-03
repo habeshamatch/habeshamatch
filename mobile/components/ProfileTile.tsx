@@ -59,10 +59,10 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
             {card.name}
             {card.age !== null ? `, ${card.age}` : ''}
           </Text>
-          {card.verified && <VerifiedBadge />}
+          {card.verified && <VerifiedBadge onBrand />}
         </View>
         {place && (
-          <Text style={typography.caption} numberOfLines={1}>
+          <Text style={[typography.caption, styles.place]} numberOfLines={1}>
             {place}
           </Text>
         )}
@@ -75,9 +75,7 @@ const styles = StyleSheet.create({
   tile: {
     borderRadius: radius.md,
     overflow: 'hidden',
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    backgroundColor: colors.brandDeep, // photo tiles keep their deeper blue frame
   },
   pressed: {
     opacity: 0.85,
@@ -126,5 +124,9 @@ const styles = StyleSheet.create({
   name: {
     flexShrink: 1,
     fontFamily: typography.button.fontFamily,
+    color: colors.onBrand,
+  },
+  place: {
+    color: colors.onBrandMuted,
   },
 });

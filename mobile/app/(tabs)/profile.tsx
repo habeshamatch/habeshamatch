@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState, type ComponentProps } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { TextField } from '@/components/FormControls';
 import { Sheet } from '@/components/Sheet';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { deleteMyAccount, fetchMyProfile, signOutEverywhere } from '@/lib/account';
 import { signOut } from '@/lib/auth';
 import { fetchMyLimits } from '@/lib/chats';
@@ -70,8 +70,11 @@ export default function ProfileTab() {
     }
   };
 
+  const band = <ScreenHeader title="Profile" />;
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      {band}
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.me}>
           <Avatar
@@ -175,7 +178,7 @@ export default function ProfileTab() {
           </>
         )}
       </Sheet>
-    </SafeAreaView>
+    </View>
   );
 }
 

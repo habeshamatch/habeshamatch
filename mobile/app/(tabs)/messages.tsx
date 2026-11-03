@@ -11,13 +11,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Segmented } from '@/components/Segmented';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
-import { ScreenTitle } from '@/components/ScreenTitle';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { friendlyError } from '@/lib/errors';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -49,14 +48,9 @@ export default function Messages() {
   ];
   const rows = tab === 'conversations' ? started : sent;
 
-  const title = (
-    <View style={styles.title}>
-      <ScreenTitle title="Messages" />
-    </View>
-  );
+  const band = <ScreenHeader title="Messages" />;
   const header = (
-    <View>
-      {title}
+    <View style={styles.headerTop}>
       {newMatches.length > 0 && (
         <View style={styles.matches}>
           <Text style={[typography.caption, styles.sectionTitle]}>NEW MATCHES</Text>
@@ -96,26 +90,27 @@ export default function Messages() {
 
   if (inbox.isPending) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        {title}
+      <View style={styles.container}>
+        {band}
         <ActivityIndicator color={colors.accent} style={styles.loading} />
-      </SafeAreaView>
+      </View>
     );
   }
   if (inbox.isError && !inbox.data) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        {title}
+      <View style={styles.container}>
+        {band}
         <View style={styles.empty}>
           <Text style={[typography.body, styles.center]}>{friendlyError(inbox.error)}</Text>
           <Button label="Try again" variant="secondary" onPress={() => inbox.refetch()} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      {band}
       <FlatList
         data={rows}
         keyExtractor={(c) => c.conversationId}
@@ -155,7 +150,7 @@ export default function Messages() {
           )
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -207,9 +202,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  title: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
+  headerTop: {
+    paddingTop: spacing.md,
   },
   sectionTitle: {
     paddingHorizontal: spacing.lg,

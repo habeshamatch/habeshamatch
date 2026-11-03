@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { router, Tabs } from 'expo-router';
+import { router, Tabs, useIsFocused } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { AppState, Text, type ColorValue } from 'react-native';
 
@@ -86,15 +87,20 @@ export default function TabsLayout() {
     if (route) router.push(route as Parameters<typeof router.push>[0]);
   }, [tapped]);
 
+  // White status bar text over the blue header band, only while the tabs are on screen; every
+  // other screen has the off-white page at the top (dark text, set in app/_layout.tsx).
+  const focused = useIsFocused();
+
   return (
     <>
+      {focused && <StatusBar style="light" />}
       <Tabs
         screenOptions={{
           headerShown: false,
           sceneStyle: { backgroundColor: colors.background },
-          tabBarStyle: { backgroundColor: colors.bar, borderTopColor: colors.border },
-          tabBarActiveTintColor: colors.accent,
-          tabBarInactiveTintColor: colors.textMuted,
+          tabBarStyle: { backgroundColor: colors.brand, borderTopColor: colors.brand },
+          tabBarActiveTintColor: colors.brandGold,
+          tabBarInactiveTintColor: colors.onBrandMuted,
           tabBarLabelStyle: { fontFamily: fonts.bodyMedium },
         }}
       >
