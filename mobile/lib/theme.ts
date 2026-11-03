@@ -1,21 +1,24 @@
 // Design tokens. "Tibeb": warm and calm, inspired by the embroidered borders on a white habesha
 // kemis and netela (shared by Eritreans and Ethiopians; never flag colours). Mostly sand and
-// white, tibeb teal to guide, berbere coral only for love moments (hearts, likes, matches).
+// white with strong dark text, burnt meskel orange to guide, raspberry only for love moments
+// (hearts, likes, matches). Cards have crisp edges (border).
 // Every colour, font and spacing value used in the app comes from here. Never inline colours.
-// Contrast: text, textMuted, accent and rose pass WCAG AA (4.5:1) on background, white passes on
-// accent and rose. `love` is for icons, hearts and large text only (3:1).
+// Contrast: text, textMuted and rose pass WCAG AA (4.5:1) on background; white passes on accent and
+// rose. accent as text on sand is 4:1 (fine for buttons and bold links, not for long small text).
+// `love` is for icons, hearts and large text only.
 
 export const colors = {
   background: '#F5EEE4', // warm sand, like linen
   surface: '#FFFFFF', // cards, sheets, the tab bar
   surfaceRaised: '#EAE0D3', // deeper sand: inputs, chips, placeholders, borders
-  accent: '#0F766E', // tibeb teal: main buttons, selected states, links
-  accentSoft: '#D7EEEA', // light teal tint
-  love: '#E0533D', // berbere coral: hearts, likes, matches (icons and large text only)
+  accent: '#C2540E', // burnt meskel orange: main buttons, selected states, links
+  accentSoft: '#F8E1D2', // light orange tint
+  love: '#D63A63', // raspberry: hearts, likes, matches (icons and large text only)
   highlight: '#F5B700', // meskel yellow: Premium highlights only, always with dark text
   rose: '#B42318', // deep red: errors, delete, unread badges
-  text: '#1F1A17', // warm near-black
-  textMuted: '#6B625B',
+  text: '#15110E', // deep warm black: strong contrast
+  textMuted: '#5E554F',
+  border: '#E2D5C3', // crisp edges on cards and panels
   onAccent: '#FFFFFF', // text and icons on accent and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
   verified: '#2563EB', // blue tick

@@ -154,24 +154,25 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-"Tibeb": warm and calm, inspired by the embroidered borders on a white habesha kemis and netela, shared by Eritreans and Ethiopians. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Mostly sand and white; tibeb teal guides (buttons, selected states, links); berbere coral appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. List icons stay muted, and tags on photos are quiet see-through pills. Light mode only for now (`userInterfaceStyle: light`); the admin panel keeps its own dark style.
+"Tibeb": warm and calm, inspired by the embroidered borders on a white habesha kemis and netela, shared by Eritreans and Ethiopians. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Mostly sand and white with strong dark text and crisp card edges; burnt meskel orange guides (buttons, selected states, links); raspberry appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. List icons stay muted, and tags on photos are quiet see-through pills. Light mode only for now (`userInterfaceStyle: light`); the admin panel keeps its own dark style.
 
 | Token | Value | Use |
 |---|---|---|
 | background | `#F5EEE4` | warm sand, like linen |
 | surface | `#FFFFFF` | cards, sheets, tab bar |
 | surfaceRaised | `#EAE0D3` | deeper sand: inputs, chips, placeholders, borders |
-| accent | `#0F766E` | tibeb teal: main buttons, selected states, links |
-| accentSoft | `#D7EEEA` | light teal tint |
-| love | `#E0533D` | berbere coral: hearts, likes, matches (icons and large text only) |
+| accent | `#C2540E` | burnt meskel orange: main buttons, selected states, links |
+| accentSoft | `#F8E1D2` | light orange tint |
+| love | `#D63A63` | raspberry: hearts, likes, matches (icons and large text only) |
 | highlight | `#F5B700` | meskel yellow: Premium highlights only, always with dark text |
 | rose | `#B42318` | deep red: errors, delete, unread badges |
-| text / textMuted | `#1F1A17` / `#6B625B` | |
+| text / textMuted | `#15110E` / `#5E554F` | deep warm black for strong contrast |
+| border | `#E2D5C3` | crisp hairline edges on cards and panels |
 | onAccent | `#FFFFFF` | text and icons on accent and rose fills |
 | onPhoto | `#FFFFFF` | text and icons over photos (on the overlay scrim) |
 | verified (blue tick) | `#2563EB` | |
 
-Text colours and accent/rose pass WCAG AA (4.5:1) on the background, and white passes on those fills. Never put text in `background` or `text` colour on a coloured fill; use `onAccent` (or `onPhoto` over photos). Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
+Text colours and rose pass WCAG AA (4.5:1) on the background; accent as text is 4:1 (buttons and bold links only); white passes on accent and rose fills. Never put text in `background` or `text` colour on a coloured fill; use `onAccent` (or `onPhoto` over photos). Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
 
 ## Conventions
 
