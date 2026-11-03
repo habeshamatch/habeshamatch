@@ -4,6 +4,7 @@ import { isKnownInterest } from '@/lib/interests';
 import { isKnownLanguage } from '@/lib/languages';
 import { supabase } from '@/lib/supabase';
 import type { Tables } from '@/types/database';
+import { unregisterPush } from '@/lib/notifications';
 
 // The signed-in user's own profile, for Edit profile and the Profile tab.
 
@@ -86,6 +87,7 @@ export function residenceLockedUntil(changedAt: string, cooldownDays: number, no
 
 // Signs out on every device (revokes all sessions), not just this phone.
 export async function signOutEverywhere(): Promise<void> {
+  await unregisterPush();
   const { error } = await supabase.auth.signOut({ scope: 'global' });
   if (error) throw error;
 }

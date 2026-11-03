@@ -384,10 +384,14 @@ export type Database = {
           languages: string[]
           last_active_at: string
           marital_status: Database["public"]["Enums"]["marital_status_t"] | null
+          notify_matches: boolean
+          notify_messages: boolean
+          notify_picks: boolean
           occupation: string | null
           open_to_long_distance: boolean
           open_to_relocating: boolean
           origin: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on: string | null
           premium_expires_at: string | null
           relationship_intent: Database["public"]["Enums"]["intent_t"]
           religion: Database["public"]["Enums"]["religion_t"]
@@ -422,10 +426,14 @@ export type Database = {
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
           origin: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on?: string | null
           premium_expires_at?: string | null
           relationship_intent: Database["public"]["Enums"]["intent_t"]
           religion: Database["public"]["Enums"]["religion_t"]
@@ -462,10 +470,14 @@ export type Database = {
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
           origin?: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on?: string | null
           premium_expires_at?: string | null
           relationship_intent?: Database["public"]["Enums"]["intent_t"]
           religion?: Database["public"]["Enums"]["religion_t"]
@@ -482,19 +494,25 @@ export type Database = {
         Row: {
           created_at: string
           platform: string
+          time_zone: string | null
           token: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           platform: string
+          time_zone?: string | null
           token: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           platform?: string
+          time_zone?: string | null
           token?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -829,6 +847,17 @@ export type Database = {
         Returns: boolean
       }
       member_since: { Args: { p_user: string }; Returns: string }
+      notify_daily_picks: { Args: never; Returns: number }
+      notify_member: {
+        Args: {
+          p_body: string
+          p_data: Json
+          p_kind: string
+          p_title: string
+          p_user: string
+        }
+        Returns: boolean
+      }
       photo_thumb_path: { Args: { p_storage_path: string }; Returns: string }
       pref_item_met: {
         Args: {
@@ -845,6 +874,10 @@ export type Database = {
           p_target: string
         }
         Returns: Json
+      }
+      register_push_token: {
+        Args: { p_platform: string; p_time_zone?: string; p_token: string }
+        Returns: undefined
       }
       reorder_my_photos: { Args: { p_photo_ids: string[] }; Returns: undefined }
       require_active_user: { Args: never; Returns: string }
@@ -877,6 +910,7 @@ export type Database = {
         Returns: undefined
       }
       undo_last_swipe: { Args: never; Returns: string }
+      unregister_push_token: { Args: { p_token: string }; Returns: undefined }
       user_tier: {
         Args: { p_user: string }
         Returns: Database["public"]["Enums"]["tier_t"]

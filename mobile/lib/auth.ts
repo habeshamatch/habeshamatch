@@ -1,6 +1,7 @@
 import type { User } from '@supabase/supabase-js';
 
 import { supabase } from '@/lib/supabase';
+import { unregisterPush } from '@/lib/notifications';
 
 // Matches Supabase Auth's default minimum time between codes to the same email or number.
 export const RESEND_SECONDS = 60;
@@ -20,6 +21,7 @@ export async function verifyEmailCode(email: string, token: string): Promise<voi
 }
 
 export async function signOut(): Promise<void> {
+  await unregisterPush(); // while still signed in: this phone stops getting their notifications
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }

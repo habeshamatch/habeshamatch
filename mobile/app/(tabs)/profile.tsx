@@ -109,7 +109,7 @@ export default function ProfileTab() {
 
         <Section title="Safety and privacy">
           <Row icon="hand-left-outline" label="Blocked people" onPress={() => router.push('/blocked')} />
-          <Row icon="notifications-outline" label="Notifications" detail="Coming soon" />
+          <Row icon="notifications-outline" label="Notifications" onPress={() => router.push('/notifications')} />
           <Row icon="shield-checkmark-outline" label="Privacy policy" onPress={() => Linking.openURL(LINKS.privacy)} />
           <Row icon="document-text-outline" label="Terms of service" onPress={() => Linking.openURL(LINKS.terms)} />
           <Row icon="mail-outline" label="Contact support" onPress={() => Linking.openURL(LINKS.support)} />

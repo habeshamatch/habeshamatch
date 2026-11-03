@@ -247,3 +247,9 @@ where s1.direction = 'like' and s2.direction = 'like' and s1.swiper_id < s1.targ
 on conflict (user_a, user_b) do nothing;
 
 drop table seed_people;
+
+-- Push notifications, local only: where the database sends notifications (the send-push function
+-- as seen from inside Docker) and the password it uses (matches supabase/functions/.env.example).
+-- Run `supabase functions serve --env-file supabase/functions/.env` to actually deliver them.
+select vault.create_secret('http://host.docker.internal:54321/functions/v1/send-push', 'push_function_url');
+select vault.create_secret('local-push-secret', 'push_function_secret');
