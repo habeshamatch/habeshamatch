@@ -446,6 +446,11 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
 # Edge Functions
+[functions.revenuecat-webhook]
+# Called by RevenueCat, which has no Supabase login: the function checks its own Authorization
+# header instead (REVENUECAT_WEBHOOK_AUTH). Deploy with --no-verify-jwt.
+verify_jwt = false
+
 [functions.delete-account]
 # Signed-in users only: the platform verifies the caller's JWT before the function runs.
 verify_jwt = true

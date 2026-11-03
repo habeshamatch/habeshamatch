@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
+import { setPurchasesUser } from '@/lib/revenuecat';
 import { supabase } from '@/lib/supabase';
 
 // 'loading' until we know; 'error' if the check failed (e.g. offline) and should be retried.
@@ -89,6 +90,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [profileState, setProfileState] = useState<ProfileState>(LOADING);
   const userId = session?.user.id;
+
+  // RevenueCat follows the signed-in member (by Supabase user id), so the webhook can find them.
+  useEffect(() => {
+    setPurchasesUser(userId ?? null);
+  }, [userId]);
 
   useEffect(() => {
     // Fires once with the stored session (INITIAL_SESSION), then on every sign in, refresh and sign out.

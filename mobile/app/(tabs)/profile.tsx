@@ -11,9 +11,11 @@ import { TextField } from '@/components/FormControls';
 import { Sheet } from '@/components/Sheet';
 import { deleteMyAccount, fetchMyProfile, signOutEverywhere } from '@/lib/account';
 import { signOut } from '@/lib/auth';
+import { fetchMyLimits } from '@/lib/chats';
 import { friendlyError } from '@/lib/errors';
 import { LINKS } from '@/lib/links';
 import { fetchMyPhotos } from '@/lib/photos';
+import { manageSubscription, purchasesAvailable } from '@/lib/revenuecat';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
@@ -27,6 +29,10 @@ export default function ProfileTab() {
   const myId = session?.user.id ?? '';
   const me = useQuery({ queryKey: ['my-profile', myId], queryFn: () => fetchMyProfile(myId), enabled: !!myId });
   const photos = useQuery({ queryKey: ['my-photos', myId], queryFn: () => fetchMyPhotos(myId), enabled: !!myId });
+  // Premium row: free members can upgrade, Premium members manage it in Apple's settings. Local
+  // members only see the paywall when they tap a Premium feature (CLAUDE.md), so no row for them.
+  const limits = useQuery({ queryKey: ['my-limits'], queryFn: fetchMyLimits });
+  const tier = limits.data?.tier;
 
   const [busy, setBusy] = useState<'logout' | 'everywhere' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +91,21 @@ export default function ProfileTab() {
           <Row icon="images-outline" label="Edit photos" onPress={() => router.push('/photos')} />
           <Row icon="options-outline" label="Edit preferences" onPress={() => router.push('/preferences')} />
         </Section>
+
+        {(tier === 'free' || tier === 'premium') && (
+          <Section title="Premium">
+            {tier === 'premium' ? (
+              <Row
+                icon="sparkles-outline"
+                label="Premium"
+                detail="Active"
+                onPress={() => (purchasesAvailable ? manageSubscription().catch(() => {}) : router.push('/paywall'))}
+              />
+            ) : (
+              <Row icon="sparkles-outline" label="Get Premium" onPress={() => router.push('/paywall')} />
+            )}
+          </Section>
+        )}
 
         <Section title="Safety and privacy">
           <Row icon="hand-left-outline" label="Blocked people" onPress={() => router.push('/blocked')} />
