@@ -201,7 +201,7 @@ export default function Swipe() {
           <RoundButton
             small
             icon="arrow-undo"
-            color={colors.accentSoft}
+            color={colors.secondary}
             label={isPremium ? 'Undo last swipe' : 'Undo last swipe (Premium)'}
             onPress={onUndo}
             disabled={isPremium && (!lastSwiped || undoing)}

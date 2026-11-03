@@ -44,7 +44,7 @@ export function CountryFilterButton({
         accessibilityLabel={on ? `Filter, ${selected.length} countries chosen` : 'Filter by country'}
         hitSlop={8}
       >
-        <Ionicons name="options-outline" size={18} color={on ? colors.background : colors.accent} />
+        <Ionicons name="options-outline" size={18} color={on ? colors.onAccent : colors.accent} />
         <Text style={[typography.caption, styles.text, on && styles.textOn]}>
           {on ? `Filter · ${selected.length}` : 'Filter'}
         </Text>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     color: colors.accent,
   },
   textOn: {
-    color: colors.background,
+    color: colors.onAccent,
   },
   summary: {
     flexDirection: 'row',

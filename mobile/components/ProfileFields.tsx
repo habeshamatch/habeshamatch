@@ -375,7 +375,7 @@ export function Bio({ draft, update }: StepProps) {
         style={styles.bio}
         accessibilityLabel="Bio"
       />
-      <Text style={[typography.caption, styles.counter, remaining < 50 && { color: colors.accentSoft }]}>
+      <Text style={[typography.caption, styles.counter, remaining < 50 && { color: colors.accent }]}>
         {draft.bio.length} / {BIO_MAX}
       </Text>
     </View>

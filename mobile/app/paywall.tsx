@@ -283,12 +283,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.highlight, // meskel yellow: Premium highlight
   },
   badgeText: {
     ...typography.caption,
     fontSize: 11,
-    color: colors.background,
+    color: colors.text,
     fontFamily: typography.button.fontFamily,
   },
   note: {

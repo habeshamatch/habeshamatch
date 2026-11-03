@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   textOn: {
-    color: colors.background,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
   },
   pressed: {

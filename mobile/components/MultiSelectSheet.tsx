@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   checkMark: {
-    color: colors.background,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
     fontSize: 14,
   },

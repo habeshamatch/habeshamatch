@@ -194,7 +194,9 @@ export default function PhotosScreen() {
               )}
               {photo.status !== 'approved' && (
                 <View style={[styles.badge, styles.badgeStatus, photo.status === 'rejected' && styles.badgeRejected]}>
-                  <Text style={styles.badgeText}>{photo.status === 'pending' ? 'Pending review' : 'Not approved'}</Text>
+                  <Text style={[styles.badgeText, photo.status === 'rejected' && styles.badgeRejectedText]}>
+                    {photo.status === 'pending' ? 'Pending review' : 'Not approved'}
+                  </Text>
                 </View>
               )}
             </Pressable>
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
   },
   badgeMainText: {
     ...typography.caption,
-    color: colors.background,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
   },
   badgeStatus: {
@@ -333,6 +335,9 @@ const styles = StyleSheet.create({
   },
   badgeRejected: {
     backgroundColor: colors.rose,
+  },
+  badgeRejectedText: {
+    color: colors.onAccent,
   },
   badgeText: {
     ...typography.caption,

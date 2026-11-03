@@ -154,21 +154,24 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-Inspired by the Habesha coffee ceremony: warm, cultural, premium, not clinical.
+"Tibeb": light and vibrant, inspired by the embroidered borders on a white habesha kemis and netela, shared by Eritreans and Ethiopians. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Light mode only for now (`userInterfaceStyle: light`); the admin panel keeps its own dark style.
 
-| Token | Value |
-|---|---|
-| background | `#1C1917` deep stone |
-| surface | `#292524` |
-| surfaceRaised | `#3A3330` |
-| accent (amber/gold) | `#D4A24C` |
-| accentSoft | `#E8C77E` |
-| rose | `#C97B84` |
-| text | `#FAF7F2` |
-| textMuted | `#A8A29E` |
-| verified (blue tick) | `#3B82F6` |
+| Token | Value | Use |
+|---|---|---|
+| background | `#FFFCF7` | warm white, like woven cotton |
+| surface | `#FFFFFF` | cards, sheets, tab bar |
+| surfaceRaised | `#F3ECE2` | warm sand: inputs, chips, placeholders, borders |
+| accent | `#CF3F2E` | berbere coral-red: main buttons, likes, badges, links |
+| accentSoft | `#FBE3DD` | light coral tint |
+| secondary | `#0F766E` | tibeb teal: selected states |
+| highlight | `#F5B700` | meskel yellow: Premium highlights only, always with dark text |
+| rose | `#B42318` | deep red: errors, delete, unread badges |
+| text / textMuted | `#1F1A17` / `#6B625B` | |
+| onAccent | `#FFFFFF` | text and icons on accent, secondary and rose fills |
+| onPhoto | `#FFFFFF` | text and icons over photos (on the overlay scrim) |
+| verified (blue tick) | `#2563EB` | |
 
-Headings: a warm serif (Playfair Display or DM Serif Display via @expo-google-fonts). Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
+Text colours and accent/secondary/rose pass WCAG AA (4.5:1) on the background, and white passes on those fills. Never put text in `background` or `text` colour on a coloured fill; use `onAccent` (or `onPhoto` over photos). Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
 
 ## Conventions
 

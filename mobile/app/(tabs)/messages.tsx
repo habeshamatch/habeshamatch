@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     ...typography.caption,
-    color: colors.background,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
   },
 });

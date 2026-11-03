@@ -110,14 +110,14 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard(
           accessibilityLabel={`${card.name}, ${card.age ?? ''}${place ? `, ${place}` : ''}. View full profile`}
         >
           <View style={styles.nameRow}>
-            <Text style={[typography.title, styles.name]} numberOfLines={1}>
+            <Text style={[typography.title, styles.name, styles.onPhoto]} numberOfLines={1}>
               {card.name}
               {card.age !== null ? `, ${card.age}` : ''}
             </Text>
             {card.verified && <VerifiedBadge size={22} />}
           </View>
-          {place && <Text style={typography.body}>{place}</Text>}
-          <Text style={[typography.caption, styles.more]}>Tap for full profile</Text>
+          {place && <Text style={[typography.body, styles.onPhoto]}>{place}</Text>}
+          <Text style={[typography.caption, styles.more, styles.onPhoto]}>Tap for full profile</Text>
         </Pressable>
       </Animated.View>
     </GestureDetector>
@@ -170,6 +170,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  onPhoto: {
+    color: colors.onPhoto, // white over the dark scrim, whatever the theme
   },
   name: {
     flexShrink: 1,

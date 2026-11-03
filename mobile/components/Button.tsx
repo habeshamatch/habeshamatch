@@ -12,7 +12,7 @@ type Props = Omit<PressableProps, 'children' | 'style'> & {
 
 export function Button({ label, variant = 'primary', loading = false, disabled, ...rest }: Props) {
   const isDisabled = disabled || loading;
-  const textColor = variant === 'primary' ? colors.background : variant === 'text' ? colors.accent : colors.text;
+  const textColor = variant === 'primary' ? colors.onAccent : variant === 'text' ? colors.accent : colors.text;
   return (
     <Pressable
       accessibilityRole="button"

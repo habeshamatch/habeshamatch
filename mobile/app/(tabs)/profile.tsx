@@ -167,7 +167,7 @@ export default function ProfileTab() {
               accessibilityRole="button"
               accessibilityLabel="Delete my account permanently"
             >
-              <Text style={[typography.button, { color: colors.text }]}>
+              <Text style={[typography.button, { color: colors.onAccent }]}>
                 {deleting ? 'Deleting...' : 'Delete my account'}
               </Text>
             </Pressable>

@@ -49,7 +49,7 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
             accessibilityLabel={`Not for me: remove ${card.name} from Suggested`}
             hitSlop={10}
           >
-            <Ionicons name="close" size={16} color={colors.text} />
+            <Ionicons name="close" size={16} color={colors.onPhoto} />
           </Pressable>
         )}
       </View>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   matchText: {
     ...typography.caption,
-    color: colors.background,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
   },
   info: {

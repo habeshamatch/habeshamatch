@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: spacing.xs,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   option: {
     flex: 1,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   selected: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
   },
   content: {
     flexDirection: 'row',
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
     ...typography.caption,
     fontSize: 12,
     lineHeight: 16,
-    color: colors.text,
+    color: colors.onAccent,
     fontFamily: typography.button.fontFamily,
   },
   labelSelected: {
-    color: colors.accent,
+    color: colors.secondary, // tibeb teal: selected state
   },
 });
