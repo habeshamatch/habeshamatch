@@ -1,32 +1,33 @@
-// Design tokens. "Kaba": dusk slate-blue with gold, and a tibeb diamond ornament (from the
-// embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians; never flag colours).
-// Gold guides (buttons, selected states, titles, icons); raspberry only for love moments
-// (hearts, likes, matches). Every colour, font and spacing value used in the app comes from here.
-// Never inline colours.
-// Contrast on the background: text, textMuted, accent, love, rose and verified all pass WCAG AA
-// (4.5:1); onAccent (navy) passes on accent, highlight and rose fills. textFaint is for
-// placeholders and disabled items only, never for reading text.
+// Design tokens. "Kaba": light and friendly, a light blue-grey page with white cards and a muted
+// denim blue (our own shade, in the spirit of early social networks), gold for the brand label,
+// Premium highlights and the tibeb diamond ornament (after the embroidered borders on a habesha
+// kemis, shared by Eritreans and Ethiopians; never flag colours). Raspberry only for love moments.
+// Every colour, font and spacing value used in the app comes from here. Never inline colours.
+// Contrast on the background: text, textMuted, accent, goldText and rose pass WCAG AA (4.5:1 on
+// white cards; 3.9+ on the page); white (onAccent) passes on accent, love and rose fills.
+// textFaint is for placeholders and disabled items only.
 
 export const colors = {
-  background: '#1B2336', // dusk slate-blue
-  bar: '#202A3F', // header and tab bar
-  surface: '#26304A', // cards, sheets
-  surfaceRaised: '#303B56', // inputs, chips, selected tabs, placeholders
-  action: '#3D4864', // secondary buttons
-  accent: '#DFB15B', // gold: main buttons, selected states, titles, links, icons
-  accentSoft: '#FFE89E', // soft gold
-  highlight: '#FFD700', // radiant gold: Premium highlights
-  love: '#F06A8A', // raspberry: hearts, likes, matches
-  rose: '#F87171', // errors, delete, unread badges
-  text: '#F8F9FD',
-  textMuted: '#A9B2C6',
-  textFaint: '#5F6B84', // placeholders and disabled only
-  border: '#35415C', // edges on cards and panels
-  borderGold: '#8C6D32', // gold edges (outlined buttons, ornaments)
-  onAccent: '#1B2336', // text and icons on accent, highlight and rose fills
+  background: '#E9EEF6', // light blue-grey page
+  bar: '#FFFFFF', // tab bar
+  surface: '#FFFFFF', // cards, sheets
+  surfaceRaised: '#DCE3EF', // inputs, chips, segment track, placeholders
+  action: '#D3DBE8', // secondary buttons (dark text)
+  accent: '#3D5A98', // denim blue: main buttons, selected states, titles, links, icons
+  accentSoft: '#DCE4F3', // light blue tint
+  goldText: '#9A6F1E', // gold for small text on light (the KABA label)
+  highlight: '#F5B700', // bright gold: Premium highlights, always with dark text
+  love: '#D1395F', // raspberry: hearts, likes, matches
+  rose: '#C0262D', // errors, delete, unread badges
+  text: '#1C2433', // dark navy
+  textMuted: '#5A6478',
+  textFaint: '#8A93A6', // placeholders and disabled only
+  border: '#D3DBE8', // edges on cards and panels
+  borderGold: '#C9A04F', // gold ornaments (tibeb divider)
+  onAccent: '#FFFFFF', // text and icons on accent, love and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
-  verified: '#60A5FA', // blue tick
-  overlay: 'rgba(3, 6, 14, 0.62)', // dims the screen behind sheets; scrim behind text on photos
+  verified: '#1D6FE0', // blue tick
+  overlay: 'rgba(15, 22, 38, 0.55)', // dims the screen behind sheets; scrim behind text on photos
 } as const;
 
 // Font family names, as registered by useFonts in app/_layout.tsx.
@@ -63,7 +64,7 @@ export const typography = {
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted },
   button: { fontFamily: fonts.bodySemiBold, fontSize: 16, lineHeight: 20 },
   // Small gold capitals above a screen title (the app name).
-  eyebrow: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 2, color: colors.accent },
+  eyebrow: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 2, color: colors.goldText },
 } as const;
 
 export const theme = { colors, fonts, spacing, radius, typography } as const;

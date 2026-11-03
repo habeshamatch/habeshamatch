@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs + 2,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.borderGold,
+    borderColor: colors.accent,
   },
   buttonOn: {
     backgroundColor: colors.accent,

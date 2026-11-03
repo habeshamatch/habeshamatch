@@ -154,28 +154,27 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-"Kaba": dusk slate-blue with gold, and a tibeb diamond ornament (`components/TibebDivider.tsx`, after the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians). Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Gold guides (buttons, selected states, titles, list icons); raspberry appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. Main tab screens show the app name in small gold capitals above the title (`components/ScreenTitle.tsx`; the name lives only in `mobile/lib/brand.ts`). Dark mode only (`userInterfaceStyle: dark`).
+"Kaba": light and friendly. A light blue-grey page, white cards and a muted denim blue (our own shade; never copy another dating or social brand's exact colours), with gold for the brand label, Premium highlights and the tibeb diamond ornament (`components/TibebDivider.tsx`, after the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians). Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Raspberry appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. Main tab screens show the app name in small gold capitals above the title (`components/ScreenTitle.tsx`; the name lives only in `mobile/lib/brand.ts`). Light mode only (`userInterfaceStyle: light`).
 
 | Token | Value | Use |
 |---|---|---|
-| background | `#1B2336` | dusk slate-blue |
-| bar | `#202A3F` | header and tab bar |
-| surface | `#26304A` | cards, sheets |
-| surfaceRaised | `#303B56` | inputs, chips, selected tabs, placeholders |
-| action | `#3D4864` | secondary buttons |
-| accent | `#DFB15B` | gold: main buttons, selected states, titles, links, icons |
-| accentSoft | `#FFE89E` | soft gold |
-| highlight | `#FFD700` | radiant gold: Premium highlights |
-| love | `#F06A8A` | raspberry: hearts, likes, matches |
-| rose | `#F87171` | errors, delete, unread badges |
-| text / textMuted | `#F8F9FD` / `#A9B2C6` | |
-| textFaint | `#5F6B84` | placeholders and disabled only, never reading text |
-| border / borderGold | `#35415C` / `#8C6D32` | card edges / gold edges and ornaments |
-| onAccent | `#1B2336` | text and icons on gold, highlight and rose fills |
-| onPhoto | `#FFFFFF` | text and icons over photos (on the overlay scrim) |
-| verified (blue tick) | `#60A5FA` | |
+| background | `#E9EEF6` | light blue-grey page |
+| bar / surface | `#FFFFFF` | tab bar / cards, sheets |
+| surfaceRaised | `#DCE3EF` | inputs, chips, segment track, placeholders |
+| action | `#D3DBE8` | secondary buttons (dark text) |
+| accent | `#3D5A98` | denim blue: main buttons, selected states, titles, links, icons |
+| accentSoft | `#DCE4F3` | light blue tint |
+| goldText | `#9A6F1E` | gold for small text on light (the KABA label) |
+| highlight | `#F5B700` | bright gold: Premium highlights, always with dark text |
+| love | `#D1395F` | raspberry: hearts, likes, matches |
+| rose | `#C0262D` | errors, delete, unread badges |
+| text / textMuted | `#1C2433` / `#5A6478` | |
+| textFaint | `#8A93A6` | placeholders and disabled only |
+| border / borderGold | `#D3DBE8` / `#C9A04F` | card edges / gold ornaments |
+| onAccent / onPhoto | `#FFFFFF` | text on accent, love and rose fills / over photos |
+| verified (blue tick) | `#1D6FE0` | |
 
-All text colours and accent, love, rose and verified pass WCAG AA (4.5:1) on the background; navy passes on the gold and rose fills. Never put text in `background` or `text` colour on a coloured fill; use `onAccent` (or `onPhoto` over photos). Headings: Playfair Display, in gold. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
+Text colours, accent, goldText and rose pass WCAG AA (4.5:1) on white cards and about 4:1 or better on the page; white passes on the accent, love and rose fills. Never put text in `background` or `text` colour on a coloured fill; use `onAccent` (or `onPhoto` over photos). Headings: Playfair Display, in denim blue. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours. Earlier themes (dark navy and gold, sand and teal) are in git history on the colours branch if we want to go back.
 
 ## Conventions
 

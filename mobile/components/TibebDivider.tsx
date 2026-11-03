@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs + 2,
   },
   diamond: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.borderGold,
     transform: [{ rotate: '45deg' }],
   },
 });

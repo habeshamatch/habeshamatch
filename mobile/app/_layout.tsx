@@ -64,7 +64,7 @@ function RootNavigator() {
   if (needsProfileStatus && profileStatus === 'error') {
     return (
       <View style={styles.error}>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <Text style={[typography.body, styles.errorText]}>
           {"We couldn't load your account. Check your connection and try again."}
         </Text>
@@ -79,7 +79,7 @@ function RootNavigator() {
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerShown: false,
