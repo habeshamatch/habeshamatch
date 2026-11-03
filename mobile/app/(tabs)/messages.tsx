@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: radius.pill,
     borderWidth: 2,
-    borderColor: colors.accent,
+    borderColor: colors.love, // new matches: a love moment
   },
   matchName: {
     color: colors.text,

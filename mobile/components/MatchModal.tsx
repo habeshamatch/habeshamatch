@@ -22,11 +22,11 @@ export function MatchModal({ match, onClose }: { match: Match | null; onClose: (
       <View style={styles.backdrop}>
         {match && (
           <View style={styles.box}>
-            <Text style={[typography.display, styles.center, { color: colors.accent }]}>{"It's a match!"}</Text>
+            <Text style={[typography.display, styles.center, { color: colors.love }]}>{"It's a match!"}</Text>
             <Text style={[typography.body, styles.center]}>{`You and ${match.name} liked each other.`}</Text>
             <View style={styles.pair}>
               <Avatar url={myPhotos.data?.[0]?.url ?? null} name="You" size={96} />
-              <Ionicons name="heart" size={32} color={colors.rose} />
+              <Ionicons name="heart" size={32} color={colors.love} />
               <Avatar url={match.photoUrl} name={match.name} size={96} />
             </View>
             <Text style={[typography.caption, styles.center]}>This chat does not use one of your daily new chats.</Text>

@@ -97,7 +97,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard(
         )}
 
         <Animated.View style={[styles.stamp, styles.likeStamp, likeStyle]} pointerEvents="none">
-          <Text style={[styles.stampText, { color: colors.accent }]}>LIKE</Text>
+          <Text style={[styles.stampText, { color: colors.love }]}>LIKE</Text>
         </Animated.View>
         <Animated.View style={[styles.stamp, styles.nopeStamp, nopeStyle]} pointerEvents="none">
           <Text style={[styles.stampText, { color: colors.rose }]}>NOPE</Text>
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   likeStamp: {
     left: spacing.lg,
-    borderColor: colors.accent,
+    borderColor: colors.love,
     transform: [{ rotate: '-12deg' }],
   },
   nopeStamp: {

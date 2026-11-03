@@ -210,7 +210,7 @@ function Row({
       accessibilityRole="button"
       accessibilityLabel={detail ? `${label}, ${detail}` : label}
     >
-      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.accent} />
+      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.textMuted} />
       <Text style={[typography.body, styles.flex, { color }]}>{label}</Text>
       {detail ? (
         <Text style={typography.caption}>{detail}</Text>

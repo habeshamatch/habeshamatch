@@ -1,21 +1,22 @@
-// Design tokens. "Tibeb": light and vibrant, inspired by the embroidered borders on a white
-// habesha kemis and netela (shared by Eritreans and Ethiopians; never flag colours). Every colour,
-// font and spacing value used in the app comes from here. Never inline colours in components.
-// Contrast: text, textMuted, accent, secondary and rose all pass WCAG AA (4.5:1) on background,
-// and white (onAccent) passes on accent, secondary and rose.
+// Design tokens. "Tibeb": warm and calm, inspired by the embroidered borders on a white habesha
+// kemis and netela (shared by Eritreans and Ethiopians; never flag colours). Mostly sand and
+// white, tibeb teal to guide, berbere coral only for love moments (hearts, likes, matches).
+// Every colour, font and spacing value used in the app comes from here. Never inline colours.
+// Contrast: text, textMuted, accent and rose pass WCAG AA (4.5:1) on background, white passes on
+// accent and rose. `love` is for icons, hearts and large text only (3:1).
 
 export const colors = {
-  background: '#FFFCF7', // warm white, like woven cotton
+  background: '#F5EEE4', // warm sand, like linen
   surface: '#FFFFFF', // cards, sheets, the tab bar
-  surfaceRaised: '#F3ECE2', // warm sand: inputs, chips, placeholders, borders
-  accent: '#CF3F2E', // berbere coral-red: main buttons, likes, badges, links
-  accentSoft: '#FBE3DD', // light coral tint
-  secondary: '#0F766E', // tibeb teal: selected states
+  surfaceRaised: '#EAE0D3', // deeper sand: inputs, chips, placeholders, borders
+  accent: '#0F766E', // tibeb teal: main buttons, selected states, links
+  accentSoft: '#D7EEEA', // light teal tint
+  love: '#E0533D', // berbere coral: hearts, likes, matches (icons and large text only)
   highlight: '#F5B700', // meskel yellow: Premium highlights only, always with dark text
   rose: '#B42318', // deep red: errors, delete, unread badges
   text: '#1F1A17', // warm near-black
   textMuted: '#6B625B',
-  onAccent: '#FFFFFF', // text and icons on accent, secondary and rose fills
+  onAccent: '#FFFFFF', // text and icons on accent and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
   verified: '#2563EB', // blue tick
   overlay: 'rgba(20, 14, 10, 0.55)', // dims the screen behind sheets; scrim behind text on photos

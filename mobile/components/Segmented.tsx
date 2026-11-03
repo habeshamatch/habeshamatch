@@ -84,6 +84,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.button.fontFamily,
   },
   labelSelected: {
-    color: colors.secondary, // tibeb teal: selected state
+    color: colors.accent, // tibeb teal: selected state
   },
 });

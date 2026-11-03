@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.overlay, // a quiet see-through pill on the photo
   },
   dismiss: {
     position: 'absolute',
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   matchText: {
     ...typography.caption,
-    color: colors.onAccent,
+    color: colors.onPhoto,
     fontFamily: typography.button.fontFamily,
   },
   info: {

@@ -121,7 +121,7 @@ export default function TabsLayout() {
             title: 'Messages',
             tabBarIcon: (p) => <TabIcon name="chatbubbles-outline" {...p} />,
             tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.onAccent },
+            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onAccent },
           }}
         />
         <Tabs.Screen

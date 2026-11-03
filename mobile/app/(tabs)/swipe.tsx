@@ -201,13 +201,13 @@ export default function Swipe() {
           <RoundButton
             small
             icon="arrow-undo"
-            color={colors.secondary}
+            color={colors.textMuted}
             label={isPremium ? 'Undo last swipe' : 'Undo last swipe (Premium)'}
             onPress={onUndo}
             disabled={isPremium && (!lastSwiped || undoing)}
           />
           <RoundButton icon="close" color={colors.rose} label="Pass" onPress={() => topCard.current?.swipe('pass')} />
-          <RoundButton icon="heart" color={colors.accent} label="Like" onPress={() => topCard.current?.swipe('like')} />
+          <RoundButton icon="heart" color={colors.love} label="Like" onPress={() => topCard.current?.swipe('like')} />
           <View style={styles.balance} />
         </View>
       </>
