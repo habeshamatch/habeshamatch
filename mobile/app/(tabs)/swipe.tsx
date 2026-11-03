@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { MatchModal, type Match } from '@/components/MatchModal';
 import { RoundButton } from '@/components/RoundButton';
 import { SwipeCard, type SwipeCardHandle, type SwipeDirection } from '@/components/SwipeCard';
+import { ScreenTitle } from '@/components/ScreenTitle';
 import { fetchMyLimits, nextLimitReset } from '@/lib/chats';
 import { errorCode, friendlyError } from '@/lib/errors';
 import { undoLastSwipe } from '@/lib/premium';
@@ -217,7 +218,7 @@ export default function Swipe() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={typography.title}>Swipe</Text>
+        <ScreenTitle title="Swipe" />
         {limits.data && !outOfSwipes && (
           <Text style={typography.caption}>{`${Math.max(allowed - used, 0)} swipes left today`}</Text>
         )}
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,

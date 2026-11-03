@@ -63,7 +63,7 @@ export function MultiSelectSheet({
           value={query}
           onChangeText={setQuery}
           placeholder={searchPlaceholder}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.textFaint}
           style={styles.search}
           autoCorrect={false}
           autoCapitalize="none"

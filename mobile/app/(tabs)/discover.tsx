@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { ProfileTile } from '@/components/ProfileTile';
 import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
+import { ScreenTitle } from '@/components/ScreenTitle';
+import { TibebDivider } from '@/components/TibebDivider';
 import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchDiscoverCountries, fetchMeetsMyCriteria } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
 import { useSession } from '@/lib/session';
@@ -57,13 +59,14 @@ export default function Discover() {
   const header = (
     <View style={styles.header}>
       <View style={styles.titleRow}>
-        <Text style={typography.title}>Discover</Text>
+        <ScreenTitle title="Discover" />
         <CountryFilterButton available={available.data} selected={countries} onChange={setCountries} />
       </View>
       <CountryFilterSummary selected={countries} onClear={() => setCountries([])} />
       {countries.length === 0 && (
         <Text style={typography.bodyMuted}>People who meet your criteria, best matches first.</Text>
       )}
+      <TibebDivider />
     </View>
   );
 

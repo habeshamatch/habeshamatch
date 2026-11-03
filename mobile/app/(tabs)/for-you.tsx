@@ -18,6 +18,7 @@ import { Button } from '@/components/Button';
 import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
 import { ProfileTile } from '@/components/ProfileTile';
 import { Segmented } from '@/components/Segmented';
+import { ScreenTitle } from '@/components/ScreenTitle';
 import { fetchMyLimits } from '@/lib/chats';
 import { DISCOVER_PAGE_SIZE, type ProfileCard } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
@@ -191,7 +192,7 @@ export default function ForYou() {
 
   const header = (
     <View style={styles.header}>
-      <Text style={typography.title}>For you</Text>
+      <ScreenTitle title="For you" />
       <Segmented options={sections} value={section} onChange={chooseSection} />
       {section === 'suggested' && isPremium && (
         <View style={styles.filterRow}>

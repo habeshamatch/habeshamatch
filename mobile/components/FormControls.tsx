@@ -15,7 +15,7 @@ export function FieldLabel({ children, hint }: { children: ReactNode; hint?: str
 }
 
 export function TextField(props: TextInputProps) {
-  return <TextInput placeholderTextColor={colors.textMuted} {...props} style={[styles.input, props.style]} />;
+  return <TextInput placeholderTextColor={colors.textFaint} {...props} style={[styles.input, props.style]} />;
 }
 
 export function ToggleRow({
@@ -39,7 +39,7 @@ export function ToggleRow({
         value={value}
         onValueChange={onChange}
         trackColor={{ false: colors.surfaceRaised, true: colors.accent }}
-        thumbColor={colors.surface}
+        thumbColor={colors.text}
         accessibilityLabel={label}
       />
     </View>

@@ -251,7 +251,7 @@ export default function ChatScreen() {
             value={text}
             onChangeText={setText}
             placeholder="Message"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textFaint}
             multiline
             maxLength={MESSAGE_MAX}
             style={styles.input}

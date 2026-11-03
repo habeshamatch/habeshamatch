@@ -1,28 +1,32 @@
-// Design tokens. "Tibeb": warm and calm, inspired by the embroidered borders on a white habesha
-// kemis and netela (shared by Eritreans and Ethiopians; never flag colours). Mostly sand and
-// white with strong dark text, burnt meskel orange to guide, raspberry only for love moments
-// (hearts, likes, matches). Cards have crisp edges (border).
-// Every colour, font and spacing value used in the app comes from here. Never inline colours.
-// Contrast: text, textMuted and rose pass WCAG AA (4.5:1) on background; white passes on accent and
-// rose. accent as text on sand is 4:1 (fine for buttons and bold links, not for long small text).
-// `love` is for icons, hearts and large text only.
+// Design tokens. "Kaba": midnight navy with gold, and a tibeb diamond ornament (from the
+// embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians; never flag colours).
+// Gold guides (buttons, selected states, titles, icons); raspberry only for love moments
+// (hearts, likes, matches). Every colour, font and spacing value used in the app comes from here.
+// Never inline colours.
+// Contrast on the background: text, textMuted, accent, love, rose and verified all pass WCAG AA
+// (4.5:1); onAccent (navy) passes on accent, highlight and rose fills. textFaint is for
+// placeholders and disabled items only, never for reading text.
 
 export const colors = {
-  background: '#F5EEE4', // warm sand, like linen
-  surface: '#FFFFFF', // cards, sheets, the tab bar
-  surfaceRaised: '#EAE0D3', // deeper sand: inputs, chips, placeholders, borders
-  accent: '#C2540E', // burnt meskel orange: main buttons, selected states, links
-  accentSoft: '#F8E1D2', // light orange tint
-  love: '#D63A63', // raspberry: hearts, likes, matches (icons and large text only)
-  highlight: '#F5B700', // meskel yellow: Premium highlights only, always with dark text
-  rose: '#B42318', // deep red: errors, delete, unread badges
-  text: '#15110E', // deep warm black: strong contrast
-  textMuted: '#5E554F',
-  border: '#E2D5C3', // crisp edges on cards and panels
-  onAccent: '#FFFFFF', // text and icons on accent and rose fills
+  background: '#070E1D', // midnight navy
+  bar: '#0C1322', // header and tab bar
+  surface: '#151B2B', // cards, sheets
+  surfaceRaised: '#1E2638', // inputs, chips, selected tabs, placeholders
+  action: '#32394A', // secondary buttons
+  accent: '#DFB15B', // gold: main buttons, selected states, titles, links, icons
+  accentSoft: '#FFE89E', // soft gold
+  highlight: '#FFD700', // radiant gold: Premium highlights
+  love: '#F06A8A', // raspberry: hearts, likes, matches
+  rose: '#F87171', // errors, delete, unread badges
+  text: '#F8F9FD',
+  textMuted: '#9DA7BD',
+  textFaint: '#5F6B84', // placeholders and disabled only
+  border: '#232C40', // edges on cards and panels
+  borderGold: '#8C6D32', // gold edges (outlined buttons, ornaments)
+  onAccent: '#070E1D', // text and icons on accent, highlight and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
-  verified: '#2563EB', // blue tick
-  overlay: 'rgba(20, 14, 10, 0.55)', // dims the screen behind sheets; scrim behind text on photos
+  verified: '#60A5FA', // blue tick
+  overlay: 'rgba(3, 6, 14, 0.62)', // dims the screen behind sheets; scrim behind text on photos
 } as const;
 
 // Font family names, as registered by useFonts in app/_layout.tsx.
@@ -51,13 +55,15 @@ export const radius = {
 } as const;
 
 export const typography = {
-  display: { fontFamily: fonts.heading, fontSize: 40, lineHeight: 48, color: colors.text },
-  title: { fontFamily: fonts.heading, fontSize: 28, lineHeight: 36, color: colors.text },
+  display: { fontFamily: fonts.heading, fontSize: 40, lineHeight: 48, color: colors.accent },
+  title: { fontFamily: fonts.heading, fontSize: 28, lineHeight: 36, color: colors.accent },
   subtitle: { fontFamily: fonts.headingMedium, fontSize: 20, lineHeight: 28, color: colors.text },
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: colors.text },
   bodyMuted: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: colors.textMuted },
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted },
   button: { fontFamily: fonts.bodySemiBold, fontSize: 16, lineHeight: 20 },
+  // Small gold capitals above a screen title (the app name).
+  eyebrow: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 2, color: colors.accent },
 } as const;
 
 export const theme = { colors, fonts, spacing, radius, typography } as const;

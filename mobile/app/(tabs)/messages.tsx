@@ -17,6 +17,7 @@ import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Segmented } from '@/components/Segmented';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { ScreenTitle } from '@/components/ScreenTitle';
 import { friendlyError } from '@/lib/errors';
 import { fetchInbox, shortTime, type InboxItem } from '@/lib/messages';
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -48,7 +49,11 @@ export default function Messages() {
   ];
   const rows = tab === 'conversations' ? started : sent;
 
-  const title = <Text style={[typography.title, styles.title]}>Messages</Text>;
+  const title = (
+    <View style={styles.title}>
+      <ScreenTitle title="Messages" />
+    </View>
+  );
   const header = (
     <View>
       {title}

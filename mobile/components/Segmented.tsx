@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: spacing.xs,
     borderRadius: radius.pill,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
   },
   option: {
     flex: 1,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   selected: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   content: {
     flexDirection: 'row',

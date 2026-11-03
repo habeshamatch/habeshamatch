@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   secondary: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.action,
   },
   text: {
     minHeight: 44,
