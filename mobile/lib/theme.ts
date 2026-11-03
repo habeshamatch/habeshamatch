@@ -1,4 +1,4 @@
-// Design tokens. "Kaba": midnight navy with gold, and a tibeb diamond ornament (from the
+// Design tokens. "Kaba": dusk slate-blue with gold, and a tibeb diamond ornament (from the
 // embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians; never flag colours).
 // Gold guides (buttons, selected states, titles, icons); raspberry only for love moments
 // (hearts, likes, matches). Every colour, font and spacing value used in the app comes from here.
@@ -8,22 +8,22 @@
 // placeholders and disabled items only, never for reading text.
 
 export const colors = {
-  background: '#070E1D', // midnight navy
-  bar: '#0C1322', // header and tab bar
-  surface: '#151B2B', // cards, sheets
-  surfaceRaised: '#1E2638', // inputs, chips, selected tabs, placeholders
-  action: '#32394A', // secondary buttons
+  background: '#1B2336', // dusk slate-blue
+  bar: '#202A3F', // header and tab bar
+  surface: '#26304A', // cards, sheets
+  surfaceRaised: '#303B56', // inputs, chips, selected tabs, placeholders
+  action: '#3D4864', // secondary buttons
   accent: '#DFB15B', // gold: main buttons, selected states, titles, links, icons
   accentSoft: '#FFE89E', // soft gold
   highlight: '#FFD700', // radiant gold: Premium highlights
   love: '#F06A8A', // raspberry: hearts, likes, matches
   rose: '#F87171', // errors, delete, unread badges
   text: '#F8F9FD',
-  textMuted: '#9DA7BD',
+  textMuted: '#A9B2C6',
   textFaint: '#5F6B84', // placeholders and disabled only
-  border: '#232C40', // edges on cards and panels
+  border: '#35415C', // edges on cards and panels
   borderGold: '#8C6D32', // gold edges (outlined buttons, ornaments)
-  onAccent: '#070E1D', // text and icons on accent, highlight and rose fills
+  onAccent: '#1B2336', // text and icons on accent, highlight and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
   verified: '#60A5FA', // blue tick
   overlay: 'rgba(3, 6, 14, 0.62)', // dims the screen behind sheets; scrim behind text on photos

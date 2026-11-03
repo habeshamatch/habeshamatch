@@ -154,24 +154,24 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-"Kaba": midnight navy with gold, and a tibeb diamond ornament (`components/TibebDivider.tsx`, after the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians). Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Gold guides (buttons, selected states, titles, list icons); raspberry appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. Main tab screens show the app name in small gold capitals above the title (`components/ScreenTitle.tsx`; the name lives only in `mobile/lib/brand.ts`). Dark mode only (`userInterfaceStyle: dark`).
+"Kaba": dusk slate-blue with gold, and a tibeb diamond ornament (`components/TibebDivider.tsx`, after the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians). Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Gold guides (buttons, selected states, titles, list icons); raspberry appears only for love moments (hearts, like buttons, matches, new-match rings); red only for errors, delete and unread badges. Main tab screens show the app name in small gold capitals above the title (`components/ScreenTitle.tsx`; the name lives only in `mobile/lib/brand.ts`). Dark mode only (`userInterfaceStyle: dark`).
 
 | Token | Value | Use |
 |---|---|---|
-| background | `#070E1D` | midnight navy |
-| bar | `#0C1322` | header and tab bar |
-| surface | `#151B2B` | cards, sheets |
-| surfaceRaised | `#1E2638` | inputs, chips, selected tabs, placeholders |
-| action | `#32394A` | secondary buttons |
+| background | `#1B2336` | dusk slate-blue |
+| bar | `#202A3F` | header and tab bar |
+| surface | `#26304A` | cards, sheets |
+| surfaceRaised | `#303B56` | inputs, chips, selected tabs, placeholders |
+| action | `#3D4864` | secondary buttons |
 | accent | `#DFB15B` | gold: main buttons, selected states, titles, links, icons |
 | accentSoft | `#FFE89E` | soft gold |
 | highlight | `#FFD700` | radiant gold: Premium highlights |
 | love | `#F06A8A` | raspberry: hearts, likes, matches |
 | rose | `#F87171` | errors, delete, unread badges |
-| text / textMuted | `#F8F9FD` / `#9DA7BD` | |
+| text / textMuted | `#F8F9FD` / `#A9B2C6` | |
 | textFaint | `#5F6B84` | placeholders and disabled only, never reading text |
-| border / borderGold | `#232C40` / `#8C6D32` | card edges / gold edges and ornaments |
-| onAccent | `#070E1D` | text and icons on gold, highlight and rose fills |
+| border / borderGold | `#35415C` / `#8C6D32` | card edges / gold edges and ornaments |
+| onAccent | `#1B2336` | text and icons on gold, highlight and rose fills |
 | onPhoto | `#FFFFFF` | text and icons over photos (on the overlay scrim) |
 | verified (blue tick) | `#60A5FA` | |
 
