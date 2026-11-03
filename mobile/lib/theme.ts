@@ -1,41 +1,39 @@
-// Design tokens. "Kaba": a friendly blue header band and tab bar (our own shade, in the spirit of
-// early social networks; never another brand's exact colours) around a calm off-white page with
-// the lightest brown lines. Photo tiles keep deeper blue frames. Gold lives on the blue (titles,
-// the KABA label, the active tab); on the page, blue guides. The tibeb diamond ornament comes from
-// the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians; never flag
-// colours. Raspberry only for love moments.
+// Design tokens. "Kaba": a cream page with white cards edged in thin gold, deep navy for text,
+// main buttons and the tab bar, and gold for the coin logo, rings, icons and the active tab. The
+// tibeb diamond ornament comes from the embroidered borders on a habesha kemis, shared by
+// Eritreans and Ethiopians; never flag colours. Raspberry only for love moments.
 // Every colour, font and spacing value used in the app comes from here. Never inline colours.
-// Contrast: on the page, text, textMuted, accent and rose pass WCAG AA (4.5:1); on the blue,
-// onBrand, onBrandMuted and brandGold pass. textFaint is for placeholders and disabled only.
+// Contrast: navy text, textMuted, goldText, rose and love pass WCAG AA (4.5:1) on the cream and
+// white; gold (onAccent) passes on navy. goldIcon is for icons and ornaments only (3:1).
+// textFaint is for placeholders and disabled only.
 
 export const colors = {
-  // The page
-  background: '#FAF7F2', // calm off-white
+  background: '#F7F4EE', // cream page
   surface: '#FFFFFF', // cards, sheets
-  surfaceRaised: '#F2ECE4', // inputs, chips, segment track, placeholders
-  action: '#ECE5DB', // secondary buttons (dark text)
-  border: '#EADFD2', // the lightest brown: lines and card edges
-  accent: '#3F5E9E', // blue on the page: main buttons, selected states, links, icons
-  accentSoft: '#DCE4F3',
-  highlight: '#F5B700', // bright gold: Premium highlights, always with dark text
+  surfaceRaised: '#F1ECE2', // inputs, chips, segment track, placeholders
+  action: '#ECE6DA', // secondary buttons (navy text)
+  border: '#EADFC8', // light lines and edges
+  borderGold: '#E2C27A', // thin gold card edges, the header line, the tibeb line
+  accent: '#13213F', // deep navy: main buttons, selected states, links
+  accentSoft: '#E3ECF8', // soft blue chips
+  onAccent: '#F2C14E', // gold text and icons on navy
+  gold: '#F2C14E', // coin logo, rings, the active tab
+  goldIcon: '#B98B2E', // gold icons and ornaments on light
+  goldText: '#7A5A12', // gold text on light and on goldSoft
+  goldSoft: '#FBEFCF', // soft gold chips
+  highlight: '#F2C14E', // Premium highlights, navy text
   love: '#D1395F', // raspberry: hearts, likes, matches
   rose: '#C0262D', // errors, delete, unread badges
-  text: '#1C2433',
-  textMuted: '#5A6478',
-  textFaint: '#8A93A6', // placeholders and disabled only
-  onAccent: '#FFFFFF', // text and icons on accent, love and rose fills
-  verified: '#1D6FE0', // blue tick on the page
-  // The blue frame: header band, tab bar, photo tiles
-  brand: '#3F5E9E', // header band and tab bar
-  brandDeep: '#35528F', // photo tile frames
-  brandGold: '#FFD27A', // gold on blue: titles, the KABA label, the active tab
-  onBrand: '#FFFFFF', // text on blue
-  onBrandMuted: '#D9E2F3', // secondary text on blue
-  verifiedOnBrand: '#A5D8FF', // blue tick on blue
-  borderGold: '#C9A04F', // tibeb ornament on the page
-  // Photos
+  onRose: '#FFFFFF', // text on rose fills
+  onNavy: '#FFFFFF', // body text on navy (your chat bubbles)
+  text: '#13213F', // deep navy
+  textMuted: '#5D6680',
+  textFaint: '#9AA1B2', // placeholders and disabled only
+  verified: '#1D6FE0', // blue tick
+  brand: '#13213F', // the tab bar
+  onBrandMuted: '#C9D1E3', // inactive tabs on navy
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
-  overlay: 'rgba(15, 22, 38, 0.55)', // dims the screen behind sheets; scrim behind text on photos
+  overlay: 'rgba(19, 33, 63, 0.6)', // dims the screen behind sheets; scrim behind text on photos
 } as const;
 
 // Font family names, as registered by useFonts in app/_layout.tsx.
@@ -71,8 +69,8 @@ export const typography = {
   bodyMuted: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: colors.textMuted },
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted },
   button: { fontFamily: fonts.bodySemiBold, fontSize: 16, lineHeight: 20 },
-  // Small gold capitals above a screen title (the app name).
-  eyebrow: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 2, color: colors.brandGold },
+  // Bold navy capitals for section headings ("YOUR PROFILE", "NEW MATCHES").
+  section: { fontFamily: fonts.bodySemiBold, fontSize: 13, lineHeight: 18, letterSpacing: 1, color: colors.text },
 } as const;
 
 export const theme = { colors, fonts, spacing, radius, typography } as const;

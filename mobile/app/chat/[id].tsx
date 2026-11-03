@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: radius.sm,
   },
   mineText: {
-    color: colors.onAccent,
+    color: colors.onNavy,
   },
   failed: {
     opacity: 0.6,

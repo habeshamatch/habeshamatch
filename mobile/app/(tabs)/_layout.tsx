@@ -1,8 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { router, Tabs, useIsFocused } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { router, Tabs } from 'expo-router';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { AppState, Text, type ColorValue } from 'react-native';
 
@@ -87,19 +86,14 @@ export default function TabsLayout() {
     if (route) router.push(route as Parameters<typeof router.push>[0]);
   }, [tapped]);
 
-  // White status bar text over the blue header band, only while the tabs are on screen; every
-  // other screen has the off-white page at the top (dark text, set in app/_layout.tsx).
-  const focused = useIsFocused();
-
   return (
     <>
-      {focused && <StatusBar style="light" />}
       <Tabs
         screenOptions={{
           headerShown: false,
           sceneStyle: { backgroundColor: colors.background },
           tabBarStyle: { backgroundColor: colors.brand, borderTopColor: colors.brand },
-          tabBarActiveTintColor: colors.brandGold,
+          tabBarActiveTintColor: colors.gold,
           tabBarInactiveTintColor: colors.onBrandMuted,
           tabBarLabelStyle: { fontFamily: fonts.bodyMedium },
         }}
@@ -118,7 +112,7 @@ export default function TabsLayout() {
             title: 'For you',
             tabBarIcon: (p) => <TabIcon name="sparkles-outline" {...p} />,
             tabBarBadge: forYouCount > 0 ? (forYouCount > 99 ? '99+' : forYouCount) : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onAccent },
+            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onRose },
           }}
         />
         <Tabs.Screen
@@ -127,7 +121,7 @@ export default function TabsLayout() {
             title: 'Messages',
             tabBarIcon: (p) => <TabIcon name="chatbubbles-outline" {...p} />,
             tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onAccent },
+            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onRose },
           }}
         />
         <Tabs.Screen

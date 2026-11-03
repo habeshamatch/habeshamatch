@@ -20,7 +20,7 @@ export function CountryFilterButton({
   available: CountryCount[] | undefined;
   selected: string[];
   onChange: (codes: string[]) => void;
-  onBrand?: boolean; // in the blue header band: gold instead of blue
+  onBrand?: boolean; // in the screen header: a filled navy pill
 }) {
   const [open, setOpen] = useState(false);
   const sections = useMemo(
@@ -37,19 +37,19 @@ export function CountryFilterButton({
   );
   if ((available?.length ?? 0) < 2 && selected.length === 0) return null;
   const on = selected.length > 0;
-  const tint = onBrand ? colors.brandGold : colors.accent;
-  const onTint = onBrand ? colors.brand : colors.onAccent;
+  // In the header it is always a navy pill with gold text; elsewhere an outline that fills when on.
+  const filled = onBrand || on;
   return (
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        style={[styles.button, { borderColor: tint }, on && { backgroundColor: tint }]}
+        style={[styles.button, filled && styles.filled]}
         accessibilityRole="button"
         accessibilityLabel={on ? `Filter, ${selected.length} countries chosen` : 'Filter by country'}
         hitSlop={8}
       >
-        <Ionicons name="options-outline" size={18} color={on ? onTint : tint} />
-        <Text style={[typography.caption, styles.text, { color: on ? onTint : tint }]}>
+        <Ionicons name="options-outline" size={18} color={filled ? colors.onAccent : colors.accent} />
+        <Text style={[typography.caption, styles.text, { color: filled ? colors.onAccent : colors.accent }]}>
           {on ? `Filter · ${selected.length}` : 'Filter'}
         </Text>
       </Pressable>
@@ -91,6 +91,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs + 2,
     borderRadius: radius.pill,
     borderWidth: 1,
+    borderColor: colors.accent,
+  },
+  filled: {
+    backgroundColor: colors.accent,
   },
   text: {
     fontFamily: typography.button.fontFamily,

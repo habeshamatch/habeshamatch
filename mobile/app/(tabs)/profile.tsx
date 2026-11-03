@@ -170,7 +170,7 @@ export default function ProfileTab() {
               accessibilityRole="button"
               accessibilityLabel="Delete my account permanently"
             >
-              <Text style={[typography.button, { color: colors.onAccent }]}>
+              <Text style={[typography.button, { color: colors.onRose }]}>
                 {deleting ? 'Deleting...' : 'Delete my account'}
               </Text>
             </Pressable>
@@ -185,7 +185,7 @@ export default function ProfileTab() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
-      <Text style={[typography.caption, styles.sectionTitle]}>{title.toUpperCase()}</Text>
+      <Text style={[typography.section, styles.sectionTitle]}>{title.toUpperCase()}</Text>
       <View style={styles.card}>{children}</View>
     </View>
   );
@@ -213,7 +213,7 @@ function Row({
       accessibilityRole="button"
       accessibilityLabel={detail ? `${label}, ${detail}` : label}
     >
-      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.accent} />
+      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.goldIcon} />
       <Text style={[typography.body, styles.flex, { color }]}>{label}</Text>
       {detail ? (
         <Text style={typography.caption}>{detail}</Text>

@@ -154,30 +154,29 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-"Kaba": a friendly blue frame around a calm page. The header band at the top of the main tabs (`components/ScreenHeader.tsx`: the app name in small gold capitals and the title in gold, an optional control on the right) and the bottom tab bar are blue (`#3F5E9E`, our own shade in the spirit of early social networks; never copy another dating or social brand's exact colours). Everything between is a calm off-white page with the lightest brown lines. Photo tiles keep a deeper blue frame with white names. Gold lives on the blue; on the page, blue guides (buttons, links, selected states, icons). The tibeb diamond ornament (`components/TibebDivider.tsx`) comes from the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Raspberry only for love moments; red only for errors, delete and unread badges. The app name lives only in `mobile/lib/brand.ts`. Status bar text is white while the tabs are on screen (`app/(tabs)/_layout.tsx`) and dark elsewhere (`app/_layout.tsx`).
+"Kaba": a cream page with white cards edged in thin gold, deep navy for text, main buttons (with gold text) and the bottom tab bar, and gold for the coin logo, new-match rings, list icons and the active tab. Main tab screens start with `components/ScreenHeader.tsx`: a gold coin with the app's initial, the title in navy serif capitals, an optional control on the right (Discover's Filter is a navy pill with gold text), and a thin gold line underneath. Photo cards (`components/ProfileTile.tsx`) set the photo inside a white card with a gold edge, a quiet navy match pill, the name, blue tick, place and the member's first two interests as soft gold and soft blue chips. The tibeb diamond ornament (`components/TibebDivider.tsx`) comes from the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Raspberry only for love moments (hearts, like buttons, matches); red only for errors, delete and unread badges. Only design what exists: never mock up buttons or sections for features the app does not have. The app name lives only in `mobile/lib/brand.ts`. Light mode only.
 
 | Token | Value | Use |
 |---|---|---|
-| background | `#FAF7F2` | calm off-white page |
+| background | `#F7F4EE` | cream page |
 | surface | `#FFFFFF` | cards, sheets |
-| surfaceRaised | `#F2ECE4` | inputs, chips, segment track, placeholders |
-| action | `#ECE5DB` | secondary buttons (dark text) |
-| border | `#EADFD2` | the lightest brown: lines and card edges |
-| accent / accentSoft | `#3F5E9E` / `#DCE4F3` | blue on the page: main buttons, selected states, links, icons |
-| highlight | `#F5B700` | bright gold: Premium highlights, dark text |
+| surfaceRaised | `#F1ECE2` | inputs, chips, segment track, placeholders |
+| action | `#ECE6DA` | secondary buttons (navy text) |
+| border / borderGold | `#EADFC8` / `#E2C27A` | light lines / thin gold card edges, header line |
+| accent | `#13213F` | deep navy: main buttons, selected states, links |
+| onAccent | `#F2C14E` | gold text and icons on navy |
+| onNavy | `#FFFFFF` | body text on navy (your chat bubbles) |
+| gold / goldIcon / goldText / goldSoft | `#F2C14E` / `#B98B2E` / `#7A5A12` / `#FBEFCF` | coin, rings, active tab / icons and ornaments on light / gold text on light / soft gold chips |
+| accentSoft | `#E3ECF8` | soft blue chips |
+| highlight | `#F2C14E` | Premium highlights, navy text |
 | love | `#D1395F` | raspberry: hearts, likes, matches |
-| rose | `#C0262D` | errors, delete, unread badges |
-| text / textMuted / textFaint | `#1C2433` / `#5A6478` / `#8A93A6` | textFaint for placeholders only |
-| onAccent | `#FFFFFF` | on accent, love and rose fills |
-| verified | `#1D6FE0` | blue tick on the page |
-| brand / brandDeep | `#3F5E9E` / `#35528F` | header band and tab bar / photo tile frames |
-| brandGold | `#FFD27A` | gold on blue: titles, KABA, the active tab |
-| onBrand / onBrandMuted | `#FFFFFF` / `#D9E2F3` | text on blue |
-| verifiedOnBrand | `#A5D8FF` | blue tick on blue (`<VerifiedBadge onBrand />`) |
-| borderGold | `#C9A04F` | tibeb ornament on the page |
+| rose / onRose | `#C0262D` / `#FFFFFF` | errors, delete, unread badges |
+| text / textMuted / textFaint | `#13213F` / `#5D6680` / `#9AA1B2` | textFaint for placeholders only |
+| verified | `#1D6FE0` | blue tick |
+| brand / onBrandMuted | `#13213F` / `#C9D1E3` | the tab bar / its inactive tabs |
 | onPhoto | `#FFFFFF` | over photos (on the overlay scrim) |
 
-On the page, text, textMuted, accent and rose pass WCAG AA (4.5:1); on the blue, onBrand, onBrandMuted and brandGold pass. Never put text in `background` or `text` colour on a coloured fill; use `onAccent`, `onBrand` or `onPhoto`. Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours. Earlier themes are in git history on the colours branch.
+Navy text, textMuted, goldText, rose and love pass WCAG AA (4.5:1) on cream and white; gold passes on navy; goldIcon is for icons and ornaments only (3:1). Never put text in `background` or `text` colour on a coloured fill; use `onAccent`, `onNavy`, `onRose` or `onPhoto`. Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours. Earlier themes are in git history on the colours branch.
 
 ## Conventions
 

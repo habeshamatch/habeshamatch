@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   left: {
-    color: colors.onBrandMuted,
+    color: colors.textMuted,
     paddingBottom: spacing.xs,
   },
   notice: {

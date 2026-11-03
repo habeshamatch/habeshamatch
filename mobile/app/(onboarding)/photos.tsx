@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.rose,
   },
   badgeRejectedText: {
-    color: colors.onAccent,
+    color: colors.onRose,
   },
   badgeText: {
     ...typography.caption,

@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   selected: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.accent, // navy pill, gold label
   },
   content: {
     flexDirection: 'row',
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
     ...typography.caption,
     fontSize: 12,
     lineHeight: 16,
-    color: colors.onAccent,
+    color: colors.onRose,
     fontFamily: typography.button.fontFamily,
   },
   labelSelected: {
-    color: colors.accent, // tibeb teal: selected state
+    color: colors.onAccent,
   },
 });

@@ -53,7 +53,7 @@ export default function Messages() {
     <View style={styles.headerTop}>
       {newMatches.length > 0 && (
         <View style={styles.matches}>
-          <Text style={[typography.caption, styles.sectionTitle]}>NEW MATCHES</Text>
+          <Text style={[typography.section, styles.sectionTitle]}>NEW MATCHES</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
             {newMatches.map((m) => (
               <Pressable
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: radius.pill,
     borderWidth: 2,
-    borderColor: colors.love, // new matches: a love moment
+    borderColor: colors.gold, // new matches: gold rings
   },
   matchName: {
     color: colors.text,
