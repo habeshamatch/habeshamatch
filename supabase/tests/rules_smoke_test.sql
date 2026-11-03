@@ -228,3 +228,16 @@ select 'lifestyle: drinking not answered fails' t, coalesce(pref_item_met('drink
 select 'card shows lifestyle' t, smoking, wants_children, marital_status from to_card((select p from profiles p where id = '00000000-0000-0000-0000-00000000000b'), null);  -- never yes never_married
 select t_err($$update profiles set interests = array['a','b','c','d','e','f','g','h','i'] where id = '00000000-0000-0000-0000-00000000000b'$$,
   'new row for relation "profiles" violates check constraint "profiles_interests_check"') as interests_max_8;
+
+-- ===== push notifications: one owner per phone, settings =====
+set role authenticated; set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000a"}';
+select register_push_token('ExponentPushToken[smoke]', 'ios', 'Africa/Addis_Ababa');
+select 'push token saved' t, count(*) from push_tokens;                                -- expect 1
+select t_err($$select register_push_token('ExponentPushToken[smoke]', 'windows')$$, 'not_permitted') as push_bad_platform;
+select t_err($$select notify_member(auth.uid(), 'match', 't', 'b', '{}')$$, 'permission denied for function notify_member') as push_sender_hidden;
+update profiles set notify_messages = false where id = auth.uid();
+select 'can turn off message notifications' t, notify_messages from profiles where id = auth.uid();  -- f
+set request.jwt.claims = '{"role":"authenticated","sub":"00000000-0000-0000-0000-00000000000b"}';
+select register_push_token('ExponentPushToken[smoke]', 'ios', null);                 -- same phone, someone else signs in
+reset role; set request.jwt.claims = '{}';
+select 'phone moved to new owner' t, count(*) from push_tokens where user_id = '00000000-0000-0000-0000-00000000000a';  -- expect 0
