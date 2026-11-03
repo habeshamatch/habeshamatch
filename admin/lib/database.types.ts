@@ -383,15 +383,15 @@ export type Database = {
           is_premium: boolean
           languages: string[]
           last_active_at: string
+          marital_status: Database["public"]["Enums"]["marital_status_t"] | null
           notify_matches: boolean
           notify_messages: boolean
           notify_picks: boolean
-          picks_notified_on: string | null
-          marital_status: Database["public"]["Enums"]["marital_status_t"] | null
           occupation: string | null
           open_to_long_distance: boolean
           open_to_relocating: boolean
           origin: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on: string | null
           premium_expires_at: string | null
           relationship_intent: Database["public"]["Enums"]["intent_t"]
           religion: Database["public"]["Enums"]["religion_t"]
@@ -423,17 +423,17 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
-          notify_matches?: boolean
-          notify_messages?: boolean
-          notify_picks?: boolean
-          picks_notified_on?: string | null
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
           origin: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on?: string | null
           premium_expires_at?: string | null
           relationship_intent: Database["public"]["Enums"]["intent_t"]
           religion: Database["public"]["Enums"]["religion_t"]
@@ -467,17 +467,17 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
-          notify_matches?: boolean
-          notify_messages?: boolean
-          notify_picks?: boolean
-          picks_notified_on?: string | null
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
           occupation?: string | null
           open_to_long_distance?: boolean
           open_to_relocating?: boolean
           origin?: Database["public"]["Enums"]["origin_t"]
+          picks_notified_on?: string | null
           premium_expires_at?: string | null
           relationship_intent?: Database["public"]["Enums"]["intent_t"]
           religion?: Database["public"]["Enums"]["religion_t"]
@@ -494,24 +494,24 @@ export type Database = {
         Row: {
           created_at: string
           platform: string
-          token: string
           time_zone: string | null
+          token: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           platform: string
-          token: string
           time_zone?: string | null
+          token: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           platform?: string
-          token?: string
           time_zone?: string | null
+          token?: string
           updated_at?: string
           user_id?: string
         }
@@ -847,6 +847,17 @@ export type Database = {
         Returns: boolean
       }
       member_since: { Args: { p_user: string }; Returns: string }
+      notify_daily_picks: { Args: never; Returns: number }
+      notify_member: {
+        Args: {
+          p_body: string
+          p_data: Json
+          p_kind: string
+          p_title: string
+          p_user: string
+        }
+        Returns: boolean
+      }
       photo_thumb_path: { Args: { p_storage_path: string }; Returns: string }
       pref_item_met: {
         Args: {
@@ -864,13 +875,13 @@ export type Database = {
         }
         Returns: Json
       }
-      reorder_my_photos: { Args: { p_photo_ids: string[] }; Returns: undefined }
-      require_active_user: { Args: never; Returns: string }
-      require_approved_user: { Args: never; Returns: string }
       register_push_token: {
         Args: { p_platform: string; p_time_zone?: string; p_token: string }
         Returns: undefined
       }
+      reorder_my_photos: { Args: { p_photo_ids: string[] }; Returns: undefined }
+      require_active_user: { Args: never; Returns: string }
+      require_approved_user: { Args: never; Returns: string }
       residence_type: { Args: { p_country: string }; Returns: string }
       soft_score: {
         Args: { p_cand: string; p_viewer: string }
