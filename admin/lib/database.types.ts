@@ -383,6 +383,10 @@ export type Database = {
           is_premium: boolean
           languages: string[]
           last_active_at: string
+          notify_matches: boolean
+          notify_messages: boolean
+          notify_picks: boolean
+          picks_notified_on: string | null
           marital_status: Database["public"]["Enums"]["marital_status_t"] | null
           occupation: string | null
           open_to_long_distance: boolean
@@ -419,6 +423,10 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
+          picks_notified_on?: string | null
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
@@ -459,6 +467,10 @@ export type Database = {
           is_premium?: boolean
           languages?: string[]
           last_active_at?: string
+          notify_matches?: boolean
+          notify_messages?: boolean
+          notify_picks?: boolean
+          picks_notified_on?: string | null
           marital_status?:
             | Database["public"]["Enums"]["marital_status_t"]
             | null
@@ -483,18 +495,24 @@ export type Database = {
           created_at: string
           platform: string
           token: string
+          time_zone: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           platform: string
           token: string
+          time_zone?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           platform?: string
           token?: string
+          time_zone?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -849,6 +867,10 @@ export type Database = {
       reorder_my_photos: { Args: { p_photo_ids: string[] }; Returns: undefined }
       require_active_user: { Args: never; Returns: string }
       require_approved_user: { Args: never; Returns: string }
+      register_push_token: {
+        Args: { p_platform: string; p_time_zone?: string; p_token: string }
+        Returns: undefined
+      }
       residence_type: { Args: { p_country: string }; Returns: string }
       soft_score: {
         Args: { p_cand: string; p_viewer: string }
@@ -877,6 +899,7 @@ export type Database = {
         Returns: undefined
       }
       undo_last_swipe: { Args: never; Returns: string }
+      unregister_push_token: { Args: { p_token: string }; Returns: undefined }
       user_tier: {
         Args: { p_user: string }
         Returns: Database["public"]["Enums"]["tier_t"]

@@ -48,7 +48,13 @@
           "microphonePermission": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#D4A24C"
+        }
+      ]
     ],
     "scheme": "habeshamatch",
     "backgroundColor": "#1C1917",

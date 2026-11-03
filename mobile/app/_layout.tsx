@@ -100,6 +100,7 @@ function RootNavigator() {
           <Stack.Screen name="blocked" />
           <Stack.Screen name="liked-you" />
           <Stack.Screen name="edit-profile" />
+          <Stack.Screen name="notifications" />
           <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
         </Stack.Protected>
       </Stack>

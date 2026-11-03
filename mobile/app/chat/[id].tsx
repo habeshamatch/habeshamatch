@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -33,6 +33,7 @@ import {
 } from '@/lib/messages';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
+import { setOpenChat } from '@/lib/notifications';
 
 type Pending = { id: string; body: string; status: 'sending' | 'failed'; created_at: string };
 type Row = (Message & { pending?: undefined }) | (Pending & { pending: true });
@@ -40,6 +41,13 @@ type Pages = InfiniteData<Message[], string | undefined>;
 
 export default function ChatScreen() {
   const { id: conversationId } = useLocalSearchParams<{ id: string }>();
+  // While this chat is on screen, its new messages need no notification banner.
+  useFocusEffect(
+    useCallback(() => {
+      setOpenChat(conversationId);
+      return () => setOpenChat(null);
+    }, [conversationId]),
+  );
   const { session } = useSession();
   const myId = session?.user.id ?? '';
   const queryClient = useQueryClient();
