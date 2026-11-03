@@ -1,33 +1,33 @@
-// Design tokens. "Kaba": light and friendly, a light blue-grey page with white cards and a muted
-// denim blue (our own shade, in the spirit of early social networks), gold for the brand label,
-// Premium highlights and the tibeb diamond ornament (after the embroidered borders on a habesha
-// kemis, shared by Eritreans and Ethiopians; never flag colours). Raspberry only for love moments.
+// Design tokens. "Kaba": a friendly blue page (our own shade, in the spirit of early social
+// networks; never another brand's exact colours) with deeper blue panels, soft gold to guide, and
+// the tibeb diamond ornament (after the embroidered borders on a habesha kemis, shared by
+// Eritreans and Ethiopians; never flag colours). Pink only for love moments.
 // Every colour, font and spacing value used in the app comes from here. Never inline colours.
-// Contrast on the background: text, textMuted, accent, goldText and rose pass WCAG AA (4.5:1 on
-// white cards; 3.9+ on the page); white (onAccent) passes on accent, love and rose fills.
+// Contrast on the background: text, textMuted and accent pass WCAG AA (4.5:1); on the deeper
+// panels everything passes comfortably. love and rose are for icons, badges and short text.
 // textFaint is for placeholders and disabled items only.
 
 export const colors = {
-  background: '#E9EEF6', // light blue-grey page
-  bar: '#FFFFFF', // tab bar
-  surface: '#FFFFFF', // cards, sheets
-  surfaceRaised: '#DCE3EF', // inputs, chips, segment track, placeholders
-  action: '#D3DBE8', // secondary buttons (dark text)
-  accent: '#3D5A98', // denim blue: main buttons, selected states, titles, links, icons
-  accentSoft: '#DCE4F3', // light blue tint
-  goldText: '#9A6F1E', // gold for small text on light (the KABA label)
-  highlight: '#F5B700', // bright gold: Premium highlights, always with dark text
-  love: '#D1395F', // raspberry: hearts, likes, matches
-  rose: '#C0262D', // errors, delete, unread badges
-  text: '#1C2433', // dark navy
-  textMuted: '#5A6478',
-  textFaint: '#8A93A6', // placeholders and disabled only
-  border: '#D3DBE8', // edges on cards and panels
-  borderGold: '#C9A04F', // gold ornaments (tibeb divider)
-  onAccent: '#FFFFFF', // text and icons on accent, love and rose fills
+  background: '#3F5E9E', // friendly blue page
+  bar: '#35528F', // tab bar
+  surface: '#35528F', // cards, sheets (a deeper blue)
+  surfaceRaised: '#2E4980', // inputs, chips, segment track, placeholders
+  action: '#5576B5', // secondary buttons, selected segment (a lighter blue)
+  accent: '#FFD27A', // soft gold: main buttons, selected states, titles, links, icons
+  accentSoft: '#FFE9B8',
+  goldText: '#FFD27A', // the KABA label
+  highlight: '#FFD27A', // Premium highlights
+  love: '#FFB3C6', // pink: hearts, likes, matches
+  rose: '#FFC2C2', // errors, delete, unread badges
+  text: '#FFFFFF',
+  textMuted: '#E3EAF7',
+  textFaint: '#AFC0E0', // placeholders and disabled only
+  border: '#5672AE', // edges on cards and panels
+  borderGold: '#FFD27A', // gold ornaments (tibeb divider)
+  onAccent: '#1E2F57', // text and icons on gold, pink and rose fills
   onPhoto: '#FFFFFF', // text and icons over photos (on overlay)
-  verified: '#1D6FE0', // blue tick
-  overlay: 'rgba(15, 22, 38, 0.55)', // dims the screen behind sheets; scrim behind text on photos
+  verified: '#A5D8FF', // blue tick, light so it shows on blue
+  overlay: 'rgba(10, 20, 45, 0.6)', // dims the screen behind sheets; scrim behind text on photos
 } as const;
 
 // Font family names, as registered by useFonts in app/_layout.tsx.
