@@ -13,6 +13,7 @@ import {
   QUICK_LANGUAGE_CODES,
   QUICK_LANGUAGES,
 } from '@/lib/languages';
+import { APP_NAME } from '@/lib/brand';
 import { INTERESTS, MAX_INTERESTS } from '@/lib/interests';
 import { formatForDisplay, getCountry } from '@/lib/phone';
 import type { ProfileDraft } from '@/lib/profileDraft';
@@ -59,7 +60,7 @@ export function stepProblem(step: number, d: ProfileDraft, rules: ResidenceRules
     case 0:
       if (!d.displayName.trim()) return 'Please enter your first name.';
       if (!d.dateOfBirth) return 'Please select your date of birth.';
-      if (ageOn(d.dateOfBirth) < MIN_AGE) return `You must be ${MIN_AGE} or older to use HabeshaMatch.`;
+      if (ageOn(d.dateOfBirth) < MIN_AGE) return `You must be ${MIN_AGE} or older to use ${APP_NAME}.`;
       if (!d.gender) return 'Please choose your gender.';
       return null;
     case 1:
@@ -116,7 +117,7 @@ export function AboutYou({ draft, update }: StepProps) {
       </FieldLabel>
       <DateOfBirthField value={draft.dateOfBirth} onChange={(v) => update({ dateOfBirth: v })} maximumDate={maxDate} />
       {draft.dateOfBirth && ageOn(draft.dateOfBirth) < MIN_AGE && (
-        <Notice tone="error">{`You must be ${MIN_AGE} or older to use HabeshaMatch.`}</Notice>
+        <Notice tone="error">{`You must be ${MIN_AGE} or older to use ${APP_NAME}.`}</Notice>
       )}
 
       <FieldLabel>I am a</FieldLabel>
@@ -326,12 +327,12 @@ export function Residence({
 
       {pickedLocal && !localPhone && country && (
         <Notice tone="error">
-          {`To live in ${country.name} on HabeshaMatch, your verified phone number must be from one of these countries: ${localNames}. Your number ${formatForDisplay(`+${(phone ?? '').replace(/^\+/, '')}`)} is from ${phoneCountryName}. If you live in ${country.name}, please contact support.`}
+          {`To live in ${country.name} on ${APP_NAME}, your verified phone number must be from one of these countries: ${localNames}. Your number ${formatForDisplay(`+${(phone ?? '').replace(/^\+/, '')}`)} is from ${phoneCountryName}. If you live in ${country.name}, please contact support.`}
         </Notice>
       )}
       {localPhone && !pickedLocal && country && (
         <Notice tone="warning">
-          {`Your phone number is from ${phoneCountryName}, where HabeshaMatch is free with unlimited new conversations. If you live in ${country.name}, you will be on the standard plan instead and lose the free local tier.`}
+          {`Your phone number is from ${phoneCountryName}, where ${APP_NAME} is free with unlimited new conversations. If you live in ${country.name}, you will be on the standard plan instead and lose the free local tier.`}
         </Notice>
       )}
 

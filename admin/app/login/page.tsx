@@ -50,7 +50,7 @@ function LoginForm() {
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-6 rounded-2xl bg-surface p-8">
         <div>
-          <h1 className="font-serif text-3xl text-accent">HabeshaMatch</h1>
+          <h1 className="font-serif text-3xl text-accent">Kaba</h1>
           <p className="text-muted">Admin sign in</p>
         </div>
         {step === 'email' ? (

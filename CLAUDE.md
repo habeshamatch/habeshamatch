@@ -1,4 +1,4 @@
-# HabeshaMatch: Claude Code project guide
+# Kaba (formerly HabeshaMatch): Claude Code project guide
 
 Read this file fully at the start of every session. It is the source of truth for product rules, stack, and conventions. If a request conflicts with this file, stop and ask before proceeding.
 

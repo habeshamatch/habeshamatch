@@ -34,7 +34,7 @@ export default async function PanelLayout({ children }: LayoutProps<'/'>) {
   return (
     <div className="flex min-h-screen">
       <aside className="flex w-56 shrink-0 flex-col gap-1 border-r border-raised bg-surface p-4">
-        <p className="mb-4 font-serif text-2xl text-accent">HabeshaMatch</p>
+        <p className="mb-4 font-serif text-2xl text-accent">Kaba</p>
         {NAV.map((item) => (
           <Link key={item.href} href={item.href} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-raised">
             <span>{item.label}</span>

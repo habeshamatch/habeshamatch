@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* HabeshaMatch brand tokens (same as mobile/lib/theme.ts). */
+/* Kaba brand tokens (same as mobile/lib/theme.ts). */
 @theme {
   --color-background: #1C1917;
   --color-surface: #292524;

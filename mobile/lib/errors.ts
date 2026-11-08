@@ -2,13 +2,15 @@
 // Database functions raise stable codes as the error message (see CLAUDE.md);
 // Supabase Auth returns its own codes on AuthError.code.
 
+import { APP_NAME } from '@/lib/brand';
+
 const DATABASE_MESSAGES = {
   premium_required: 'This is a Premium feature.',
   daily_new_chat_limit_reached:
     "You've started all your new conversations for today. You can still reply to anyone, and more open up tomorrow.",
   daily_swipe_limit_reached: "You're out of swipes for today. Come back tomorrow for more.",
   not_permitted: "This isn't available for this profile.",
-  must_be_18: 'You must be 18 or older to use HabeshaMatch.',
+  must_be_18: `You must be 18 or older to use ${APP_NAME}.`,
   local_residence_requires_local_phone:
     'To choose this country of residence, please sign in with a phone number from that country.',
   // The cooldown length lives in app_config, so it is not repeated here.
@@ -32,7 +34,7 @@ const AUTH_MESSAGES: Record<string, string> = {
   email_address_invalid: "That email address doesn't look right. Check it and try again.",
   email_address_not_authorized: "We can't send email to that address yet. Please try another one.",
   sms_send_failed: "We couldn't send a code to that number. Check the number and try again.",
-  phone_exists: 'This phone number is already linked to another HabeshaMatch account.',
+  phone_exists: `This phone number is already linked to another ${APP_NAME} account.`,
   phone_provider_disabled: 'Phone verification is not available right now. Please try again later.',
   signup_disabled: 'New sign ups are paused right now. Please try again later.',
   validation_failed: "That doesn't look right. Check it and try again.",

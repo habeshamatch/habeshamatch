@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Sheet } from '@/components/Sheet';
+import { APP_NAME } from '@/lib/brand';
 import { friendlyError } from '@/lib/errors';
 import { fetchBlocked, PEOPLE_QUERY_KEYS, unblockUser, type BlockedUser } from '@/lib/safety';
 import { useSession } from '@/lib/session';
@@ -78,7 +79,7 @@ export default function BlockedScreen() {
           <>
             <Text style={typography.subtitle}>{`Unblock ${confirm.name}?`}</Text>
             <Text style={typography.bodyMuted}>
-              {`You may see each other again on HabeshaMatch, and any earlier conversation comes back. ${confirm.name} is not told.`}
+              {`You may see each other again on ${APP_NAME}, and any earlier conversation comes back. ${confirm.name} is not told.`}
             </Text>
             {error && <Text style={[typography.caption, styles.error]}>{error}</Text>}
             <Button label="Unblock" onPress={() => unblock(confirm)} loading={busy} />

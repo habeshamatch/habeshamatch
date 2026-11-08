@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { CountryPicker } from '@/components/CountryPicker';
 import { sendPhoneVerificationCode, signOut } from '@/lib/auth';
+import { APP_NAME } from '@/lib/brand';
 import { friendlyError } from '@/lib/errors';
 import { defaultCountry, getCountry, toE164, type Country } from '@/lib/phone';
 import { useSession } from '@/lib/session';
@@ -51,7 +52,7 @@ export default function PhoneScreen() {
         <View style={styles.content}>
           <Text style={typography.title}>Verify your phone number</Text>
           <Text style={typography.bodyMuted}>
-            We check every member&apos;s number once to keep HabeshaMatch real and safe. Your number is never
+            We check every member&apos;s number once to keep {APP_NAME} real and safe. Your number is never
             shown on your profile.
           </Text>
 

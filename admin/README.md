@@ -1,4 +1,4 @@
-# HabeshaMatch admin panel
+# Kaba admin panel
 
 Next.js app for moderators: photo approvals, reports, users, verifications and a dashboard.
 Same Supabase project as the mobile app. See CLAUDE.md and docs/ADMIN.md.

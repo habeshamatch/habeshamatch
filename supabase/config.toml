@@ -248,11 +248,11 @@ otp_expiry = 3600
 # Email sign in uses a 6 digit code ({{ .Token }}), not a link. New users get the confirmation
 # email and returning users get the magic link email, so both send the same code template.
 [auth.email.template.confirmation]
-subject = "Your HabeshaMatch code"
+subject = "Your Kaba code"
 content_path = "./supabase/remote-auth/templates/sign_in_code.html"
 
 [auth.email.template.magic_link]
-subject = "Your HabeshaMatch code"
+subject = "Your Kaba code"
 content_path = "./supabase/remote-auth/templates/sign_in_code.html"
 
 # Uncomment to customize email template
