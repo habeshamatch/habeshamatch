@@ -2,7 +2,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps } f
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
-type Variant = 'primary' | 'secondary' | 'text';
+// gold: on dark artwork (the welcome screen), navy text on gold.
+type Variant = 'primary' | 'secondary' | 'text' | 'gold';
 
 type Props = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
@@ -48,6 +49,9 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: colors.action,
+  },
+  gold: {
+    backgroundColor: colors.gold,
   },
   text: {
     minHeight: 44,

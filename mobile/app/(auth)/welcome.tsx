@@ -1,73 +1,60 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
-import { TibebBand } from '@/components/TibebBand';
 import { APP_NAME } from '@/lib/brand';
-import { colors, fonts, radius, spacing, typography } from '@/lib/theme';
+import { colors, spacing, typography } from '@/lib/theme';
+
+// The brand artwork (two kabas under an arch, with the name) fills the screen; its lower part is
+// plain velvet, where the buttons sit.
+const ARTWORK = require('@/assets/brand/welcome-source.jpeg');
 
 export default function Welcome() {
   return (
-    <SafeAreaView style={styles.container}>
-      <TibebBand />
-      <View style={styles.hero}>
-        <View style={styles.coin}>
-          <Text style={styles.coinText}>{APP_NAME.slice(0, 1)}</Text>
-        </View>
-        <Text style={[typography.display, styles.center]}>{APP_NAME}</Text>
-        <Text style={[typography.bodyMuted, styles.center]}>
+    <View style={styles.container}>
+      <StatusBar style="light" />
+      <Image
+        source={ARTWORK}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        contentPosition="top"
+        accessibilityLabel={`${APP_NAME}: two embroidered kabas under a gold arch`}
+      />
+      <SafeAreaView style={styles.content} edges={['bottom']}>
+        <Text style={[typography.body, styles.tagline]}>
           Meet Eritrean and Ethiopian singles who are ready for something real.
         </Text>
-      </View>
-
-      <View style={styles.actions}>
         {/* Email sign in creates the account on first use, so both buttons start the same flow. */}
-        <Button label="Get started" onPress={() => router.push('/email')} />
+        <Button label="Get started" variant="gold" onPress={() => router.push('/email')} />
         <Button label="I already have an account" variant="secondary" onPress={() => router.push('/email')} />
-        <Text style={[typography.caption, styles.center]}>18+ only. Built for serious relationships.</Text>
-        <TibebBand />
-      </View>
-    </SafeAreaView>
+        <Text style={[typography.caption, styles.small]}>18+ only. Built for serious relationships.</Text>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    justifyContent: 'space-between',
+    backgroundColor: colors.brand,
   },
-  hero: {
+  content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
   },
-  coin: {
-    width: 88,
-    height: 88,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.gold,
-    borderWidth: 3,
-    borderColor: colors.goldIcon,
+  tagline: {
+    color: colors.onPhoto,
+    textAlign: 'center',
     marginBottom: spacing.sm,
   },
-  coinText: {
-    fontFamily: fonts.heading,
-    fontSize: 44,
-    lineHeight: 52,
-    color: colors.text,
-  },
-  center: {
+  small: {
+    color: colors.onBrandMuted,
     textAlign: 'center',
-  },
-  actions: {
-    gap: spacing.md,
   },
 });
