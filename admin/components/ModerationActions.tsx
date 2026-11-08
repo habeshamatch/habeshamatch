@@ -30,7 +30,7 @@ export function ModerationActions({ userId, status }: { userId: string; status: 
             </button>
           )}
           {status !== 'banned' && (
-            <button name="status" value="banned" className="flex-1 rounded-full bg-rose py-2 font-semibold text-text">
+            <button name="status" value="banned" className="flex-1 rounded-full bg-rose py-2 font-semibold text-white">
               Ban
             </button>
           )}
@@ -49,7 +49,7 @@ export function ModerationActions({ userId, status }: { userId: string; status: 
           <input type="checkbox" name="confirm" value="yes" required /> Permanently delete this account. This cannot be
           undone.
         </label>
-        <button className="w-full rounded-full bg-rose py-2 font-semibold text-text">Delete account</button>
+        <button className="w-full rounded-full bg-rose py-2 font-semibold text-white">Delete account</button>
       </form>
     </div>
   );

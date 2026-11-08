@@ -33,20 +33,20 @@ export default async function PanelLayout({ children }: LayoutProps<'/'>) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-56 shrink-0 flex-col gap-1 border-r border-raised bg-surface p-4">
-        <p className="mb-4 font-serif text-2xl text-accent">Kaba</p>
+      <aside className="flex w-56 shrink-0 flex-col gap-1 bg-brand p-4 text-white">
+        <p className="mb-4 font-serif text-2xl text-gold">Kaba</p>
         {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-raised">
+          <Link key={item.href} href={item.href} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-brand-raised">
             <span>{item.label}</span>
             {item.count && counts[item.count] > 0 && (
-              <span className="rounded-full bg-accent px-2 text-xs font-semibold text-background">{counts[item.count]}</span>
+              <span className="rounded-full bg-gold px-2 text-xs font-semibold text-brand">{counts[item.count]}</span>
             )}
           </Link>
         ))}
-        <div className="mt-auto space-y-2 text-sm text-muted">
+        <div className="mt-auto space-y-2 text-sm text-on-brand-muted">
           <p className="truncate">{admin.email}</p>
           <form action={signOut}>
-            <button className="text-accent">Sign out</button>
+            <button className="text-gold">Sign out</button>
           </form>
         </div>
       </aside>
