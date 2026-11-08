@@ -4,7 +4,7 @@ Items that are deliberately postponed. Each one blocks real users, not developme
 
 ## SMS (phone verification)
 
-Currently (2026-10-14): Twilio Verify is ON for the remote project with real credentials, and the email sender is hello@habeshamatch.app. Real texts only reach Verified Caller IDs until the Primary Customer Profile is approved.
+Currently (2026-10-14): Twilio Verify is ON for the remote project with real credentials, and the email sender is kaba@solrootapps.com (since 2026-11-08). Real texts only reach Verified Caller IDs until the Primary Customer Profile is approved.
 
 - [x] Decide the provider: **Twilio Verify** (no phone number to manage, per-country sender rules handled, fraud protection against SMS pumping, about $0.05 per successful verification plus the SMS).
 - [ ] Twilio Console > Verify > Services > create "Kaba", SMS channel on. Copy the Verify Service SID (starts with `VA`).
@@ -27,12 +27,12 @@ Currently (2026-10-14): Twilio Verify is ON for the remote project with real cre
 - [x] Buy a domain: habeshamatch.app. Also needed for the App Store and Play Store privacy policy and support URLs, and the Google sign in consent screen.
 - [x] Verify the domain in Resend (DNS records), ideally a subdomain such as `mail.habeshamatch.com`.
 - [x] Supabase dashboard > Authentication > Emails > SMTP Settings: change the sender from `onboarding@resend.dev` to an address on the domain. Until then Resend only delivers to the Resend account's own email.
-- [ ] Rename to Kaba (2026-11-08): the new domain is **solrootapps.com** (the owner's company domain, shared by future apps). Verify solrootapps.com in Resend (a subdomain such as `mail.solrootapps.com`), then change the SMTP sender to e.g. `kaba@solrootapps.com` with sender name "Kaba". Until then sign in codes still come from hello@habeshamatch.app (they already say "Kaba" once the remote-auth config is pushed).
+- [x] Rename to Kaba (2026-11-08): the new domain is **solrootapps.com** (the owner's company domain, shared by future apps). solrootapps.com is verified in Resend and the SMTP sender is `kaba@solrootapps.com`, sender name "Kaba". The "Your Kaba code" subjects and the navy and gold template are pushed.
 
 ## Website pages (required by the App Store and Play Store)
 
 - [ ] Publish https://solrootapps.com/kaba/privacy (privacy policy) and https://solrootapps.com/kaba/terms (terms of service). The app's Profile tab and the paywall link to both (`mobile/lib/links.ts`); App Store Connect needs the same privacy URL.
-- [ ] Make sure support@solrootapps.com receives mail (Contact support in the app, and the App Store support URL).
+- [x] Make sure support@solrootapps.com receives mail (Contact support in the app, and the App Store support URL).
 
 ## Database
 
