@@ -6,6 +6,8 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, Vi
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { TibebBand } from '@/components/TibebBand';
+import { TibebDivider } from '@/components/TibebDivider';
 import { fetchMyLimits } from '@/lib/chats';
 import { friendlyError } from '@/lib/errors';
 import { LINKS } from '@/lib/links';
@@ -109,7 +111,8 @@ export default function Paywall() {
             </>
           ) : (
             <>
-              <Ionicons name="sparkles" size={56} color={colors.accent} />
+              <TibebBand />
+              <Ionicons name="sparkles" size={56} color={colors.goldIcon} />
               <Text style={[typography.title, styles.centerText]}>
                 {stage === 'active' ? 'Welcome to Premium' : 'Thank you!'}
               </Text>
@@ -129,12 +132,14 @@ export default function Paywall() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
+        <TibebBand />
         <Text style={typography.display}>Premium</Text>
         <Text style={typography.bodyMuted}>Meet more people, faster.</Text>
+        <TibebDivider />
         <View style={styles.list}>
           {BENEFITS.map((b) => (
             <View key={b.text} style={styles.row}>
-              <Ionicons name={b.icon} size={22} color={colors.accent} />
+              <Ionicons name={b.icon} size={22} color={colors.goldIcon} />
               <Text style={[typography.body, styles.flex]}>{b.text}</Text>
             </View>
           ))}

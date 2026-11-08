@@ -5,6 +5,7 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { TibebBand } from '@/components/TibebBand';
 import { fetchMyPhotos } from '@/lib/photos';
 import { useSession } from '@/lib/session';
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -22,6 +23,7 @@ export function MatchModal({ match, onClose }: { match: Match | null; onClose: (
       <View style={styles.backdrop}>
         {match && (
           <View style={styles.box}>
+            <TibebBand />
             <Text style={[typography.display, styles.center, { color: colors.love }]}>{"It's a match!"}</Text>
             <Text style={[typography.body, styles.center]}>{`You and ${match.name} liked each other.`}</Text>
             <View style={styles.pair}>
@@ -39,6 +41,7 @@ export function MatchModal({ match, onClose }: { match: Match | null; onClose: (
               }}
             />
             <Button label="Keep swiping" variant="text" onPress={onClose} />
+            <TibebBand />
           </View>
         )}
       </View>
@@ -58,6 +61,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderGold,
   },
   center: {
     textAlign: 'center',

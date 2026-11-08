@@ -67,7 +67,7 @@ export default function Discover() {
     <View style={styles.header}>
       <CountryFilterSummary selected={countries} onClear={() => setCountries([])} />
       {countries.length === 0 && (
-        <Text style={typography.bodyMuted}>People who meet your criteria, best matches first.</Text>
+        <Text style={typography.bodyMuted}>Your best matches first.</Text>
       )}
       <TibebDivider />
     </View>
