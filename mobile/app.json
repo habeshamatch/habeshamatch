@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.solroot.kaba",
@@ -15,7 +15,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#1C1917",
+        "backgroundColor": "#13213F",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -32,9 +32,15 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1C1917",
+          "backgroundColor": "#12223C",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 200
+          "imageWidth": 320,
+          "ios": {
+            "backgroundColor": "#000D36",
+            "image": "./assets/splash-full.png",
+            "enableFullScreenImage_legacy": true,
+            "resizeMode": "cover"
+          }
         }
       ],
       "expo-localization",
@@ -52,12 +58,12 @@
       [
         "expo-notifications",
         {
-          "color": "#D4A24C"
+          "color": "#13213F"
         }
       ]
     ],
     "scheme": "habeshamatch",
-    "backgroundColor": "#1C1917",
+    "backgroundColor": "#F7F4EE",
     "experiments": {
       "typedRoutes": true
     },

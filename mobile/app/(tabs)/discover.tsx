@@ -2,11 +2,12 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ProfileTile } from '@/components/ProfileTile';
 import { CountryFilterButton, CountryFilterSummary } from '@/components/CountryFilter';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { TibebDivider } from '@/components/TibebDivider';
 import { countMyMustHaves, DISCOVER_PAGE_SIZE, fetchDiscoverCountries, fetchMeetsMyCriteria } from '@/lib/discover';
 import { friendlyError } from '@/lib/errors';
 import { useSession } from '@/lib/session';
@@ -54,42 +55,50 @@ export default function Discover() {
     if (query.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage();
   }, [query]);
 
+  // The blue band at the top, with the country filter on the right.
+  const band = (
+    <ScreenHeader
+      title="Discover"
+      right={<CountryFilterButton available={available.data} selected={countries} onChange={setCountries} onBrand />}
+    />
+  );
+
   const header = (
     <View style={styles.header}>
-      <View style={styles.titleRow}>
-        <Text style={typography.title}>Discover</Text>
-        <CountryFilterButton available={available.data} selected={countries} onChange={setCountries} />
-      </View>
       <CountryFilterSummary selected={countries} onClear={() => setCountries([])} />
       {countries.length === 0 && (
-        <Text style={typography.bodyMuted}>People who meet your criteria, best matches first.</Text>
+        <Text style={typography.bodyMuted}>Your best matches first.</Text>
       )}
+      <TibebDivider />
     </View>
   );
 
   if (query.isPending) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.container}>
+        {band}
         <View style={styles.list}>{header}</View>
         <ActivityIndicator color={colors.accent} style={styles.loading} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (query.isError && cards.length === 0) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.container}>
+        {band}
         <View style={styles.list}>{header}</View>
         <View style={styles.empty}>
           <Text style={[typography.body, styles.center]}>{friendlyError(query.error)}</Text>
           <Button label="Try again" variant="secondary" onPress={() => query.refetch()} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      {band}
       <FlatList
         key={countryKey} // a new filter starts at the top
         data={cards}
@@ -138,18 +147,13 @@ export default function Discover() {
         initialNumToRender={6}
         windowSize={7}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   header: {
     gap: spacing.sm,

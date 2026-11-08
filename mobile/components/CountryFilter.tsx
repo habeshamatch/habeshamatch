@@ -15,10 +15,12 @@ export function CountryFilterButton({
   available,
   selected,
   onChange,
+  onBrand = false,
 }: {
   available: CountryCount[] | undefined;
   selected: string[];
   onChange: (codes: string[]) => void;
+  onBrand?: boolean; // in the screen header: a filled navy pill
 }) {
   const [open, setOpen] = useState(false);
   const sections = useMemo(
@@ -35,17 +37,19 @@ export function CountryFilterButton({
   );
   if ((available?.length ?? 0) < 2 && selected.length === 0) return null;
   const on = selected.length > 0;
+  // In the header it is always a navy pill with gold text; elsewhere an outline that fills when on.
+  const filled = onBrand || on;
   return (
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        style={[styles.button, on && styles.buttonOn]}
+        style={[styles.button, filled && styles.filled]}
         accessibilityRole="button"
         accessibilityLabel={on ? `Filter, ${selected.length} countries chosen` : 'Filter by country'}
         hitSlop={8}
       >
-        <Ionicons name="options-outline" size={18} color={on ? colors.background : colors.accent} />
-        <Text style={[typography.caption, styles.text, on && styles.textOn]}>
+        <Ionicons name="options-outline" size={18} color={filled ? colors.onAccent : colors.accent} />
+        <Text style={[typography.caption, styles.text, { color: filled ? colors.onAccent : colors.accent }]}>
           {on ? `Filter · ${selected.length}` : 'Filter'}
         </Text>
       </Pressable>
@@ -89,14 +93,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.accent,
   },
-  buttonOn: {
+  filled: {
     backgroundColor: colors.accent,
   },
   text: {
-    color: colors.accent,
-  },
-  textOn: {
-    color: colors.background,
+    fontFamily: typography.button.fontFamily,
   },
   summary: {
     flexDirection: 'row',

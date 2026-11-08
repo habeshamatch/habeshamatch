@@ -4,15 +4,20 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import type { ProfileCard } from '@/lib/discover';
+import { interestLabel } from '@/lib/interests';
 import { placeLabel } from '@/lib/profileLabels';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 type Props = { card: ProfileCard; width: number; onPress: () => void; onDismiss?: () => void };
 
-// Grid card on Discover: thumbnail, name, age, place, blue tick, match percentage.
+// Grid card on Discover and For you: a white card edged in thin gold with the photo set inside,
+// match percentage, name, age, blue tick, place and their first two interests.
 // With onDismiss, a small ✕ in the corner removes the person in one tap (Suggested).
+const PHOTO_INSET = spacing.sm;
 export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
   const place = placeLabel(card.city, card.countryCode);
+  const photoWidth = width - PHOTO_INSET * 2 - 2; // inside the card's padding and gold edge
+  const interests = card.interests.slice(0, 2);
   return (
     <Pressable
       onPress={onPress}
@@ -22,7 +27,7 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
         place ? `, ${place}` : ''
       }${card.matchPercent !== null ? `, ${card.matchPercent} percent match` : ''}`}
     >
-      <View style={[styles.photo, { height: width * 1.3 }]}>
+      <View style={[styles.photo, { height: photoWidth * 1.25 }]}>
         {card.photoUrl ? (
           <Image
             source={{ uri: card.photoUrl, cacheKey: card.photoPath ? `thumb:${card.photoPath}` : undefined }}
@@ -49,7 +54,7 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
             accessibilityLabel={`Not for me: remove ${card.name} from Suggested`}
             hitSlop={10}
           >
-            <Ionicons name="close" size={16} color={colors.text} />
+            <Ionicons name="close" size={16} color={colors.onPhoto} />
           </Pressable>
         )}
       </View>
@@ -66,6 +71,17 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
             {place}
           </Text>
         )}
+        {interests.length > 0 && (
+          <View style={styles.chips}>
+            {interests.map((code, i) => (
+              <View key={code} style={[styles.chip, i % 2 === 0 ? styles.chipGold : styles.chipBlue]}>
+                <Text style={[styles.chipText, i % 2 === 0 ? styles.chipGoldText : styles.chipBlueText]} numberOfLines={1}>
+                  {interestLabel(code)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -73,14 +89,18 @@ export function ProfileTile({ card, width, onPress, onDismiss }: Props) {
 
 const styles = StyleSheet.create({
   tile: {
-    borderRadius: radius.md,
-    overflow: 'hidden',
+    padding: PHOTO_INSET,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderGold,
     backgroundColor: colors.surface,
   },
   pressed: {
     opacity: 0.85,
   },
   photo: {
+    borderRadius: radius.md,
+    overflow: 'hidden',
     backgroundColor: colors.surfaceRaised,
   },
   initials: {
@@ -94,7 +114,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.overlay, // a quiet see-through pill on the photo
   },
   dismiss: {
     position: 'absolute',
@@ -109,12 +129,43 @@ const styles = StyleSheet.create({
   },
   matchText: {
     ...typography.caption,
-    color: colors.background,
+    color: colors.onPhoto,
     fontFamily: typography.button.fontFamily,
   },
   info: {
-    padding: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xs,
     gap: 2,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  chip: {
+    maxWidth: '100%',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+  },
+  chipGold: {
+    backgroundColor: colors.goldSoft,
+  },
+  chipBlue: {
+    backgroundColor: colors.accentSoft,
+  },
+  chipText: {
+    ...typography.caption,
+    fontSize: 12,
+    fontFamily: typography.button.fontFamily,
+  },
+  chipGoldText: {
+    color: colors.goldText,
+  },
+  chipBlueText: {
+    color: colors.text,
   },
   nameRow: {
     flexDirection: 'row',
@@ -124,5 +175,6 @@ const styles = StyleSheet.create({
   name: {
     flexShrink: 1,
     fontFamily: typography.button.fontFamily,
+    fontSize: 17,
   },
 });

@@ -154,21 +154,29 @@ Errors are raised with stable codes: `premium_required`, `daily_new_chat_limit_r
 
 ## Design system
 
-Inspired by the Habesha coffee ceremony: warm, cultural, premium, not clinical.
+"Kaba": a cream page with white cards edged in thin gold, deep navy for text, main buttons (with gold text) and the bottom tab bar, and gold for the coin logo, new-match rings, list icons and the active tab. Main tab screens start with `components/ScreenHeader.tsx`: a gold coin with the app's initial, the title in navy serif capitals, an optional control on the right (Discover's Filter is a navy pill with gold text), and a thin gold line underneath. Photo cards (`components/ProfileTile.tsx`) set the photo inside a white card with a gold edge, a quiet navy match pill, the name, blue tick, place and the member's first two interests as soft gold and soft blue chips. The tibeb diamond ornament (`components/TibebDivider.tsx`) comes from the embroidered borders on a habesha kemis, shared by Eritreans and Ethiopians. `components/TibebBand.tsx` is the wider gold and navy band, used on the match pop-up only (not on the paywall, which must fit one screen without scrolling). Brand artwork (Gemini-made by the owner, originals in `mobile/assets/brand/`): two royal blue velvet kabas, his and hers, under a gold arch. The app icon is `assets/icon.png` (1024, no transparency, no baked-in corners), the iPhone splash is the full-screen `assets/splash-full.png` (centred artwork on velvet; `enableFullScreenImage_legacy` in `app.json`, which Expo may drop later; Android keeps the logo `assets/splash-icon.png`), and the welcome screen fills with `assets/brand/welcome-source.jpeg` with a gold `Button` (`variant="gold"`) over the velvet. Icon and splash only change with a new development build. Never use flag colours (green, yellow, red, or Eritrea's blue together): the app serves both communities. Raspberry only for love moments (hearts, like buttons, matches); red only for errors, delete and unread badges. Only design what exists: never mock up buttons or sections for features the app does not have. The app name lives only in `mobile/lib/brand.ts`. Light mode only.
 
-| Token | Value |
-|---|---|
-| background | `#1C1917` deep stone |
-| surface | `#292524` |
-| surfaceRaised | `#3A3330` |
-| accent (amber/gold) | `#D4A24C` |
-| accentSoft | `#E8C77E` |
-| rose | `#C97B84` |
-| text | `#FAF7F2` |
-| textMuted | `#A8A29E` |
-| verified (blue tick) | `#3B82F6` |
+| Token | Value | Use |
+|---|---|---|
+| background | `#F7F4EE` | cream page |
+| surface | `#FFFFFF` | cards, sheets |
+| surfaceRaised | `#F1ECE2` | inputs, chips, segment track, placeholders |
+| action | `#ECE6DA` | secondary buttons (navy text) |
+| border / borderGold | `#EADFC8` / `#E2C27A` | light lines / thin gold card edges, header line |
+| accent | `#13213F` | deep navy: main buttons, selected states, links |
+| onAccent | `#F2C14E` | gold text and icons on navy |
+| onNavy | `#FFFFFF` | body text on navy (your chat bubbles) |
+| gold / goldIcon / goldText / goldSoft | `#F2C14E` / `#B98B2E` / `#7A5A12` / `#FBEFCF` | coin, rings, active tab / icons and ornaments on light / gold text on light / soft gold chips |
+| accentSoft | `#E3ECF8` | soft blue chips |
+| highlight | `#F2C14E` | Premium highlights, navy text |
+| love | `#D1395F` | raspberry: hearts, likes, matches |
+| rose / onRose | `#C0262D` / `#FFFFFF` | errors, delete, unread badges |
+| text / textMuted / textFaint | `#13213F` / `#5D6680` / `#9AA1B2` | textFaint for placeholders only |
+| verified | `#1D6FE0` | blue tick |
+| brand / onBrandMuted | `#13213F` / `#C9D1E3` | the tab bar / its inactive tabs |
+| onPhoto | `#FFFFFF` | over photos (on the overlay scrim) |
 
-Headings: a warm serif (Playfair Display or DM Serif Display via @expo-google-fonts). Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours.
+Navy text, textMuted, goldText, rose and love pass WCAG AA (4.5:1) on cream and white; gold passes on navy; goldIcon is for icons and ornaments only (3:1). Never put text in `background` or `text` colour on a coloured fill; use `onAccent`, `onNavy`, `onRose` or `onPhoto`. Headings: Playfair Display. Body: Inter. All tokens live in `mobile/lib/theme.ts`; never inline colours. Earlier themes are in git history on the colours branch.
 
 ## Conventions
 

@@ -30,6 +30,8 @@ const styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
     gap: spacing.md,

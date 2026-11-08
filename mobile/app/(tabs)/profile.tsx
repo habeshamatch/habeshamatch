@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState, type ComponentProps } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { TextField } from '@/components/FormControls';
 import { Sheet } from '@/components/Sheet';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { deleteMyAccount, fetchMyProfile, signOutEverywhere } from '@/lib/account';
 import { signOut } from '@/lib/auth';
 import { fetchMyLimits } from '@/lib/chats';
@@ -70,8 +70,11 @@ export default function ProfileTab() {
     }
   };
 
+  const band = <ScreenHeader title="Profile" />;
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      {band}
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.me}>
           <Avatar
@@ -167,7 +170,7 @@ export default function ProfileTab() {
               accessibilityRole="button"
               accessibilityLabel="Delete my account permanently"
             >
-              <Text style={[typography.button, { color: colors.text }]}>
+              <Text style={[typography.button, { color: colors.onRose }]}>
                 {deleting ? 'Deleting...' : 'Delete my account'}
               </Text>
             </Pressable>
@@ -175,14 +178,14 @@ export default function ProfileTab() {
           </>
         )}
       </Sheet>
-    </SafeAreaView>
+    </View>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
-      <Text style={[typography.caption, styles.sectionTitle]}>{title.toUpperCase()}</Text>
+      <Text style={[typography.section, styles.sectionTitle]}>{title.toUpperCase()}</Text>
       <View style={styles.card}>{children}</View>
     </View>
   );
@@ -210,7 +213,7 @@ function Row({
       accessibilityRole="button"
       accessibilityLabel={detail ? `${label}, ${detail}` : label}
     >
-      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.accent} />
+      <Ionicons name={icon} size={22} color={danger ? colors.rose : colors.goldIcon} />
       <Text style={[typography.body, styles.flex, { color }]}>{label}</Text>
       {detail ? (
         <Text style={typography.caption}>{detail}</Text>
@@ -246,6 +249,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   row: {

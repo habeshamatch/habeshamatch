@@ -251,7 +251,7 @@ export default function ChatScreen() {
             value={text}
             onChangeText={setText}
             placeholder="Message"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textFaint}
             multiline
             maxLength={MESSAGE_MAX}
             style={styles.input}
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: radius.sm,
   },
   mineText: {
-    color: colors.background,
+    color: colors.onNavy,
   },
   failed: {
     opacity: 0.6,

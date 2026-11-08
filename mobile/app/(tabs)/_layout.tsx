@@ -92,9 +92,9 @@ export default function TabsLayout() {
         screenOptions={{
           headerShown: false,
           sceneStyle: { backgroundColor: colors.background },
-          tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.surfaceRaised },
-          tabBarActiveTintColor: colors.accent,
-          tabBarInactiveTintColor: colors.textMuted,
+          tabBarStyle: { backgroundColor: colors.brand, borderTopColor: colors.brand },
+          tabBarActiveTintColor: colors.gold,
+          tabBarInactiveTintColor: colors.onBrandMuted,
           tabBarLabelStyle: { fontFamily: fonts.bodyMedium },
         }}
       >
@@ -112,7 +112,7 @@ export default function TabsLayout() {
             title: 'For you',
             tabBarIcon: (p) => <TabIcon name="sparkles-outline" {...p} />,
             tabBarBadge: forYouCount > 0 ? (forYouCount > 99 ? '99+' : forYouCount) : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.text },
+            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onRose },
           }}
         />
         <Tabs.Screen
@@ -121,7 +121,7 @@ export default function TabsLayout() {
             title: 'Messages',
             tabBarIcon: (p) => <TabIcon name="chatbubbles-outline" {...p} />,
             tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.background },
+            tabBarBadgeStyle: { backgroundColor: colors.rose, color: colors.onRose },
           }}
         />
         <Tabs.Screen

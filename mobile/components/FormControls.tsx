@@ -15,7 +15,7 @@ export function FieldLabel({ children, hint }: { children: ReactNode; hint?: str
 }
 
 export function TextField(props: TextInputProps) {
-  return <TextInput placeholderTextColor={colors.textMuted} {...props} style={[styles.input, props.style]} />;
+  return <TextInput placeholderTextColor={colors.textFaint} {...props} style={[styles.input, props.style]} />;
 }
 
 export function ToggleRow({
@@ -39,7 +39,7 @@ export function ToggleRow({
         value={value}
         onValueChange={onChange}
         trackColor={{ false: colors.surfaceRaised, true: colors.accent }}
-        thumbColor={colors.text}
+        thumbColor={colors.surface}
         accessibilityLabel={label}
       />
     </View>
@@ -62,7 +62,7 @@ export function ProgressBar({ step, total }: { step: number; total: number }) {
 }
 
 export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warning' | 'error'; children: ReactNode }) {
-  const border = tone === 'error' ? colors.rose : tone === 'warning' ? colors.accentSoft : colors.surfaceRaised;
+  const border = tone === 'error' ? colors.rose : tone === 'warning' ? colors.highlight : colors.surfaceRaised;
   // Plain text (one string or several pieces) is wrapped in <Text>; React Native cannot render bare strings.
   const parts = Children.toArray(children);
   const isText = parts.every((p) => typeof p === 'string' || typeof p === 'number');

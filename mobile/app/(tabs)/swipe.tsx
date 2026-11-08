@@ -3,12 +3,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { MatchModal, type Match } from '@/components/MatchModal';
 import { RoundButton } from '@/components/RoundButton';
 import { SwipeCard, type SwipeCardHandle, type SwipeDirection } from '@/components/SwipeCard';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { fetchMyLimits, nextLimitReset } from '@/lib/chats';
 import { errorCode, friendlyError } from '@/lib/errors';
 import { undoLastSwipe } from '@/lib/premium';
@@ -201,32 +201,38 @@ export default function Swipe() {
           <RoundButton
             small
             icon="arrow-undo"
-            color={colors.accentSoft}
+            color={colors.textMuted}
             label={isPremium ? 'Undo last swipe' : 'Undo last swipe (Premium)'}
             onPress={onUndo}
             disabled={isPremium && (!lastSwiped || undoing)}
           />
           <RoundButton icon="close" color={colors.rose} label="Pass" onPress={() => topCard.current?.swipe('pass')} />
-          <RoundButton icon="heart" color={colors.accent} label="Like" onPress={() => topCard.current?.swipe('like')} />
+          <RoundButton icon="heart" color={colors.love} label="Like" onPress={() => topCard.current?.swipe('like')} />
           <View style={styles.balance} />
         </View>
       </>
     );
   }
 
+  const band = (
+    <ScreenHeader
+      title="Swipe"
+      right={
+        limits.data && !outOfSwipes ? (
+          <Text style={[typography.caption, styles.left]}>{`${Math.max(allowed - used, 0)} swipes left today`}</Text>
+        ) : undefined
+      }
+    />
+  );
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={typography.title}>Swipe</Text>
-        {limits.data && !outOfSwipes && (
-          <Text style={typography.caption}>{`${Math.max(allowed - used, 0)} swipes left today`}</Text>
-        )}
-      </View>
+    <View style={styles.container}>
+      {band}
       {notice && <Text style={[typography.caption, styles.notice]}>{notice}</Text>}
       {body}
 
       <MatchModal match={match} onClose={() => setMatch(null)} />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -234,12 +240,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
+  left: {
+    color: colors.textMuted,
+    paddingBottom: spacing.xs,
   },
   notice: {
     color: colors.rose,

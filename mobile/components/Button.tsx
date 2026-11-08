@@ -2,7 +2,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps } f
 
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
-type Variant = 'primary' | 'secondary' | 'text';
+// gold: on dark artwork (the welcome screen), navy text on gold.
+type Variant = 'primary' | 'secondary' | 'text' | 'gold';
 
 type Props = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
@@ -12,7 +13,7 @@ type Props = Omit<PressableProps, 'children' | 'style'> & {
 
 export function Button({ label, variant = 'primary', loading = false, disabled, ...rest }: Props) {
   const isDisabled = disabled || loading;
-  const textColor = variant === 'primary' ? colors.background : variant === 'text' ? colors.accent : colors.text;
+  const textColor = variant === 'primary' ? colors.onAccent : variant === 'text' ? colors.accent : colors.text;
   return (
     <Pressable
       accessibilityRole="button"
@@ -47,7 +48,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   secondary: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.action,
+  },
+  gold: {
+    backgroundColor: colors.gold,
   },
   text: {
     minHeight: 44,

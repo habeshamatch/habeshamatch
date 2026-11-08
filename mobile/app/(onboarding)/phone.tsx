@@ -72,7 +72,7 @@ export default function PhoneScreen() {
                 setError(null);
               }}
               placeholder="Phone number"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={colors.textFaint}
               keyboardType="phone-pad"
               textContentType="telephoneNumber"
               autoComplete="tel"

@@ -51,7 +51,7 @@ export function CountryPicker({
           value={query}
           onChangeText={setQuery}
           placeholder={showDialCode ? 'Search country or code' : 'Search country'}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.textFaint}
           style={styles.search}
           autoCorrect={false}
           autoCapitalize="none"

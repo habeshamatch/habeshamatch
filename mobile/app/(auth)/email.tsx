@@ -52,7 +52,7 @@ export default function EmailScreen() {
               setError(null);
             }}
             placeholder="you@example.com"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textFaint}
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"

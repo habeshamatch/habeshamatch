@@ -114,7 +114,7 @@ export default function LikedYou() {
         </View>
         <View style={styles.buttons}>
           <RoundButton icon="close" color={colors.rose} label="Pass" onPress={() => topCard.current?.swipe('pass')} />
-          <RoundButton icon="heart" color={colors.accent} label="Like back" onPress={() => topCard.current?.swipe('like')} />
+          <RoundButton icon="heart" color={colors.love} label="Like back" onPress={() => topCard.current?.swipe('like')} />
         </View>
       </>
     );

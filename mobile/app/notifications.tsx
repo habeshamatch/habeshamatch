@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   row: {
     flexDirection: 'row',

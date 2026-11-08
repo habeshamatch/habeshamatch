@@ -109,7 +109,7 @@ export default function Paywall() {
             </>
           ) : (
             <>
-              <Ionicons name="sparkles" size={56} color={colors.accent} />
+              <Ionicons name="sparkles" size={56} color={colors.goldIcon} />
               <Text style={[typography.title, styles.centerText]}>
                 {stage === 'active' ? 'Welcome to Premium' : 'Thank you!'}
               </Text>
@@ -128,14 +128,26 @@ export default function Paywall() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.top}>
+        <Pressable
+          onPress={close}
+          disabled={busy !== null}
+          accessibilityRole="button"
+          accessibilityLabel={isPremium ? 'Close' : 'Not now'}
+          hitSlop={12}
+        >
+          <Ionicons name="close" size={26} color={colors.textMuted} />
+        </Pressable>
+      </View>
+      {/* Sized to fit one phone screen; it only scrolls on small phones or with large text. */}
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={typography.display}>Premium</Text>
+        <Text style={typography.title}>Premium</Text>
         <Text style={typography.bodyMuted}>Meet more people, faster.</Text>
         <View style={styles.list}>
           {BENEFITS.map((b) => (
             <View key={b.text} style={styles.row}>
-              <Ionicons name={b.icon} size={22} color={colors.accent} />
-              <Text style={[typography.body, styles.flex]}>{b.text}</Text>
+              <Ionicons name={b.icon} size={20} color={colors.goldIcon} />
+              <Text style={[typography.body, styles.benefit]}>{b.text}</Text>
             </View>
           ))}
         </View>
@@ -196,7 +208,6 @@ export default function Paywall() {
             <Button label="Restore purchases" variant="text" onPress={restore} loading={busy === 'restore'} disabled={busy !== null} />
           </>
         )}
-        <Button label={isPremium ? 'Close' : 'Not now'} variant="secondary" onPress={close} disabled={busy !== null} />
       </View>
     </SafeAreaView>
   );
@@ -238,13 +249,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  top: {
+    alignItems: 'flex-end',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+  },
   content: {
-    padding: spacing.lg,
-    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
   list: {
-    gap: spacing.md,
+    gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  benefit: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 21,
   },
   row: {
     flexDirection: 'row',
@@ -256,16 +278,17 @@ const styles = StyleSheet.create({
   },
   plans: {
     gap: spacing.sm,
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   plan: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.surfaceRaised,
+    borderColor: colors.borderGold,
     backgroundColor: colors.surface,
   },
   planSelected: {
@@ -283,12 +306,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.pill,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.highlight, // meskel yellow: Premium highlight
   },
   badgeText: {
     ...typography.caption,
     fontSize: 11,
-    color: colors.background,
+    color: colors.text,
     fontFamily: typography.button.fontFamily,
   },
   note: {
@@ -302,7 +325,8 @@ const styles = StyleSheet.create({
     color: colors.rose,
   },
   fine: {
-    marginTop: spacing.sm,
+    fontSize: 11,
+    lineHeight: 15,
   },
   links: {
     flexDirection: 'row',
@@ -322,7 +346,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   footer: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
     gap: spacing.xs,
   },
 });

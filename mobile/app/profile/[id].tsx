@@ -324,10 +324,11 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: radius.pill,
-    backgroundColor: colors.textMuted,
+    backgroundColor: colors.onPhoto,
+    opacity: 0.5, // over the photo
   },
   dotOn: {
-    backgroundColor: colors.text,
+    opacity: 1,
   },
   body: {
     padding: spacing.lg,
