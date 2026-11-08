@@ -1,4 +1,4 @@
-# HabeshaMatch: build prompts for Claude Code
+# Kaba (formerly HabeshaMatch): build prompts for Claude Code
 
 Paste these one at a time, in order. Do not start the next prompt until the current step works on your phone (via Expo Go or a development build) and is committed. If something breaks, tell Claude Code exactly what you see before moving on.
 

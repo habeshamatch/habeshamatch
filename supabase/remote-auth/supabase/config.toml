@@ -1,4 +1,4 @@
-# Remote auth settings for HabeshaMatch (email code sign in + one-time phone verification).
+# Remote auth settings for Kaba (email code sign in + one-time phone verification).
 # Push only with:   supabase config push --workdir supabase/remote-auth --project-ref <ref>
 # Only what is declared here is pushed; everything else on the project stays as it is.
 #
@@ -11,11 +11,11 @@ project_id = "habeshamatch"
 otp_length = 6
 
 [auth.email.template.confirmation]
-subject = "Your HabeshaMatch code"
+subject = "Your Kaba code"
 content_path = "./templates/sign_in_code.html"
 
 [auth.email.template.magic_link]
-subject = "Your HabeshaMatch code"
+subject = "Your Kaba code"
 content_path = "./templates/sign_in_code.html"
 
 [auth.sms]

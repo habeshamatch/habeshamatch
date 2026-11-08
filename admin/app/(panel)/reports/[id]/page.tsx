@@ -124,7 +124,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[id]'>)
             <button name="outcome" value="suspend" className="w-full rounded-full border border-rose py-2 text-rose">
               Suspend {reported.data?.display_name ?? ''}
             </button>
-            <button name="outcome" value="ban" className="w-full rounded-full bg-rose py-2 font-semibold text-text">
+            <button name="outcome" value="ban" className="w-full rounded-full bg-rose py-2 font-semibold text-white">
               Ban {reported.data?.display_name ?? ''}
             </button>
             <p className="text-xs text-muted">Suspended and banned members cannot use the app and are hidden from everyone.</p>

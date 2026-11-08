@@ -1,5 +1,5 @@
 -- =====================================================================
--- HabeshaMatch: local development seed. LOCAL ONLY, never run on production.
+-- Kaba (HabeshaMatch): local development seed. LOCAL ONLY, never run on production.
 --
 -- Loaded automatically by `supabase db reset` (and the first `supabase start`).
 -- `supabase db push` does not run it.

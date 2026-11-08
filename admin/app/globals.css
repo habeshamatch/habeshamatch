@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
-/* HabeshaMatch brand tokens (same as mobile/lib/theme.ts). */
+/* Kaba brand colours, the same as mobile/lib/theme.ts: cream pages, white cards, navy text and
+   buttons, a navy side menu with gold. Rose is only for bans and open reports. */
 @theme {
-  --color-background: #1C1917;
-  --color-surface: #292524;
-  --color-raised: #3A3330;
-  --color-accent: #D4A24C;
-  --color-accent-soft: #E8C77E;
-  --color-rose: #C97B84;
-  --color-text: #FAF7F2;
-  --color-muted: #A8A29E;
-  --color-verified: #3B82F6;
+  --color-background: #F7F4EE;
+  --color-surface: #FFFFFF;
+  --color-raised: #F1ECE2;
+  --color-accent: #13213F;
+  --color-accent-soft: #3A5287; /* chart bar on hover */
+  --color-rose: #C0262D;
+  --color-text: #13213F;
+  --color-muted: #5D6680;
+  --color-verified: #1D6FE0;
+  --color-brand: #13213F;
+  --color-brand-raised: #1E2F55;
+  --color-gold: #F2C14E;
+  --color-on-brand-muted: #C9D1E3;
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);
 }

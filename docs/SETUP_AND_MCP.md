@@ -1,4 +1,4 @@
-# HabeshaMatch: setup and MCP reference
+# Kaba (formerly HabeshaMatch): setup and MCP reference
 
 A step-by-step walkthrough of creating these accounts comes separately. This file is the checklist and reference.
 

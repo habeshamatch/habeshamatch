@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "HabeshaMatch",
+    "name": "Kaba",
     "slug": "habeshamatch",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -49,8 +49,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "HabeshaMatch uses your photo library so you can add photos to your profile.",
-          "cameraPermission": "HabeshaMatch uses your camera to take a verification selfie. It is only seen by our review team.",
+          "photosPermission": "Kaba uses your photo library so you can add photos to your profile.",
+          "cameraPermission": "Kaba uses your camera to take a verification selfie. It is only seen by our review team.",
           "microphonePermission": false
         }
       ],
@@ -62,7 +62,7 @@
         }
       ]
     ],
-    "scheme": "habeshamatch",
+    "scheme": "kaba",
     "backgroundColor": "#F7F4EE",
     "experiments": {
       "typedRoutes": true

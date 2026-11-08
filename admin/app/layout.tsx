@@ -7,8 +7,8 @@ const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 const playfair = Playfair_Display({ variable: '--font-playfair', subsets: ['latin'], weight: ['600', '700'] });
 
 export const metadata: Metadata = {
-  title: 'HabeshaMatch Admin',
-  description: 'Moderation and insights for HabeshaMatch',
+  title: 'Kaba Admin',
+  description: 'Moderation and insights for Kaba',
   robots: { index: false, follow: false }, // keep the admin panel out of search engines
 };
 

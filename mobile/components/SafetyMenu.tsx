@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import { Chips } from '@/components/Chips';
 import { TextField, ToggleRow } from '@/components/FormControls';
 import { Sheet } from '@/components/Sheet';
+import { APP_NAME } from '@/lib/brand';
 import { friendlyError } from '@/lib/errors';
 import { blockUser, PEOPLE_QUERY_KEYS, REPORT_CATEGORIES, REPORT_DETAILS_MAX, reportUser } from '@/lib/safety';
 import { useSession } from '@/lib/session';
@@ -111,7 +112,7 @@ export function SafetyMenu({ userId, name, onBlocked }: Props) {
           <>
             <Text style={typography.subtitle}>{`Block ${name}?`}</Text>
             <Text style={typography.bodyMuted}>
-              {`You and ${name} will no longer see each other anywhere on HabeshaMatch, and your conversation will be hidden. ${name} is not told. You can unblock later in Profile, Blocked people.`}
+              {`You and ${name} will no longer see each other anywhere on ${APP_NAME}, and your conversation will be hidden. ${name} is not told. You can unblock later in Profile, Blocked people.`}
             </Text>
             {error && <Text style={[typography.caption, styles.error]}>{error}</Text>}
             <Button label={`Block ${name}`} onPress={confirmBlock} loading={busy} />

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Notice } from '@/components/FormControls';
 import { signOut } from '@/lib/auth';
+import { APP_NAME } from '@/lib/brand';
 import { LINKS } from '@/lib/links';
 import { useSession } from '@/lib/session';
 import { colors, spacing, typography } from '@/lib/theme';
@@ -59,7 +60,7 @@ export default function ReviewScreen() {
           <>
             <Text style={[typography.title, styles.center]}>Your account is {accountStatus}</Text>
             <Text style={[typography.bodyMuted, styles.center]}>
-              You cannot use HabeshaMatch at the moment. If you think this is a mistake, please contact support.
+              You cannot use {APP_NAME} at the moment. If you think this is a mistake, please contact support.
             </Text>
             <Button label="Contact support" variant="secondary" onPress={() => Linking.openURL(LINKS.support)} />
           </>
@@ -77,7 +78,7 @@ export default function ReviewScreen() {
           <>
             <Text style={[typography.title, styles.center]}>{"We're reviewing your profile"}</Text>
             <Text style={[typography.bodyMuted, styles.center]}>
-              Our team checks every member to keep HabeshaMatch real and safe. This usually takes less than a day. Pull
+              Our team checks every member to keep {APP_NAME} real and safe. This usually takes less than a day. Pull
               down to check again.
             </Text>
             {hasPreferences ? (

@@ -44,7 +44,7 @@ is logged in `moderation_actions`.
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_...` | Supabase > Project Settings > API Keys |
    | `SUPABASE_SECRET_KEY` | `sb_secret_...` | Supabase > Project Settings > API Keys > Secret keys. **Paste it only into Vercel.** Never in code, chat, or the mobile app. |
 4. **Deploy.** Vercel gives you an address like `habeshamatch-admin.vercel.app`.
-5. Optional own address: Vercel project > Settings > Domains > add `admin.habeshamatch.app`, then add the
+5. Optional own address: Vercel project > Settings > Domains > add `admin.solrootapps.com` (or any address you own), then add the
    DNS record Vercel shows at your domain provider.
 6. Sign in with your admin email. The code arrives from hello@habeshamatch.app.
 
